@@ -1,4 +1,4 @@
-# Build this dockerfile with `docker build -f rocr-dockerfile -t rocr:master .`
+# Build this dockerfile with `docker build -f rocr-dockerfile -t roc/rocr .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom

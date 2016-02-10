@@ -1,0 +1,36 @@
+# Build this dockerfile with `docker build -f roct-thunk-dockerfile -t roc/roct-thunk .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the radeon open compute runtime
+
+# This kfd has only been tested so far on linux-headers-generic-lts-vivid
+# ubuntu:14.04.3, the native kernel is '3.19'
+FROM roc/rock
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Constant environment variables
+ENV WORKPATH /root
+
+# Set working directory to be root's home directory
+WORKDIR ${WORKPATH}
+
+# Default to a login shell
+ENTRYPOINT ["/bin/bash"]
+CMD ["-l"]
+
+# Initialize the image we are working with
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  build-essential \
+  git && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+RUN cd /usr/local/src && \
+  git clone https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git && \
+  cd ROCT-Thunk-Interface && \
+  make -j $(nproc) all deb && \
+  rm -f /usr/lib/x86_64-linux-gnu/libhsakmt.* && \
+  cp build/lnx64a/lib*.so.1 /usr/lib/x86_64-linux-gnu && \
+  ln -s /usr/lib/x86_64-linux-gnu/libhsakmt.so.1 /usr/lib/x86_64-linux-gnu/libhsakmt.so
