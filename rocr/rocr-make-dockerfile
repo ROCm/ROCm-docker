@@ -1,0 +1,48 @@
+# Build this dockerfile with `docker build -f rocr-make-dockerfile -t roc/rocr .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the radeon open compute runtime
+
+# ubuntu:14.04.3, the native kernel is '3.19'
+FROM roc/roct
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Constant environment variables
+ENV WORKPATH /root
+ENV ROCR_INSTALL_PATH /opt/hsa
+
+# Set working directory to be root's home directory
+WORKDIR ${WORKPATH}
+
+# Default to a login shell
+ENTRYPOINT ["/bin/bash"]
+CMD ["-l"]
+
+# Initialize the image we are working with
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  build-essential \
+  libc6-dev-i386 \
+  libelf-dev \
+  git \
+  cmake && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+# Configure, build and install
+RUN cd /usr/local/src && \
+  git clone --depth=1 https://github.com/RadeonOpenCompute/ROCR-Runtime.git && \
+  mkdir -p ROCR-Runtime/build && \
+  cd ROCR-Runtime/build && \
+    HSATHK_BUILD_INC_PATH=${HSATHK_SRC_PATH}/include \
+    HSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH} \
+    cmake \
+      -DCMAKE_INSTALL_PREFIX=${ROCR_INSTALL_PATH} \
+      -DCMAKE_BUILD_TYPE=Release \
+    ../src && \
+  make -j $(nproc) install && \
+  cp -r ../src/inc ${ROCR_INSTALL_PATH}/include && \
+  cd .. && rm -rf build && \
+  echo "${ROCR_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/rocr.conf && \
+  ldconfig

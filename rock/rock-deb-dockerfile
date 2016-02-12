@@ -20,7 +20,7 @@ WORKDIR ${WORKPATH}
 ENTRYPOINT ["/bin/bash"]
 CMD ["-l"]
 
-# Initialize the image we are working with
+# Initialize image with debian package dependencies, cleanup to keep image small
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   crda \
   wireless-crda \
@@ -28,10 +28,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# Clone as small of a repository as we can, unpack and install ubuntu packages only
+# Keep the cloned repository as record of what was compiled into the container, but it does make the container size bigger
 RUN cd /usr/local/src && \
-  git clone --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git && \
+  git clone --no-checkout --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git && \
   cd ROCK-Kernel-Driver && \
+  git checkout master -- packages/ubuntu && \
+  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/*.deb && \
+  rm -rf packages && \
   echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules
-
-RUN  cd /usr/local/src/ROCK-Kernel-Driver && \
-  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/*.deb

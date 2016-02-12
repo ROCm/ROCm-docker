@@ -1,17 +1,18 @@
-# Build this dockerfile with `docker build -f roct-thunk-dockerfile -t roc/roct-thunk .`
+# Build this dockerfile with `docker build -f roct-thunk-dockerfile -t roc/roct .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom
 
-# This builds the radeon open compute runtime
+# This builds the radeon open compute kernel thunk
 
-# This kfd has only been tested so far on linux-headers-generic-lts-vivid
 # ubuntu:14.04.3, the native kernel is '3.19'
 FROM roc/rock
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Constant environment variables
 ENV WORKPATH /root
+ENV HSATHK_SRC_PATH /usr/local/src/ROCT-Thunk-Interface
+ENV HSATHK_INSTALL_PATH /usr/lib/x86_64-linux-gnu
 
 # Set working directory to be root's home directory
 WORKDIR ${WORKPATH}
@@ -28,9 +29,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 RUN cd /usr/local/src && \
-  git clone https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git && \
-  cd ROCT-Thunk-Interface && \
+  git clone --depth=1 https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git && \
+  cd ${HSATHK_SRC_PATH} && \
   make -j $(nproc) all deb && \
-  rm -f /usr/lib/x86_64-linux-gnu/libhsakmt.* && \
-  cp build/lnx64a/lib*.so.1 /usr/lib/x86_64-linux-gnu && \
-  ln -s /usr/lib/x86_64-linux-gnu/libhsakmt.so.1 /usr/lib/x86_64-linux-gnu/libhsakmt.so
+  rm -f ${HSATHK_INSTALL_PATH}/libhsakmt.* && \
+  cp build/lnx64a/lib*.so.1 ${HSATHK_INSTALL_PATH} && \
+  ln -s ${HSATHK_INSTALL_PATH}/libhsakmt.so.1 ${HSATHK_INSTALL_PATH}/libhsakmt.so && \
+  rm -rf build && \
+  ldconfig
