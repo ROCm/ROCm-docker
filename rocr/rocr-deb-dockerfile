@@ -1,0 +1,40 @@
+# Build this dockerfile with `docker build -f rocr-deb-dockerfile -t roc/rocr .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the radeon open compute runtime
+
+# ubuntu:14.04.3, the native kernel is '3.19'
+FROM roc/roct
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Global environment variables
+ENV WORKPATH /root
+
+# Set working directory to be root's home directory
+WORKDIR ${WORKPATH}
+
+# Default to a login shell
+ENTRYPOINT ["/bin/bash"]
+CMD ["-l"]
+
+# Initialize the image we are working with
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  git \
+  cmake && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+# App specific environment variables
+ENV ROCR_INSTALL_PATH /opt/hsa
+
+# Install from ubuntu packages
+RUN cd /usr/local/src && \
+  git clone --no-checkout --depth=1 https://github.com/RadeonOpenCompute/ROCR-Runtime.git && \
+  cd ROCR-Runtime && \
+  git checkout master -- packages/ubuntu && \
+  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/*.deb && \
+  rm -rf packages && \
+  echo "${ROCR_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/rocr.conf && \
+  ldconfig

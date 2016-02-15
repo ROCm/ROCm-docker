@@ -1,22 +1,16 @@
-# Build this dockerfile with `docker build -f hcc-dockerfile -t hcc:master .`
+# Build this dockerfile with `docker build -f hcc-release-dockerfile -t roc/hcc .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom
 
-# This builds the hcc compiler, and depends on an already existing
-# rocr-runtime to be found
+# This builds the hcc compiler, and depends on an already existing rocr-runtime to be found
 
-# This kfd has only been tested so far on linux-headers-generic-lts-vivid
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM rocr:master
+FROM roc/rocr
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Constant environment variables
+# Global environment variables
 ENV WORKPATH /root
-ENV HCC_INSTALL_PATH /opt/hcc
-
-ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${HCC_INSTALL_PATH}/lib
-ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin
 
 # Set working directory to be root's home directory
 WORKDIR ${WORKPATH}
@@ -50,9 +44,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# App specific environment variables
+ENV HCC_INSTALL_PATH /opt/hcc
+ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin
+
 # Build hcc, install to /usr/local
 RUN cd /usr/local/src && \
-  git clone https://bitbucket.org/multicoreware/hcc.git && \
+  git clone --depth=1 https://bitbucket.org/multicoreware/hcc.git && \
   mkdir -p hcc/build && \
   cd hcc/build && \
   cmake \
@@ -60,8 +58,10 @@ RUN cd /usr/local/src && \
     -DCMAKE_BUILD_TYPE=Release \
     -DHSA_HEADER_DIR=${ROCR_INSTALL_PATH}/include \
     -DHSA_LIBRARY_DIR=${ROCR_INSTALL_PATH}/lib \
-    -DHSA_KMT_LIBRARY_DIR=${ROCR_INSTALL_PATH}/lib \
+    -DHSA_KMT_LIBRARY_DIR=${HSATHK_INSTALL_PATH} \
     .. && \
-  make -j `nproc` world && \
+  make -j $(nproc) world && \
   make install && \
-  cd .. && rm -rf build
+  cd .. && rm -rf build && \
+  echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc.conf && \
+  ldconfig

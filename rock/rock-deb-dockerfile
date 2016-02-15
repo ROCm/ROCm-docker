@@ -1,0 +1,39 @@
+# Build this dockerfile with `docker build -f rock-deb-dockerfile -t roc/rock .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the radeon open compute kernel and kernel modules
+
+# This kfd has only been tested so far on linux-headers-generic-lts-vivid
+# ubuntu:14.04.3, the native kernel is '3.19'
+FROM ubuntu:14.04.3
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Constant environment variables
+ENV WORKPATH /root
+
+# Set working directory to be root's home directory
+WORKDIR ${WORKPATH}
+
+# Default to a login shell
+ENTRYPOINT ["/bin/bash"]
+CMD ["-l"]
+
+# Initialize image with debian package dependencies, cleanup to keep image small
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  crda \
+  wireless-crda \
+  git && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+# Clone as small of a repository as we can, unpack and install ubuntu packages only
+# Keep the cloned repository as record of what was compiled into the container, but it does make the container size bigger
+RUN cd /usr/local/src && \
+  git clone --no-checkout --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git && \
+  cd ROCK-Kernel-Driver && \
+  git checkout master -- packages/ubuntu && \
+  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/*.deb && \
+  rm -rf packages && \
+  echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules

@@ -1,0 +1,51 @@
+# Build this dockerfile with `docker build -f rock-make-dockerfile -t roc/rock .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the radeon open compute kernel and kernel modules
+
+# This kfd has only been tested so far on linux-headers-generic-lts-vivid
+# ubuntu:14.04.3, the native kernel is '3.19'
+FROM ubuntu:14.04.3
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Constant environment variables
+ENV WORKPATH /root
+
+# Set working directory to be root's home directory
+WORKDIR ${WORKPATH}
+
+# Default to a login shell
+ENTRYPOINT ["/bin/bash"]
+CMD ["-l"]
+
+# Initialize the image we are working with
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  crda \
+  wireless-crda \
+  build-essential \
+  bc \
+  git && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+RUN cd /usr/local/src && \
+  git clone --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git && \
+  cd ROCK-Kernel-Driver && \
+  make mrproper && \
+  echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules
+
+# Copy a pre-configured kernel config that enables amdkfd & amdgpu
+# 'device drivers' \ 'IOMMU Hardware support' \ 'amd_iommu_v2'
+# 'device drivers' \ 'graphics support' \ 'direct rendering manager' \ 'AMD GPU'
+# 'device drivers' \ 'graphics support' \ 'direct rendering manager' \ 'HSA kernel driver'
+COPY rock.config /usr/local/src/ROCK-Kernel-Driver/.config
+
+RUN  cd /usr/local/src/ROCK-Kernel-Driver && \
+  make olddefconfig && \
+  make -j $(nproc) && \
+  make modules_install install && \
+  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/compute-firmware*.deb
+
+# VOLUME ["/usr/share/doc/compute-firmware"]
