@@ -1,4 +1,4 @@
-# Build this dockerfile with `docker build -f roct-thunk-dockerfile -t roc/roct .`
+# Build this dockerfile with `docker build -f roct-thunk-release-dockerfile -t roc/roct .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom
@@ -9,10 +9,8 @@
 FROM roc/rock
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Constant environment variables
+# Global environment variables
 ENV WORKPATH /root
-ENV HSATHK_SRC_PATH /usr/local/src/ROCT-Thunk-Interface
-ENV HSATHK_INSTALL_PATH /usr/lib/x86_64-linux-gnu
 
 # Set working directory to be root's home directory
 WORKDIR ${WORKPATH}
@@ -28,12 +26,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# App specific environment variables
+ENV HSATHK_SRC_PATH /usr/local/src/ROCT-Thunk-Interface
+ENV HSATHK_INSTALL_PATH /usr/lib/x86_64-linux-gnu
+
 RUN cd /usr/local/src && \
   git clone --depth=1 https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git && \
   cd ${HSATHK_SRC_PATH} && \
-  make -j $(nproc) all deb && \
+  make -j $(nproc) REL=1 all deb && \
   rm -f ${HSATHK_INSTALL_PATH}/libhsakmt.* && \
   cp build/lnx64a/lib*.so.1 ${HSATHK_INSTALL_PATH} && \
   ln -s ${HSATHK_INSTALL_PATH}/libhsakmt.so.1 ${HSATHK_INSTALL_PATH}/libhsakmt.so && \
-  rm -rf build && \
+  make clean && \
   ldconfig

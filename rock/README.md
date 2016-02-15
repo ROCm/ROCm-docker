@@ -4,25 +4,18 @@ This directory is the docker build context of the ROC kernel and kernel modules.
 This dockerfile serves as an example, how-to, or as an isolated environment for kernel hackers, as build files and artifacts are isolated in the scope of the docker container.  
 
 ### The host is not modified
-There are two dockerfiles files present in this directory
-*  rock-deb-dockerfile
-*  rock-make-dockerfile
+---
+| file | description |
+|-----|-----|-----|
+| *rock-deb-dockerfile* | `docker build -f rock-deb-dockerfile -t roc/rock .` |
+| *rock-make-dockerfile* | `docker build -f rock-make-dockerfile -t roc/rock .` |
+| *rock.config* | used to seed the kernel configuration step |
+| *rock.config.diff* | what kernel options changed from the default generated .config |
+
+All dockerfiles contain a dependency on the ubuntu-14.04 image.  The `deb` dockerfile installs the kernel through packages contained in the repository.  The `make` dockerfiles compile the code.
+ flags.
 
 ---
-**rock-deb-dockerfile** will connect to github and clone the ROCK-Kernel-Driver repository.  It then unpacks the pre-built .debs that are part of the build tree.  This is the fastest and tested way to install the amdkfd and amdgpu components
-
-Build with: `docker build -f rock-deb-dockerfile -t roc/rock .`
-
----
-**rock-make-dockerfile** also connects to github and clones the ROCK-Kernel-Driver repository.  Instead of using the pre-built debian packages, it build a new kernel with the amdkfd and amdgpu kernel modules enabled.  
-
-Build with: `docker build -f rock-make-dockerfile -t roc/rock .`
-
----
-Once the docker images has been built, you can run a shell inside of the container with:
+Once the docker image has been built, you can run a shell inside of the container with:
 
 `docker run -it --rm roc/rock`
-
-**rock.config** is used to seed the kernel configuration step, turning on boltzmann kernel modules in the **rock-make-dockerfile**
-
-**rock.config.diff** shows what kernel options changed from the default generated .config

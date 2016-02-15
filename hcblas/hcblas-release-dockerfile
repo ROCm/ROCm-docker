@@ -7,9 +7,8 @@
 FROM roc/hcc
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Constant environment variables
+# Global environment variables
 ENV WORKPATH /root
-ENV HCBLAS_INSTALL_PATH /usr/local
 
 # Set working directory to be root's home directory
 WORKDIR ${WORKPATH}
@@ -26,11 +25,15 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# App specific environment variables
+ENV HCBLAS_INSTALL_PATH /usr/local
+
 RUN cd /usr/local/src && \
   git clone --depth=1 https://bitbucket.org/multicoreware/hcblas.git && \
   mkdir -p hcblas/build && \
   cd hcblas/build && \
   cmake \
+    -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${HCBLAS_INSTALL_PATH} \
     -DCMAKE_C_COMPILER=${HCC_INSTALL_PATH}/bin/clang \
     -DCMAKE_CXX_COMPILER=${HCC_INSTALL_PATH}/bin/clang++ \

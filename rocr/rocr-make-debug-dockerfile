@@ -1,4 +1,4 @@
-# Build this dockerfile with `docker build -f rocr-make-dockerfile -t roc/rocr .`
+# Build this dockerfile with `docker build -f rocr-make-debug-dockerfile -t roc/rocr-debug .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom
@@ -9,9 +9,8 @@
 FROM roc/roct
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Constant environment variables
+# Global environment variables
 ENV WORKPATH /root
-ENV ROCR_INSTALL_PATH /opt/hsa
 
 # Set working directory to be root's home directory
 WORKDIR ${WORKPATH}
@@ -30,6 +29,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# App specific environment variables
+ENV ROCR_INSTALL_PATH /opt/hsa
+
 # Configure, build and install
 RUN cd /usr/local/src && \
   git clone --depth=1 https://github.com/RadeonOpenCompute/ROCR-Runtime.git && \
@@ -39,10 +41,9 @@ RUN cd /usr/local/src && \
     HSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH} \
     cmake \
       -DCMAKE_INSTALL_PREFIX=${ROCR_INSTALL_PATH} \
-      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_BUILD_TYPE=Debug \
     ../src && \
   make -j $(nproc) install && \
   cp -r ../src/inc ${ROCR_INSTALL_PATH}/include && \
-  cd .. && rm -rf build && \
   echo "${ROCR_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/rocr.conf && \
   ldconfig

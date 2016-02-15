@@ -1,12 +1,10 @@
-# Build this dockerfile with `docker build -f rocr-deb-dockerfile -t roc/rocr .`
+# Build this dockerfile with `docker build -f hcblas-dockerfile -t roc/hcblas .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom
 
-# This builds the radeon open compute runtime
-
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM roc/roct
+FROM roc/hcc
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Global environment variables
@@ -21,20 +19,24 @@ CMD ["-l"]
 
 # Initialize the image we are working with
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  build-essential \
   git \
   cmake && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables
-ENV ROCR_INSTALL_PATH /opt/hsa
+ENV HCBLAS_INSTALL_PATH /usr/local
 
-# Install from ubuntu packages
 RUN cd /usr/local/src && \
-  git clone --no-checkout --depth=1 https://github.com/RadeonOpenCompute/ROCR-Runtime.git && \
-  cd ROCR-Runtime && \
-  git checkout master -- packages/ubuntu && \
-  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/*.deb && \
-  rm -rf packages && \
-  echo "${ROCR_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/rocr.conf && \
-  ldconfig
+  git clone --depth=1 https://bitbucket.org/multicoreware/hcblas.git && \
+  mkdir -p hcblas/build && \
+  cd hcblas/build && \
+  cmake \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_INSTALL_PREFIX=${HCBLAS_INSTALL_PATH} \
+    -DCMAKE_C_COMPILER=${HCC_INSTALL_PATH}/bin/clang \
+    -DCMAKE_CXX_COMPILER=${HCC_INSTALL_PATH}/bin/clang++ \
+    -DCMAKE_CXX_FLAGS="-fPIC" \
+    .. && \
+    make -j $(nproc) install

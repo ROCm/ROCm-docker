@@ -5,13 +5,13 @@ This dockerfile serves as an example, how-to, or as an isolated environment for 
 
 ### The host is not modified
 
-One dockerfile is present in this directory
-*  roct-thunk-dockerfile
-
 ---
-**roct-thunk-dockerfile** contains a dependency on the roc/rock image to be present.
+| dockerfile | Invoke |
+|-----|-----|-----|
+| *roct-thunk-release-dockerfile* | `docker build -f roct-thunk-release-dockerfile -t roc/roct .` |
+| *roct-thunk-debug-dockerfile* | `docker build -f roct-thunk-release-dockerfile -t roc/roct .` |
 
-Build with: `docker build -f roct-thunk-dockerfile -t roc/roct .`
+ Both files contains a dependency on the roc/rock image to be present.  The debug dockerfile builds the thunk layer with debug flags.
 
 ---
 Once the docker images has been built, you can run a shell inside of the container with
