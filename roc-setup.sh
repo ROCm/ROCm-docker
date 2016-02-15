@@ -5,7 +5,7 @@
 ( cd roct; docker build -f roct-thunk-release-dockerfile -t roc/roct . )
 ( cd rocr; docker build -f rocr-make-release-dockerfile -t roc/rocr . )
 ( cd  hcc; docker build -f hcc-release-dockerfile -t roc/hcc . )
-( cd hcblas; docker build -f hcblas-dockerfile -t roc/hcblas . )
+( cd hcblas; docker build -f hcblas-release-dockerfile -t roc/hcblas . )
 
 echo ""
 echo "The host machine needs to be configured with the proper ROC Kernel modules"
