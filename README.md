@@ -1,4 +1,4 @@
-# ROCP-docker
+# ROCm-docker
 ### Radeon Open Compute Platform for docker
 This repository contains dockerfiles for the various software layers defined in the Radeon Open Compute Platform.  Installation instructions for how to install docker on [Ubuntu systems](https://docs.docker.com/v1.8/installation/ubuntulinux/) and [Fedora systems](https://docs.docker.com/v1.8/installation/fedora/) is available.
 
