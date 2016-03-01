@@ -24,25 +24,32 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential \
   cmake \
   git \
-  repo \
+  curl \
+  wget \
+  python \
   libelf-dev \
   libc++abi-dev \
-  libc++-dev \
+  libc++-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-# App specific environment variables
-ENV HCC_INSTALL_PATH /opt/hcc
-ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin
+# App specific environment variables; modify path to add hcc and repo commands
+ENV HCC_INSTALL_PATH /opt/hcc-isa
+ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin:~/bin
+
+# Compiling hcc-lc requires a custom build tool
+RUN mkdir -p ~/bin && \
+    curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo && \
+    chmod a+x ~/bin/repo
 
 # Build hcc-lc, install to /usr/local
 RUN cd /usr/local/src && \
-  mkdir -p hcc-lc && \
-  cd hcc-lc && \
-  repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b testing \
-  repo sync && \
+  mkdir -p hcc-isa && \
+  cd hcc-isa && \
+  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b testing && \
+  ~/bin/repo sync && \
   cd llvm && \
-  mkdir build && \
+  mkdir -p build && \
   cd build && \
   cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=AMDGPU .. && \
   make -j $(nproc) && \
@@ -53,11 +60,11 @@ RUN cd /usr/local/src && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
     -DCMAKE_BUILD_TYPE=Release \
-    -DHSA_LLVM_BIN_DIR=/usr/local/src/hcc-lc/llvm/build/bin \
+    -DHSA_LLVM_BIN_DIR=/usr/local/src/hcc-isa/llvm/build/bin \
     -DHSA_AMDGPU_GPU_TARGET=fiji \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \
   make -j $(nproc) world && \
   make install && \
-#  cd .. && rm -rf build && \
-  echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc.conf && \
+  cd /usr/local/src/hcc-isa && rm -rf llvm/build && rm -rf hcc/build && \
+  echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf && \
   ldconfig
