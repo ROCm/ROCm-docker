@@ -1,0 +1,70 @@
+# Build this dockerfile with `docker build -f hcc-release-dockerfile -t roc/hcc .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the hcc compiler, and depends on an already existing rocr-runtime to be found
+
+# ubuntu:14.04.3, the native kernel is '3.19'
+FROM roc/rocr
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Global environment variables
+ENV WORKPATH /root
+
+# Set working directory to be root's home directory
+WORKDIR ${WORKPATH}
+
+# Default to a login shell
+ENTRYPOINT ["/bin/bash"]
+CMD ["-l"]
+
+# Install dependencies required to build hcc
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  build-essential \
+  cmake \
+  git \
+  curl \
+  wget \
+  python \
+  libelf-dev \
+  libc++abi-dev \
+  libc++-dev && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+# App specific environment variables; modify path to add hcc and repo commands
+ENV HCC_INSTALL_PATH /opt/hcc-isa
+ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin:~/bin
+
+# Compiling hcc-lc requires a custom build tool
+RUN mkdir -p ~/bin && \
+    curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo && \
+    chmod a+x ~/bin/repo
+
+# Build hcc-lc, install to /usr/local
+RUN cd /usr/local/src && \
+  mkdir -p hcc-isa && \
+  cd hcc-isa && \
+  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b testing && \
+  ~/bin/repo sync && \
+  cd llvm && \
+  mkdir -p build && \
+  cd build && \
+  cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=AMDGPU .. && \
+  make -j $(nproc) && \
+  cd ../../hcc && \
+  git checkout master && \
+  mkdir -p build && \
+  cd build && \
+  cmake \
+    -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DHSA_LLVM_BIN_DIR=/usr/local/src/hcc-isa/llvm/build/bin \
+    -DHSA_AMDGPU_GPU_TARGET=fiji \
+    -DHSA_USE_AMDGPU_BACKEND=ON .. && \
+  make -j $(nproc) world && \
+  make install && \
+  cd /usr/local/src/hcc-isa && rm -rf llvm/build && rm -rf hcc/build && \
+  echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf && \
+  ldconfig
