@@ -1,4 +1,4 @@
-# Build this dockerfile with `docker build -f hcc-release-dockerfile -t roc/hcc .`
+# Build this dockerfile with `docker build -f hcc-isa-release-dockerfile -t roc/hcc .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom
@@ -34,7 +34,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables; modify path to add hcc and repo commands
-ENV HCC_INSTALL_PATH /opt/hcc-isa
+ENV HCC_INSTALL_PATH /opt/hcc
 ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin:~/bin
 
 # Compiling hcc-lc requires a custom build tool
@@ -46,7 +46,7 @@ RUN mkdir -p ~/bin && \
 RUN cd /usr/local/src && \
   mkdir -p hcc-isa && \
   cd hcc-isa && \
-  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b testing && \
+  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b master && \
   ~/bin/repo sync && \
   cd llvm && \
   mkdir -p build && \

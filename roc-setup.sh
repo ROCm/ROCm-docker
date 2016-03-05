@@ -7,13 +7,14 @@ echo "Compiling release-mode docker images (minimizing size and no debug symbols
 ( cd rocr; docker build -f rocr-make-release-dockerfile -t roc/rocr . )
 ( cd hcc-hsail; docker build -f hcc-release-dockerfile -t roc/hcc-hsail . )
 ( cd hcc-isa; docker build -f hcc-isa-release-dockerfile -t roc/hcc-isa . )
-( cd hcblas; docker build -f hcblas-release-dockerfile -t roc/hcblas . )
 
+echo "Use the /hcc-project build context to build a custom application container"
+echo "Copy /hcc-project into a new folder and modify to taste"
 echo ""
-echo "In order to run these docker containers, the host machine will need to"
-echo "be configured with the ROC Kernel modules in order to prepare the host"
-echo "with the proper kernel and modules"
-echo "The following sequence prepares the host, and needs to be run manually:"
+echo "In order to run ROC docker containers, the host machine needs to"
+echo "be configured with ROC Kernel modules, similar to the actions taken"
+echo "in the ROCK 'rock-deb-dockerfile' dockerfile"
+echo "In summary, the following sequence prepares the host:"
 echo ""
 echo "cd /usr/local/src"
 echo "git clone --no-checkout --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git"

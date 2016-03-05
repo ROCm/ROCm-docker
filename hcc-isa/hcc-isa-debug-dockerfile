@@ -1,4 +1,4 @@
-# Build this dockerfile with `docker build -f hcc-debug-dockerfile -t roc/hcc .`
+# Build this dockerfile with `docker build -f hcc-isa-debug-dockerfile -t roc/hcc-isa-debug .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom
@@ -46,7 +46,7 @@ RUN mkdir -p ~/bin && \
 RUN cd /usr/local/src && \
   mkdir -p hcc-isa && \
   cd hcc-isa && \
-  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b testing && \
+  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b master && \
   ~/bin/repo sync && \
   cd llvm && \
   mkdir -p build && \
@@ -65,6 +65,5 @@ RUN cd /usr/local/src && \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \
   make -j $(nproc) world && \
   make install && \
-  cd /usr/local/src/hcc-isa && rm -rf llvm/build && rm -rf hcc/build && \
   echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf && \
   ldconfig
