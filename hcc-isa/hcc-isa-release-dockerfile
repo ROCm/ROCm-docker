@@ -34,8 +34,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables; modify path to add hcc and repo commands
-ENV HCC_INSTALL_PATH /opt/hcc
-ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin:~/bin
+ENV HCC_INSTALL_PATH=/opt/hcc HCC_BUILD_PATH=/usr/local/src/hcc-isa
+ENV PATH=${PATH}:${HCC_INSTALL_PATH}/bin:~/bin
 
 # Compiling hcc-lc requires a custom build tool
 RUN mkdir -p ~/bin && \
@@ -43,18 +43,16 @@ RUN mkdir -p ~/bin && \
     chmod a+x ~/bin/repo
 
 # Build hcc-lc, install to /usr/local
-RUN cd /usr/local/src && \
-  mkdir -p hcc-isa && \
-  cd hcc-isa && \
+RUN mkdir -p ${HCC_BUILD_PATH} && \
+  cd ${HCC_BUILD_PATH} && \
   ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b master && \
   ~/bin/repo sync && \
   cd llvm && \
   mkdir -p build && \
   cd build && \
-  cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=AMDGPU .. && \
+  cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="AMDGPU;X86" .. && \
   make -j $(nproc) && \
   cd ../../hcc && \
-  git checkout master && \
   mkdir -p build && \
   cd build && \
   cmake \
@@ -65,6 +63,6 @@ RUN cd /usr/local/src && \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \
   make -j $(nproc) world && \
   make install && \
-  cd /usr/local/src/hcc-isa && rm -rf llvm/build && rm -rf hcc/build && \
+  rm -rf ${HCC_BUILD_PATH} && \
   echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf && \
   ldconfig

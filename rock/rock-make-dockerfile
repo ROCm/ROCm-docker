@@ -30,9 +30,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-RUN cd /usr/local/src && \
-  git clone --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git && \
-  cd ROCK-Kernel-Driver && \
+# App specific environment variables
+ENV ROCK_BUILD_PATH=/usr/local/src/ROCK-Kernel-Driver
+
+RUN mkdir -p ${ROCK_BUILD_PATH} && \
+  cd ${ROCK_BUILD_PATH} && \
+  git clone --no-checkout --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git ./ && \
+  git checkout dev && \
   make mrproper && \
   echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules
 
@@ -42,7 +46,7 @@ RUN cd /usr/local/src && \
 # 'device drivers' \ 'graphics support' \ 'direct rendering manager' \ 'HSA kernel driver'
 COPY rock.config /usr/local/src/ROCK-Kernel-Driver/.config
 
-RUN  cd /usr/local/src/ROCK-Kernel-Driver && \
+RUN  cd ${ROCK_BUILD_PATH} && \
   make olddefconfig && \
   make -j $(nproc) && \
   make modules_install install && \
