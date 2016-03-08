@@ -31,8 +31,7 @@ ENV HSATHK_INSTALL_PATH=/usr/lib/x86_64-linux-gnu HSATHK_BUILD_PATH=/usr/local/s
 
 RUN mkdir -p ${HSATHK_BUILD_PATH} && \
   cd ${HSATHK_BUILD_PATH} && \
-  git clone --depth=1 https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git ./ && \
-  git checkout dev && \
+  git clone --depth=1 --branch=dev https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git ./ && \
   make -j $(nproc) all deb && \
   rm -f ${HSATHK_INSTALL_PATH}/libhsakmt.* && \
   cp build/lnx64a/lib*.so.1 ${HSATHK_INSTALL_PATH} && \

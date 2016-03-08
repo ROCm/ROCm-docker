@@ -35,11 +35,11 @@ ENV ROCR_INSTALL_PATH=/opt/hsa ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
 # Configure, build and install
 RUN mkdir -p ${ROCR_BUILD_PATH} && \
   cd ${ROCR_BUILD_PATH} && \
-  git clone --depth=1 https://github.com/RadeonOpenCompute/ROCR-Runtime.git ./ && \
+  git clone --depth=1 --branch=dev https://github.com/RadeonOpenCompute/ROCR-Runtime.git ./ && \
   mkdir -p build && \
   cd build && \
-    HSATHK_BUILD_INC_PATH=${HSATHK_SRC_PATH}/include \
-    HSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH} \
+    HSATHK_BUILD_INC_PATH=${HSATHK_INSTALL_PATH}/include \
+    HSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu \
     cmake \
       -DCMAKE_INSTALL_PREFIX=${ROCR_INSTALL_PATH} \
       -DCMAKE_BUILD_TYPE=Release \
