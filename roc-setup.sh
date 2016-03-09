@@ -19,8 +19,10 @@ function display_help()
 {
   echo "Building ROC docker images from templates"
   echo "Usage: ./roc-setup [--master | --develop] [--release | --debug]"
-  echo "--release) release-mode docker images prioritize size with no code or debug symbols"
-  echo "--debug) debug-mode docker images prioritize keep code and debug symbols, but are larger"
+  echo "--master) Build dockerfiles from stable master branches; exclusive with --develop"
+  echo "--develop) Build dockerfiles from integration branches; exclusive with --master"
+  echo "--release) Build release containers; minimizes size of docker images; exclusive with --debug"
+  echo "--debug) Build debug containers; symbols generated and build tree intact for debugging; exclusive with --release"
 }
 
 while :; do

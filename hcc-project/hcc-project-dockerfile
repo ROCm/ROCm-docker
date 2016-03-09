@@ -13,7 +13,7 @@
 # Example: 'docker run -it --rm -v ~/src/my-hcc-project:/root/my-hcc-project:ro kknox/my-hcc-project'.
 
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM roc/hcc-hsail
+FROM roc/hcc-isa-master-release
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Global environment variables
@@ -29,7 +29,7 @@ CMD ["-l"]
 # Initialize the image to install common and recommended dev tools
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential \
-  clang-3.6 \
+  clang-3.5 \
   curl \
   git \
   gdb \
