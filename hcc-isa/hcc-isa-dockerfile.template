@@ -6,7 +6,7 @@
 # This builds the hcc compiler, and depends on an already existing rocr-runtime to be found
 
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM roc/rocr
+FROM ~~rocr_container~~
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Global environment variables
@@ -45,7 +45,7 @@ RUN mkdir -p ~/bin && \
 # Build hcc-lc, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
-  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b master && \
+  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ~~branch~~ && \
   ~/bin/repo sync && \
   cd llvm && \
   mkdir -p build && \
@@ -57,7 +57,7 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd build && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_BUILD_TYPE=~~config~~ \
     -DHSA_LLVM_BIN_DIR=/usr/local/src/hcc-isa/llvm/build/bin \
     -DHSA_AMDGPU_GPU_TARGET=fiji \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \

@@ -2,21 +2,46 @@
 ### Radeon Open Compute Platform for docker
 This repository contains dockerfiles for the various software layers defined in the Radeon Open Compute Platform.  Installation instructions for how to install docker on [Ubuntu systems](https://docs.docker.com/v1.8/installation/ubuntulinux/) and [Fedora systems](https://docs.docker.com/v1.8/installation/fedora/) is available.
 
-A bash script `./roc-setup` is provided as a convenience to build the various ROC images.  It builds release variants of the software stack, but debug variants can be built manually.  See the instructions inside of each build context (directory).  After completion, the following images should be present on your system
-
+A bash script `./roc-setup` is provided as a convenience to build various ROC images.  The script can receive command line parameters to give it parameters how to build ROCm docker containers.  
 ```bash
-kknox@machine:~/src/github/ROCP-docker
-[master % u=] $ docker images
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-roc/hcblas          latest              8f9f0448139c        2 days ago          2.435 GB
-roc/hcc             latest              202ce25086d9        2 days ago          2.43 GB
-roc/rocr            latest              b90850967834        3 days ago          1.009 GB
-roc/roct            latest              427885fa30bc        3 days ago          933.5 MB
-roc/rock            latest              742644f01f50        3 days ago          819.1 MB
-ubuntu              14.04.3             3876b81b5a81        3 weeks ago         187.9 MB
+Usage: ./roc-setup [--master | --develop] [--release | --debug]
+--master) Build dockerfiles from stable master branches; exclusive with --develop
+--develop) Build dockerfiles from integration branches; exclusive with --master
+--release) Build release containers; minimizes size of docker images; exclusive with --debug
+--debug) Build debug containers; symbols generated and build tree intact for debugging; exclusive with --release
+
+Without explicit parameters, ./roc-setup default flags are --master && --release
 ```
 
-A roc/rock image is built, which contains the required linux kernel and ROC kernel modules, but the files are isolated into the image and the other software layers on top of it in layers.  *In order for the runtime and compilers to function properly*, **the ROC kernel has to be installed manually on the host machine.**
+The following is an example of images after building both --master and --develop containers.  All containers are uniquely named to distinguish how they were built.
+
+```bash
+kknox@machine:~/src/github/ROCm-docker
+[develop *% u=] $ docker images
+REPOSITORY                     TAG                 IMAGE ID            CREATED             SIZE
+roc/hcc-isa-master-release     latest              d82a7c04f1e4        About an hour ago   1.191 GB
+roc/hcc-hsail-master-release   latest              aa4f0543ad43        About an hour ago   1.441 GB
+roc/rocr-dev-release           latest              7172446cd45e        About an hour ago   732.5 MB
+roc/roct-dev-release           latest              aa711a708039        2 hours ago         666.1 MB
+roc/rock-dev                   latest              7bb9dede7b01        2 hours ago         539 MB
+roc/hcc-isa-testing-release    latest              bd57b41d79fb        11 hours ago        1.191 GB
+roc/rocr-master-release        latest              954dfa5425fc        12 hours ago        732.6 MB
+roc/roct-master-release        latest              39399c5cee7d        12 hours ago        666.2 MB
+roc/rock-master                latest              c2e70cf58ea7        12 hours ago        539.1 MB
+ubuntu                         14.04.3             3876b81b5a81        7 weeks ago         187.9 MB
+
+Container name decoder:  <user-name>/<component>-<branch>-<config>
+```
+
+| ROC component | |
+|-----|-----|
+| hcc-isa | the compiler that generates GPU ISA out of the backend |
+| hcc-hsail | the compiler that generates HSAIL IL out of the backend |
+| rocr | the runtime |
+| roct | the kernel thunk library |
+| rock | the linux kernel with gpu kernel modules |
+
+Even given the existence of these ROC containers, **the ROC kernel has to be installed on the host machine.**  This is a design constraint of docker; the linux kernel is not resident in the container.  All containers use the host linux kernel, so the host linux kernel must be prepared to support ROC infrastructure.
 
 ### Installing ROCK on the host machine.
 A [sequence of instructions](https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver#installing-and-configuring-the-kernel) in bash:
@@ -29,12 +54,23 @@ A [sequence of instructions](https://github.com/RadeonOpenCompute/ROCK-Kernel-Dr
 6.  `echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules`
 7.  `sudo reboot`
 
+### Creating an application container
+After the ROC software stack has been built, an application can be built in a new container to leverage the ROC stack.  The /hcc-project sub-directory contains a template of a new container specifically built of software development.  Common and useful development tools are pre-installed into the container to help with software development.  To begin the development, simply:
+- copy the /hcc-project sub-directory into a new directory name, like /my-roc-project
+- open and modify the dockerfile there-in to customize the software
+  - the template derives from roc/hcc-isa-master-release, but could as easily be changed to roc/hcc-hsail-master-release
+- the assumption of the application container is that the developer will map a host directory into the container
+  - the host directory typically will contain source to compile, such as a git repository
+    - this makes sure that the source persists after the container closes
+  - the generated files from the build should be into the users /home directory or /opt
+    - when the container closes, all generated files are cleaned up and forgotten
+
 ### Running an application in the docker stack
 
-If you wish to create a custom docker container for your application, the `hcblas` dockerfile can serve as a template to modify for your own applications.  You run the container, and optionally map host directories (for shared source code, for instance) like so:
+You run the container, and optionally map host directories (for shared source code, for instance) like so:
 
 ```bash
-docker run -it --rm -v ~/host-src/project:~/container-src/project user-name/app-name
+docker run -it --rm -v ~/host/project-src:/root/project-src <user-name>/<app-name>
 ```
 
 | Docker command reference | |
@@ -43,7 +79,7 @@ docker run -it --rm -v ~/host-src/project:~/container-src/project user-name/app-
 | run | docker sub-command |
 | -it | attach console to container |
 | --rm | when exiting container, delete it |
-| -v ~/host-src/project:~/container-src/project | map host directory into container |
+| -v ~/host/project-src:/root/project-src | map host directory into container |
 | user-name/app-name | unique name for container |
 
 ### Todo:

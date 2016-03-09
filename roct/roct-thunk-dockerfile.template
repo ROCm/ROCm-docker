@@ -6,7 +6,7 @@
 # This builds the radeon open compute kernel thunk
 
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM roc/rock
+FROM ~~rock_container~~
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Global environment variables
@@ -31,8 +31,8 @@ ENV HSATHK_INSTALL_PATH=/usr HSATHK_BUILD_PATH=/usr/local/src/ROCT-Thunk-Interfa
 
 RUN mkdir -p ${HSATHK_BUILD_PATH} && \
   cd ${HSATHK_BUILD_PATH} && \
-  git clone --depth=1 --branch=dev https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git ./ && \
-  make -j $(nproc) REL=1 all deb && \
+  git clone --depth=1 --branch=~~branch~~ https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git ./ && \
+  make -j $(nproc) ~~config~~ all deb && \
   rm -f ${HSATHK_INSTALL_PATH}/libhsakmt.* && \
   cp build/lnx64a/lib*.so.1 ${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu && \
   cp -r include/ ${HSATHK_INSTALL_PATH} && \
