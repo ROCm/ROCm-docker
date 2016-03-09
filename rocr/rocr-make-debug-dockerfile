@@ -30,14 +30,15 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables
-ENV ROCR_INSTALL_PATH /opt/hsa
+ENV ROCR_INSTALL_PATH=/opt/hsa ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
 
 # Configure, build and install
-RUN cd /usr/local/src && \
-  git clone --depth=1 https://github.com/RadeonOpenCompute/ROCR-Runtime.git && \
-  mkdir -p ROCR-Runtime/build && \
-  cd ROCR-Runtime/build && \
-    HSATHK_BUILD_INC_PATH=${HSATHK_SRC_PATH}/include \
+RUN mkdir -p ${ROCR_BUILD_PATH} && \
+  cd ${ROCR_BUILD_PATH} && \
+  git clone --depth=1 --branch=dev https://github.com/RadeonOpenCompute/ROCR-Runtime.git ./ && \
+  mkdir -p build && \
+  cd build && \
+    HSATHK_BUILD_INC_PATH=${HSATHK_BUILD_PATH}/include \
     HSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH} \
     cmake \
       -DCMAKE_INSTALL_PREFIX=${ROCR_INSTALL_PATH} \

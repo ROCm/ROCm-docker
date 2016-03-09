@@ -28,12 +28,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# App specific environment variables
+ENV ROCK_BUILD_PATH=/usr/local/src/ROCK-Kernel-Driver
+
 # Clone as small of a repository as we can, unpack and install ubuntu packages only
 # Keep the cloned repository as record of what was compiled into the container, but it does make the container size bigger
-RUN cd /usr/local/src && \
-  git clone --no-checkout --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git && \
-  cd ROCK-Kernel-Driver && \
-  git checkout master -- packages/ubuntu && \
-  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/*.deb && \
-  rm -rf packages && \
+RUN mkdir -p ${ROCK_BUILD_PATH} && \
+  cd ${ROCK_BUILD_PATH} && \
+  git clone --no-checkout --depth=1 --branch=dev https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git ./ && \
+  git checkout dev -- packages/ubuntu && \
+  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/compute-*.deb && \
+  DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/linux-*.deb && \
+  cd ~ && rm -rf ${ROCK_BUILD_PATH} && \
   echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules

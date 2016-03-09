@@ -45,14 +45,15 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables
-ENV HCC_INSTALL_PATH /opt/hcc
+ENV HCC_INSTALL_PATH=/opt/hcc HCC_BUILD_PATH=/usr/local/src/hcc-hsail
 ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin
 
 # Build hcc, install to /usr/local
-RUN cd /usr/local/src && \
-  git clone --depth=1 https://bitbucket.org/multicoreware/hcc.git && \
-  mkdir -p hcc/build && \
-  cd hcc/build && \
+RUN mkdir -p ${HCC_BUILD_PATH} && \
+  cd ${HCC_BUILD_PATH} && \
+  git clone --depth=1 https://bitbucket.org/multicoreware/hcc.git ./ && \
+  mkdir -p build && \
+  cd build && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
     -DCMAKE_BUILD_TYPE=Debug \
