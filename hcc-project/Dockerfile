@@ -2,7 +2,7 @@
 # Copy this dockerfile into a new build context (directory) and modify to taste.
 
 # After a new build context is created, build with
-# `docker build -f <project-name>-dockerfile -t <user-name>/<project-name> .`
+# `docker build -t <user-name>/<project-name> .`
 
 # Run the container to start up a development environment.  Optionally, map host
 # directories into the container with -v for development convenience, which is

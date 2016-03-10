@@ -42,7 +42,7 @@ RUN mkdir -p ~/bin && \
     curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo && \
     chmod a+x ~/bin/repo
 
-# Build hcc-lc, install to /usr/local
+# Build hcc-isa, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
   ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ~~branch~~ && \
@@ -50,15 +50,18 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd llvm && \
   mkdir -p build && \
   cd build && \
-  cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="AMDGPU;X86" .. && \
-  make -j $(nproc) && \
+  cmake \
+    -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
+    -DCMAKE_BUILD_TYPE=~~config~~ \
+    -DLLVM_TARGETS_TO_BUILD="AMDGPU;X86" .. && \
+  make -j $(nproc) install && \
   cd ../../hcc && \
   mkdir -p build && \
   cd build && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
     -DCMAKE_BUILD_TYPE=~~config~~ \
-    -DHSA_LLVM_BIN_DIR=/usr/local/src/hcc-isa/llvm/build/bin \
+    -DHSA_LLVM_BIN_DIR=${HCC_INSTALL_PATH}/bin \
     -DHSA_AMDGPU_GPU_TARGET=fiji \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \
   make -j $(nproc) world && \
