@@ -55,6 +55,16 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
     -DCMAKE_BUILD_TYPE=~~config~~ \
     -DLLVM_TARGETS_TO_BUILD="AMDGPU;X86" .. && \
   make -j $(nproc) install && \
+
+  cd ../../llvm-amdgpu-assembler-extra/ && \
+  mkdir -p build && \
+  cd build && \
+  cmake \
+    -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
+    -DCMAKE_BUILD_TYPE=~~config~~ \
+    -DLLVM_DIR="${HCC_BUILD_PATH}/llvm/build" .. && \
+  make -j $(nproc) install && \
+
   cd ../../hcc && \
   mkdir -p build && \
   cd build && \
@@ -63,9 +73,12 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
     -DCMAKE_BUILD_TYPE=~~config~~ \
     -DHSA_LLVM_BIN_DIR=${HCC_INSTALL_PATH}/bin \
     -DHSA_AMDGPU_GPU_TARGET=fiji \
+    -DAMDPHDRS_DIR=${HCC_BUILD_PATH}/llvm-amdgpu-assembler-extra/build/amdphdrs/ \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \
   make -j $(nproc) world && \
   make install && \
   rm -rf ${HCC_BUILD_PATH} && \
   echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf && \
   ldconfig
+
+# VOLUME [${HCC_INSTALL_PATH}]

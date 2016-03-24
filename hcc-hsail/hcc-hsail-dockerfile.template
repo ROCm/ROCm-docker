@@ -51,7 +51,7 @@ ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin
 # Build hcc, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
-  git clone --depth=1 --branch=~~branch~~ https://bitbucket.org/multicoreware/hcc.git ./ && \
+  git clone --depth=1 --branch=~~branch~~ https://github.com/RadeonOpenCompute/hcc.git ./ && \
   mkdir -p build && \
   cd build && \
   cmake \
@@ -66,3 +66,5 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ~ && rm -rf ${HCC_BUILD_PATH} && \
   echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc.conf && \
   ldconfig
+
+# VOLUME [${HCC_INSTALL_PATH}]

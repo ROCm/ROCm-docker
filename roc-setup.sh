@@ -3,6 +3,9 @@
 # Set reasonable defaults for dockerfile builds
 # Default: --master, --release
 
+# #################################################
+# Initialization of command line parameters
+# #################################################
 # Build dockerfiles from more stable master branches; exclusive with --develop
 build_master=1
 
@@ -15,16 +18,32 @@ build_release=1
 # Build debug binaries; this leaves build tree intact for greater debugging; exclusive with --release
 build_debug=
 
+# Build debug binaries; this leaves build tree intact for greater debugging; exclusive with --release
+remove_images=
+
+# Build debug binaries; this leaves build tree intact for greater debugging; exclusive with --release
+dry_run=
+
+# #################################################
+# helper functions
+# #################################################
 function display_help()
 {
   echo "Building ROC docker images from templates"
   echo "Usage: ./roc-setup [--master | --develop] [--release | --debug]"
+  echo "Default flags: --master --release"
+  echo ""
   echo "--master) Build dockerfiles from stable master branches; exclusive with --develop"
   echo "--develop) Build dockerfiles from integration branches; exclusive with --master"
   echo "--release) Build release containers; minimizes size of docker images; exclusive with --debug"
   echo "--debug) Build debug containers; symbols generated and build tree intact for debugging; exclusive with --release"
+  echo "--remove_images) Based on the other flags passed, remove the docker images instead of building them"
+  echo "--dry_run) Print out what would happen with the script, without executing commands"
 }
 
+# #################################################
+# Start of main
+# #################################################
 while :; do
   case $1 in
     --master)
@@ -42,6 +61,12 @@ while :; do
     --debug)
       build_release=
       build_debug=1
+      ;;
+    --remove_images)
+      remove_images=1
+      ;;
+    --dry_run)
+      dry_run=1
       ;;
     -h|--help)
       display_help
@@ -100,22 +125,54 @@ rocr_docker_build="${rocr_docker_build} | sed s/~~config~~/${build_config}/g -"
 hcc_hsail_docker_build="${hcc_hsail_docker_build} | sed s/~~config~~/${build_config}/g -"
 hcc_isa_docker_build="${hcc_isa_docker_build} | sed s/~~config~~/${build_config}/g -"
 
-# Uncomment below to debug individual dockerfile templates; generated dockerfile is printed to screen
+# Uncomment below to print dockerfiles with template substitutions; debugging
 #eval ${rock_docker_build}
 #eval ${roct_docker_build}
 #eval ${rocr_docker_build}
 #eval ${hcc_hsail_docker_build}
 #eval ${hcc_isa_docker_build}
 
-rock_docker_build="${rock_docker_build} | docker build -t ${rock_name} -"
-roct_docker_build="${roct_docker_build} | docker build -t ${roct_name} -"
-rocr_docker_build="${rocr_docker_build} | docker build -t ${rocr_name} -"
-hcc_hsail_docker_build="${hcc_hsail_docker_build} | docker build -t ${hcc_hsail_name} -"
-hcc_isa_docker_build="${hcc_isa_docker_build} | docker build -t ${hcc_isa_name} -"
+# Build or remove docker images based on passed in option
+if [ -n "${remove_images}" ]; then
+  rock_docker_build="docker rmi ${rock_name}"
+  roct_docker_build="docker rmi ${roct_name}"
+  rocr_docker_build="docker rmi ${rocr_name}"
+  hcc_hsail_docker_build="docker rmi ${hcc_hsail_name}"
+  hcc_isa_docker_build="docker rmi ${hcc_isa_name}"
+else
+  rock_docker_build="${rock_docker_build} | docker build -t ${rock_name} -"
+  roct_docker_build="${roct_docker_build} | docker build -t ${roct_name} -"
+  rocr_docker_build="${rocr_docker_build} | docker build -t ${rocr_name} -"
+  hcc_hsail_docker_build="${hcc_hsail_docker_build} | docker build -t ${hcc_hsail_name} -"
+  hcc_isa_docker_build="${hcc_isa_docker_build} | docker build -t ${hcc_isa_name} -"
+fi
 
 # These statements below generate the actual docker images
-eval ${rock_docker_build}
-eval ${roct_docker_build}
-eval ${rocr_docker_build}
-eval ${hcc_hsail_docker_build}
-eval ${hcc_isa_docker_build}
+if [ -n "${dry_run}" ]; then
+  echo ${rock_docker_build}
+  echo ${roct_docker_build}
+  echo ${rocr_docker_build}
+  echo ${hcc_hsail_docker_build}
+  echo ${hcc_isa_docker_build}
+else
+  echo "# #################################################"
+  echo "# Building ROCK container"
+  echo "# #################################################"
+  eval ${rock_docker_build}
+  echo "# #################################################"
+  echo "# Building ROCT container"
+  echo "# #################################################"
+  eval ${roct_docker_build}
+  echo "# #################################################"
+  echo "# Building ROCR container"
+  echo "# #################################################"
+  eval ${rocr_docker_build}
+  echo "# #################################################"
+  echo "# Building HCC-HSAIL container"
+  echo "# #################################################"
+  eval ${hcc_hsail_docker_build}
+  echo "# #################################################"
+  echo "# Building HCC-ISA container"
+  echo "# #################################################"
+  eval ${hcc_isa_docker_build}
+fi
