@@ -1,19 +1,23 @@
 # ROCm-docker
 ### Radeon Open Compute Platform for docker
-This repository contains dockerfiles for the various software layers defined in the Radeon Open Compute Platform.  Installation instructions for how to install docker on [Ubuntu systems](https://docs.docker.com/v1.8/installation/ubuntulinux/) and [Fedora systems](https://docs.docker.com/v1.8/installation/fedora/) is available.
+This repository contains dockerfiles for the various software layers defined in the Radeon Open Compute Platform.  Installation instructions for how to install docker on [Ubuntu systems](https://docs.docker.com/v1.8/installation/ubuntulinux/) and [Fedora systems](https://docs.docker.com/v1.8/installation/fedora/) are available.
 
-A bash script `./roc-setup` is provided as a convenience to build various ROC images.  The script can receive command line parameters to give it parameters how to build ROCm docker containers.  
+The root of this repository provides a bash script `./roc-setup` as a convenience to build ROC images.
 ```bash
 Usage: ./roc-setup [--master | --develop] [--release | --debug]
+Default flags: --master --release
+
 --master) Build dockerfiles from stable master branches; exclusive with --develop
 --develop) Build dockerfiles from integration branches; exclusive with --master
 --release) Build release containers; minimizes size of docker images; exclusive with --debug
 --debug) Build debug containers; symbols generated and build tree intact for debugging; exclusive with --release
+--remove_images) Based on the other flags passed, remove the docker images instead of building them
+--dry_run) Print out what would happen with the script, without executing commands
 
-Without explicit parameters, ./roc-setup default flags are --master && --release
+Without explicit parameters, `./roc-setup` default flags are --master && --release
 ```
 
-The following is an example of images after building both --master and --develop containers.  All containers are uniquely named to distinguish how they were built.
+The following shows images after building both --master and --develop containers.  All containers are uniquely named to distinguish how they were built.
 
 ```bash
 kknox@machine:~/src/github/ROCm-docker
@@ -35,13 +39,13 @@ Container name decoder:  <user-name>/<component>-<branch>-<config>
 
 | ROC component | |
 |-----|-----|
-| hcc-isa | the compiler that generates GPU ISA out of the backend |
-| hcc-hsail | the compiler that generates HSAIL IL out of the backend |
+| hcc-isa | the compiler that generates GPU ISA from the backend |
+| hcc-hsail | the compiler that generates HSAIL IL from the backend |
 | rocr | the runtime |
 | roct | the kernel thunk library |
 | rock | the linux kernel with gpu kernel modules |
 
-Even given the existence of these ROC containers, **the ROC kernel has to be installed on the host machine.**  This is a design constraint of docker; the linux kernel is not resident in the container.  All containers use the host linux kernel, so the host linux kernel must be prepared to support ROC infrastructure.
+Even with the existence of these ROC containers, **the ROC kernel must be installed on the host machine.**  This is a design constraint of docker; the linux kernel is not resident in the container.  All containers use the host linux kernel, so the host linux kernel must be prepared to support ROC infrastructure.
 
 ### Installing ROCK on the host machine.
 A [sequence of instructions](https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver#installing-and-configuring-the-kernel) in bash:
@@ -55,11 +59,11 @@ A [sequence of instructions](https://github.com/RadeonOpenCompute/ROCK-Kernel-Dr
 7.  `sudo reboot`
 
 ### Creating an application container
-After the ROC software stack has been built, an application can be built in a new container to leverage the ROC stack.  The /hcc-project sub-directory contains a template of a new container specifically built of software development.  Common and useful development tools are pre-installed into the container to help with software development.  To begin the development, simply:
+After the ROC software stack is built, an application container an be built on top of the ROC stack.  The /hcc-project sub-directory contains a template of a container specifically built for software development.  Common and useful development tools are pre-installed into the container to help.  To begin, simply:
 - copy the /hcc-project sub-directory into a new directory name, like /my-roc-project
-- open and modify the dockerfile there-in to customize the software
+- open and modify the dockerfile there-in to customize
   - the template derives from roc/hcc-isa-master-release, but could as easily be changed to roc/hcc-hsail-master-release
-- the assumption of the application container is that the developer will map a host directory into the container
+- an assumption of the application container is a workflow wherein a host directory is mapped into the container
   - the host directory typically will contain source to compile, such as a git repository
     - this makes sure that the source persists after the container closes
   - the generated files from the build should be into the users /home directory or /opt
