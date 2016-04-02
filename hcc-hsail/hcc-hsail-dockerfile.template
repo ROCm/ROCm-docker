@@ -6,7 +6,7 @@
 # This builds the hcc compiler, and depends on an already existing rocr-runtime to be found
 
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM ~~rocr_container~~
+FROM ${rocr_name}
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Global environment variables
@@ -51,22 +51,22 @@ ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin
 # Build hcc, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
-  git clone --depth=1 --branch=~~branch~~ https://github.com/RadeonOpenCompute/hcc.git ./ && \
+  git clone --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/hcc.git ./ && \
   mkdir -p build && \
   cd build && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
-    -DCMAKE_BUILD_TYPE=~~config~~ \
+    -DCMAKE_BUILD_TYPE=${build_config} \
     -DHSA_HEADER_DIR=${ROCR_INSTALL_PATH}/include \
     -DHSA_LIBRARY_DIR=${ROCR_INSTALL_PATH}/lib \
     -DHSA_KMT_LIBRARY_DIR=${HSATHK_INSTALL_PATH} \
     .. && \
   make -j $(nproc) world && \
   make install && \
-  cd ~ && rm -rf ${HCC_BUILD_PATH} && \
+  ${hcc_hsail_cleanup} \
   echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc.conf && \
   ldconfig
 
-COPY setenv-hcc.sh ${HCC_INSTALL_PATH}
+COPY README.md ${HCC_INSTALL_PATH}
 
 # VOLUME ${HCC_INSTALL_PATH} ${ROCR_INSTALL_PATH}

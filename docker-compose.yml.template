@@ -2,7 +2,7 @@ version: '2'
   # The following defines data-only containers; they only export interesting dirctories
   # they do not run, and create volumes imported into application services above
   hcc-isa:
-    image: roc/hcc-isa-master-release
+    image: ${hcc_isa_name}
     container_name: hcc-isa
     entrypoint: /bin/true
     volumes:
@@ -10,7 +10,7 @@ version: '2'
       - /opt/hsa
 
   hcc-hsail:
-    image: roc/hcc-hsail-master-release
+    image: ${hcc_hsail_name}
     container_name: hcc-hsail
     entrypoint: /bin/true
     volumes:

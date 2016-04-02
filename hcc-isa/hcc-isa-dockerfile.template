@@ -6,7 +6,7 @@
 # This builds the hcc compiler, and depends on an already existing rocr-runtime to be found
 
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM ~~rocr_container~~
+FROM ${rocr_name}
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Global environment variables
@@ -45,14 +45,14 @@ RUN mkdir -p ~/bin && \
 # Build hcc-isa, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
-  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ~~branch~~ && \
+  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ${repo_branch} && \
   ~/bin/repo sync && \
   cd llvm && \
   mkdir -p build && \
   cd build && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
-    -DCMAKE_BUILD_TYPE=~~config~~ \
+    -DCMAKE_BUILD_TYPE=${build_config} \
     -DLLVM_TARGETS_TO_BUILD="AMDGPU;X86" .. && \
   make -j $(nproc) install && \
 
@@ -61,7 +61,7 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd build && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
-    -DCMAKE_BUILD_TYPE=~~config~~ \
+    -DCMAKE_BUILD_TYPE=${build_config} \
     -DLLVM_DIR="${HCC_BUILD_PATH}/llvm/build" .. && \
   make -j $(nproc) install && \
 
@@ -70,17 +70,17 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd build && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
-    -DCMAKE_BUILD_TYPE=~~config~~ \
+    -DCMAKE_BUILD_TYPE=${build_config} \
     -DHSA_LLVM_BIN_DIR=${HCC_INSTALL_PATH}/bin \
     -DHSA_AMDGPU_GPU_TARGET=fiji \
     -DAMDPHDRS_DIR=${HCC_BUILD_PATH}/llvm-amdgpu-assembler-extra/build/amdphdrs/ \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \
   make -j $(nproc) world && \
   make install && \
-  rm -rf ${HCC_BUILD_PATH} && \
+  ${hcc_isa_cleanup} \
   echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf && \
   ldconfig
 
-COPY setenv-hcc.sh ${HCC_INSTALL_PATH}
+  COPY README.md ${HCC_INSTALL_PATH}
 
 # VOLUME ${HCC_INSTALL_PATH} ${ROCR_INSTALL_PATH}

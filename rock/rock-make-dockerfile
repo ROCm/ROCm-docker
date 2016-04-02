@@ -35,7 +35,7 @@ ENV ROCK_BUILD_PATH=/usr/local/src/ROCK-Kernel-Driver
 
 RUN mkdir -p ${ROCK_BUILD_PATH} && \
   cd ${ROCK_BUILD_PATH} && \
-  git clone --no-checkout --depth=1 --branch=dev https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git ./ && \
+  git clone --no-checkout --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git ./ && \
   git checkout dev && \
   make mrproper && \
   echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules
