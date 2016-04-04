@@ -6,7 +6,7 @@
 # This builds the radeon open compute kernel thunk
 
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM ${rock_name}
+FROM ubuntu:14.04
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Global environment variables

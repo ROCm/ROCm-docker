@@ -67,6 +67,6 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc.conf && \
   ldconfig
 
-COPY README.md ${HCC_INSTALL_PATH}
+COPY setenv-hcc.sh ${HCC_INSTALL_PATH}
 
 # VOLUME ${HCC_INSTALL_PATH} ${ROCR_INSTALL_PATH}

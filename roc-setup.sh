@@ -125,9 +125,9 @@ cat rock/rock-deb-dockerfile.template | envsubst '${repo_branch}' > rock/Dockerf
 cat roct/roct-thunk-dockerfile.template | envsubst '${rock_name}:${repo_branch}:${build_config_roct}:${roct_cleanup}' > roct/Dockerfile
 cat rocr/rocr-make-dockerfile.template | envsubst '${roct_name}:${repo_branch}:${build_config}:${rocr_cleanup}' > rocr/Dockerfile
 cat hcc-hsail/hcc-hsail-dockerfile.template | envsubst '${rocr_name}:${repo_branch}:${build_config}:${hcc_hsail_cleanup}' > hcc-hsail/Dockerfile
-cat hcc-isa/hcc-isa-dockerfile.template | envsubst '${rocr_name}:${repo_branch}:${build_config}:${hcc_isa_cleanup}' > hcc-isa/Dockerfile
+cat hcc-isa/hcc-isa-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_isa}:${build_config}:${hcc_isa_cleanup}' > hcc-isa/Dockerfile
 
-cat docker-compose.yml.template | envsubst '${hcc_isa_name}:${hcc_hsail_name}' > docker-compose.yml
+cat docker-compose.yml.template | envsubst '${hcc_isa_name}:${hcc_hsail_name}:${rocr_name}:${roct_name}' > docker-compose.yml
 
 # # Build or remove docker images based on passed in option
 # if [ -n "${remove_images}" ]; then

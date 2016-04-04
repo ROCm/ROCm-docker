@@ -1,41 +1,67 @@
 version: '2'
-  # The following defines data-only containers; they only export interesting dirctories
-  # they do not run, and create volumes imported into application services above
+services:
+# The following defines data-only containers; they only export interesting dirctories
+# they do not run, and create volumes imported into application services above
+  roct:
+    build:
+      context: ./roct
+      dockerfile: Dockerfile
+    image: ${roct_name}
+    container_name: roct
+    entrypoint: /bin/true
+
+  rocr:
+    depends_on:
+      - roct
+    build:
+      context: ./rocr
+      dockerfile: Dockerfile
+    image: ${rocr_name}
+    container_name: rocr
+    entrypoint: /bin/true
+    volumes:
+      - /opt/hsa
+
   hcc-isa:
+    depends_on:
+      - rocr
+    build:
+      context: ./hcc-isa
+      dockerfile: Dockerfile
     image: ${hcc_isa_name}
     container_name: hcc-isa
     entrypoint: /bin/true
     volumes:
       - /opt/hcc
-      - /opt/hsa
 
   hcc-hsail:
+    depends_on:
+      - rocr
+    build:
+      context: ./hcc-hsail
+      dockerfile: Dockerfile
     image: ${hcc_hsail_name}
     container_name: hcc-hsail
     entrypoint: /bin/true
     volumes:
       - /opt/hcc
-      - /opt/hsa
 
   # The following defines application containers;
   # should be run with `docker-compose run --rm rocfft-isa`
-  services:
-    rocfft-isa:
-      build: ./rocfft
-      entrypoint:
-        - ["/bin/bash", "--login", "/opt/hcc/setenv-hcc.sh"]
-      # volumes is where to list host to container directory mappings
-      volumes:
-        - ~/src/github/kknox/rocFFT:/usr/local/src/rocfft
-      volumes_from:
-        - hcc-isa:ro
-    rocfft-hsail:
-      build: ./rocfft
-      environment:
-        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/hcc/bin
-        LD_LIBRARY_PATH: /opt/hsa/lib
-      # volumes is where to list host to container directory mappings
-      volumes:
-        - ~/src/github/kknox/rocFFT:/usr/local/src/rocfft
-      volumes_from:
-        - hcc-hsail:/opt/hcc
+  rocfft-isa:
+    build: ./rocfft
+    # volumes is where to list host to container directory mappings
+    volumes:
+      - ~/src/github/kknox/rocFFT:/usr/local/src/rocfft
+    volumes_from:
+      - rocr:ro
+      - hcc-isa:ro
+
+  rocfft-hsail:
+    build: ./rocfft
+    # volumes is where to list host to container directory mappings
+    volumes:
+      - ~/src/github/kknox/rocFFT:/usr/local/src/rocfft
+    volumes_from:
+      - rocr:ro
+      - hcc-hsail:ro

@@ -45,7 +45,7 @@ RUN mkdir -p ~/bin && \
 # Build hcc-isa, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
-  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ${repo_branch} && \
+  ~/bin/repo init -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ${repo_branch_hcc_isa} && \
   ~/bin/repo sync && \
   cd llvm && \
   mkdir -p build && \
@@ -81,6 +81,6 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf && \
   ldconfig
 
-  COPY README.md ${HCC_INSTALL_PATH}
+  COPY setenv-hcc.sh ${HCC_INSTALL_PATH}
 
 # VOLUME ${HCC_INSTALL_PATH} ${ROCR_INSTALL_PATH}
