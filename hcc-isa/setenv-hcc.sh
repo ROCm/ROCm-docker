@@ -1,13 +1,14 @@
 HCCPATH=/opt/hcc
 HCCVER=3.5.0
-HCCARCH=x86_64-unknown-linux-gnu
 
+echo "Appending hcc tools into PATH"
 if [ -z "${PATH}" ]; then
     export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${HCCPATH}/bin
 else
     export PATH=${PATH}:${HCCPATH}/bin
 fi
 
+echo "Registering hcc libraries with loader"
 echo "${HCCPATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf
 ldconfig
 

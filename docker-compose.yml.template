@@ -1,7 +1,7 @@
 version: '2'
 services:
-# The following defines data-only containers; they only export interesting dirctories
-# they do not run, and create volumes imported into application services above
+# The following defines data-only containers
+# They are not meant to be used as interactive containers
   roct:
     build:
       context: ./roct
@@ -9,6 +9,8 @@ services:
     image: ${roct_name}
     container_name: roct
     entrypoint: /bin/true
+    volumes:
+      - ${roct_volume}
 
   rocr:
     depends_on:
@@ -20,7 +22,7 @@ services:
     container_name: rocr
     entrypoint: /bin/true
     volumes:
-      - /opt/hsa
+      - ${rocr_volume}
 
   hcc-isa:
     depends_on:
@@ -32,7 +34,7 @@ services:
     container_name: hcc-isa
     entrypoint: /bin/true
     volumes:
-      - /opt/hcc
+      - ${hcc_volume}
 
   hcc-hsail:
     depends_on:
@@ -44,24 +46,35 @@ services:
     container_name: hcc-hsail
     entrypoint: /bin/true
     volumes:
-      - /opt/hcc
+      - ${hcc_volume}
 
-  # The following defines application containers;
-  # should be run with `docker-compose run --rm rocfft-isa`
+  # The following defines application containers, which depend on the data-only
+  # containers defiend above to provide their software layers
+  # These should be run with `docker-compose run --rm <application-service>`
   rocfft-isa:
-    build: ./rocfft
+    build:
+      context: ./rocfft
+      dockerfile: Dockerfile
+    image: rocm/rocfft-isa
+    container_name: rocfft-isa
     # volumes is where to list host to container directory mappings
     volumes:
       - ~/src/github/kknox/rocFFT:/usr/local/src/rocfft
     volumes_from:
+      - roct:ro
       - rocr:ro
       - hcc-isa:ro
 
   rocfft-hsail:
-    build: ./rocfft
+    build:
+      context: ./rocfft
+      dockerfile: Dockerfile
+    image: rocm/rocfft-hsail
+    container_name: rocfft-hsail
     # volumes is where to list host to container directory mappings
     volumes:
       - ~/src/github/kknox/rocFFT:/usr/local/src/rocfft
     volumes_from:
+      - roct:ro
       - rocr:ro
       - hcc-hsail:ro

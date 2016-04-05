@@ -30,7 +30,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables
-ENV ROCR_INSTALL_PATH=/opt/hsa ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
+ENV ROCR_INSTALL_PATH=${rocr_volume} ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
 
 # Configure, build and install
 RUN mkdir -p ${ROCR_BUILD_PATH} && \

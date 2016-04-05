@@ -45,5 +45,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # 2.  Aliases GDB to use its native TUI mode by default
 RUN curl https://j.mp/spf13-vim3 -L | bash && \
     echo "\nalias gdb='gdb --tui'" >> ~/.bashrc && \
+    echo "\nsource /opt/roct/setenv-roct.sh" >> ~/.bashrc && \
     echo "\nsource /opt/hcc/setenv-hcc.sh" >> ~/.bashrc && \
     mkdir -p ${WORKPATH}

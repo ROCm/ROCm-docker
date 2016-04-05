@@ -18,12 +18,6 @@ build_release=1
 # Build debug binaries; this leaves build tree intact for greater debugging; exclusive with --release
 build_debug=
 
-# Build debug binaries; this leaves build tree intact for greater debugging; exclusive with --release
-remove_images=
-
-# Build debug binaries; this leaves build tree intact for greater debugging; exclusive with --release
-dry_run=
-
 # #################################################
 # helper functions
 # #################################################
@@ -37,8 +31,6 @@ function display_help()
   echo "--develop) Build dockerfiles from integration branches; exclusive with --master"
   echo "--release) Build release containers; minimizes size of docker images; exclusive with --debug"
   echo "--debug) Build debug containers; symbols generated and build tree intact for debugging; exclusive with --release"
-  echo "--remove_images) Based on the other flags passed, remove the docker images instead of building them"
-  echo "--dry-run) Print out what would happen with the script, without executing commands"
 }
 
 # #################################################
@@ -62,12 +54,6 @@ while :; do
       build_release=
       build_debug=1
       ;;
-    --remove_images)
-      remove_images=1
-      ;;
-    --dry-run)
-      dry_run=1
-      ;;
     -h|--help)
       display_help
       exit
@@ -79,10 +65,10 @@ while :; do
   shift
 done
 
-# hcc-hsail does not have a 'standard' develop branch per-se
+# hcc-hsail does not have a develop branch
 export repo_branch_hcc_hsail="master"
 
-# hcc-isa conforms to a non git-flow branch naming scheme
+# hcc-isa conforms to a non git-flow naming scheme, 'master' changes the most
 export repo_branch_hcc_isa=
 
 export repo_branch=
@@ -100,9 +86,24 @@ export roct_cleanup=
 export rocr_cleanup=
 export hcc_hsail_cleanup=
 export hcc_isa_cleanup=
+export rock_name=
+export roct_name=
+export rocr_name=
+export hcc_hsail_name=
+export hcc_isa_name=
 
+rocm_prefix="rocm/"
 if [ -n "${build_release}" ]; then
   build_config='Release'
+
+  rock_name="${rocm_prefix}rock-${repo_branch}"
+  roct_name="${rocm_prefix}roct-${repo_branch}"
+  rocr_name="${rocm_prefix}rocr-${repo_branch}"
+  hcc_hsail_name="${rocm_prefix}hcc-hsail-${repo_branch_hcc_hsail}"
+  hcc_isa_name="${rocm_prefix}hcc-isa-${repo_branch_hcc_isa}"
+
+  # Custom commands to clean up build directories for each component
+  # This is to keep release images as small as possible
   build_config_roct='REL=1'
   roct_cleanup='cd ~ && rm -rf ${HSATHK_BUILD_PATH} &&'
   rocr_cleanup='cd ~ && rm -rf ${ROCR_BUILD_PATH} &&'
@@ -110,37 +111,25 @@ if [ -n "${build_release}" ]; then
   hcc_isa_cleanup='rm -rf ${HCC_BUILD_PATH} &&'
 else
   build_config='Debug'
+
+  # For debug builds, name the images as 'debug'
+  # The comma operator in ${build_config} makes the first letter lower case
+  rock_name="${rocm_prefix}rock-${repo_branch}"
+  roct_name="${rocm_prefix}roct-${repo_branch}-${build_config,}"
+  rocr_name="${rocm_prefix}rocr-${repo_branch}-${build_config,}"
+  hcc_hsail_name="${rocm_prefix}hcc-hsail-${repo_branch_hcc_hsail}-${build_config,}"
+  hcc_isa_name="${rocm_prefix}hcc-isa-${repo_branch_hcc_isa}-${build_config,}"
 fi
 
-# The comma operator in ${build_config} makes the first letter lower case
-rocm_prefix="rocm/"
-export rock_name="${rocm_prefix}rock-${repo_branch}"
-export roct_name="${rocm_prefix}roct-${repo_branch}-${build_config,}"
-export rocr_name="${rocm_prefix}rocr-${repo_branch}-${build_config,}"
-export hcc_hsail_name="${rocm_prefix}hcc-hsail-${repo_branch_hcc_hsail}-${build_config,}"
-export hcc_isa_name="${rocm_prefix}hcc-isa-${repo_branch_hcc_isa}-${build_config,}"
+export roct_volume='/opt/roct'
+export rocr_volume='/opt/hsa'
+export hcc_volume='/opt/hcc'
 
 # Uncomment below to print dockerfiles with template substitutions; debugging
 cat rock/rock-deb-dockerfile.template | envsubst '${repo_branch}' > rock/Dockerfile
-cat roct/roct-thunk-dockerfile.template | envsubst '${rock_name}:${repo_branch}:${build_config_roct}:${roct_cleanup}' > roct/Dockerfile
-cat rocr/rocr-make-dockerfile.template | envsubst '${roct_name}:${repo_branch}:${build_config}:${rocr_cleanup}' > rocr/Dockerfile
-cat hcc-hsail/hcc-hsail-dockerfile.template | envsubst '${rocr_name}:${repo_branch}:${build_config}:${hcc_hsail_cleanup}' > hcc-hsail/Dockerfile
-cat hcc-isa/hcc-isa-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_isa}:${build_config}:${hcc_isa_cleanup}' > hcc-isa/Dockerfile
+cat roct/roct-thunk-dockerfile.template | envsubst '${rock_name}:${repo_branch}:${build_config_roct}:${roct_cleanup}:${roct_volume}' > roct/Dockerfile
+cat rocr/rocr-make-dockerfile.template | envsubst '${roct_name}:${repo_branch}:${build_config}:${rocr_cleanup}:${rocr_volume}' > rocr/Dockerfile
+cat hcc-hsail/hcc-hsail-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_hsail}:${build_config}:${hcc_hsail_cleanup}:${hcc_volume}' > hcc-hsail/Dockerfile
+cat hcc-isa/hcc-isa-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_isa}:${build_config}:${hcc_isa_cleanup}:${hcc_volume}' > hcc-isa/Dockerfile
 
-cat docker-compose.yml.template | envsubst '${hcc_isa_name}:${hcc_hsail_name}:${rocr_name}:${roct_name}' > docker-compose.yml
-
-# # Build or remove docker images based on passed in option
-# if [ -n "${remove_images}" ]; then
-#   rock_docker_build="docker rmi ${rock_name}"
-#   roct_docker_build="docker rmi ${roct_name}"
-#   rocr_docker_build="docker rmi ${rocr_name}"
-#   hcc_hsail_docker_build="docker rmi ${hcc_hsail_name}"
-#   hcc_isa_docker_build="docker rmi ${hcc_isa_name}"
-# else
-#   rock_docker_build="${rock_docker_build} | docker build -t ${rock_name} -"
-#   roct_docker_build="${roct_docker_build} | docker build -t ${roct_name} -"
-#   rocr_docker_build="${rocr_docker_build} | docker build -t ${rocr_name} -"
-#   hcc_hsail_docker_build="${hcc_hsail_docker_build} | docker build -t ${hcc_hsail_name} -"
-#   hcc_isa_docker_build="${hcc_isa_docker_build} | docker build -t ${hcc_isa_name} -"
-# fi
-#
+cat docker-compose.yml.template | envsubst '${hcc_isa_name}:${hcc_hsail_name}:${rocr_name}:${roct_name}:${hcc_volume}:${rocr_volume}:${roct_volume}' > docker-compose.yml
