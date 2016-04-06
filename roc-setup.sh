@@ -108,7 +108,7 @@ if [ -n "${build_release}" ]; then
   roct_cleanup='cd ~ && rm -rf ${HSATHK_BUILD_PATH} &&'
   rocr_cleanup='cd ~ && rm -rf ${ROCR_BUILD_PATH} &&'
   hcc_hsail_cleanup='cd ~ && rm -rf ${HCC_BUILD_PATH} &&'
-  hcc_isa_cleanup='rm -rf ${HCC_BUILD_PATH} &&'
+  hcc_isa_cleanup='cd ~ && rm -rf ${HCC_BUILD_PATH} &&'
 else
   build_config='Debug'
 
@@ -121,9 +121,9 @@ else
   hcc_isa_name="${rocm_prefix}hcc-isa-${repo_branch_hcc_isa}-${build_config,}"
 fi
 
-export roct_volume='/opt/roct'
-export rocr_volume='/opt/hsa'
-export hcc_volume='/opt/hcc'
+export roct_volume='/opt/roct/'
+export rocr_volume='/opt/hsa/'
+export hcc_volume='/opt/hcc/'
 
 # Uncomment below to print dockerfiles with template substitutions; debugging
 cat rock/rock-deb-dockerfile.template | envsubst '${repo_branch}' > rock/Dockerfile

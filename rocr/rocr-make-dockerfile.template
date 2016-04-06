@@ -32,10 +32,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # App specific environment variables
 ENV ROCR_INSTALL_PATH=${rocr_volume} ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
 
-# Configure, build and install
+# Configure, build and install the runtime
+# HSAIL based tools need the finalizer libraries, provided in the included deb file
+# Extract only the finalizer libraries and build open source libhsa-runtime64 component on top
 RUN mkdir -p ${ROCR_BUILD_PATH} && \
   cd ${ROCR_BUILD_PATH} && \
   git clone --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCR-Runtime.git ./ && \
+  dpkg --fsys-tarfile packages/ubuntu/*.deb | tar -xf - -C / --wildcards *.so* --exclude=libhsa-runtime64* && \
   mkdir -p build && \
   cd build && \
     HSATHK_BUILD_INC_PATH=${HSATHK_INSTALL_PATH}/include \
@@ -47,5 +50,7 @@ RUN mkdir -p ${ROCR_BUILD_PATH} && \
   make -j $(nproc) install && \
   cp -r ../src/inc ${ROCR_INSTALL_PATH}/include && \
   ${rocr_cleanup} \
-  echo "${ROCR_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/rocr.conf && \
+  echo "${ROCR_INSTALL_PATH}lib" >> /etc/ld.so.conf.d/rocr.conf && \
   ldconfig
+
+COPY setenv-rocr.sh ${ROCR_INSTALL_PATH}

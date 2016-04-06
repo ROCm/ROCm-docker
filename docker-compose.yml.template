@@ -51,29 +51,31 @@ services:
   # The following defines application containers, which depend on the data-only
   # containers defiend above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
-  rocfft-isa:
+  rocm-project-isa:
     build:
-      context: ./rocfft
+      context: ./rocm-project
       dockerfile: Dockerfile
-    image: rocm/rocfft-isa
-    container_name: rocfft-isa
-    # volumes is where to list host to container directory mappings
+    devices:
+      - "/dev/kfd"
+    image: rocm/rocm-project
+  # volumes is used to map host directories into the container
     volumes:
-      - ~/src/github/kknox/rocFFT:/usr/local/src/rocfft
+      - ~:/usr/local/src/host-home
     volumes_from:
       - roct:ro
       - rocr:ro
       - hcc-isa:ro
 
-  rocfft-hsail:
+  rocm-project-hsail:
     build:
-      context: ./rocfft
+      context: ./rocm-project
       dockerfile: Dockerfile
-    image: rocm/rocfft-hsail
-    container_name: rocfft-hsail
-    # volumes is where to list host to container directory mappings
+    devices:
+      - "/dev/kfd"
+    image: rocm/rocm-project
+  # volumes is used to map host directories into the container
     volumes:
-      - ~/src/github/kknox/rocFFT:/usr/local/src/rocfft
+      - ~:/usr/local/src/host-home
     volumes_from:
       - roct:ro
       - rocr:ro

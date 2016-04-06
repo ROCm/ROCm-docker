@@ -36,19 +36,19 @@ A [sequence of instructions](https://github.com/RadeonOpenCompute/ROCK-Kernel-Dr
 `./roc-setup` prepares an environment that can be controlled with [Docker Compose](https://docs.docker.com/compose/).  An output of the script is a **docker-compose.yml** file in the root of the repository, which coordinates the relationships between the various ROCm software layers.  Additionally, the  docker-compose.yml file can be extended to easily launch interactive application or development containers built on top of the ROCm software stack.  
 
 ### Creating an application/development container
-The /hcc-project sub-directory contains a template for a container specifically built for software development.  Common and useful development tools are pre-installed into the container.  To begin, simply:
-- copy the /hcc-project sub-directory into a new directory name, like /my-rocm-project
-- open and modify the Dockerfile there-in to customize and pre-install dependencies
-- modify the docker-compose.yml.template file to add the new images
-  - use the existing hcc-project section as an example
+The /rocm-project sub-directory contains a template for a container specifically built for software development.  Common and useful development tools are pre-installed into the container.  To begin, simply:
+- copy the /rocm-project sub-directory into a new directory name, such as /my-rocm-project
+- open and customize the Dockerfile;  pre-install dependencies and services
+- modify the docker-compose.yml.template file to add a new service which launches your new image
+  - use the existing rocm-project section as an example
   - add useful host directories to map into the container
 - rerun `./roc-setup` script to generate a new **docker-compose.yml**
 
 ### Running an application using docker-compose
-You run the new container
+You run the new container (and its dependencies) with docker-compose.  When the container is fully loaded and running, you will be presented with a root prompt within the container.
 
 ```bash
-docker-compose run --rm <hcc-project>
+docker-compose run --rm <my-rocm-project>
 ```
 
 | Docker command reference | |
@@ -56,16 +56,16 @@ docker-compose run --rm <hcc-project>
 | docker-compose | docker compose executable|
 | run | sub-command to bring up interactive container |
 | --rm | when shutting the container down, delete it |
-| hcc-project | application container name in  **docker-compose.yml** |
+| my-rocm-project | application service defined in **docker-compose.yml** |
 
-To shut the ROCm containers down
+To shut down ROCm dependencies and clean up
 ```bash
 docker-compose down -v
 ```
 | Docker command reference | |
 |-----|-----|
-| docker-compose | docker compose executable|
-| down | sub-command to shut containers down |
+| docker-compose | docker compose executable |
+| down | sub-command to shut containers down and remove them |
 | -v | clean-up shared volumes |
 
 ### Footnotes:

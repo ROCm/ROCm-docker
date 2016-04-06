@@ -17,7 +17,7 @@ FROM ubuntu:14.04
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Change WORKPATH to a location where
-ENV WORKPATH /opt/my-hcc-project
+ENV WORKPATH /opt/my-rocm-project
 
 # The working directory is meant to be where build files are generated
 WORKDIR ${WORKPATH}
@@ -46,5 +46,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN curl https://j.mp/spf13-vim3 -L | bash && \
     echo "\nalias gdb='gdb --tui'" >> ~/.bashrc && \
     echo "\nsource /opt/roct/setenv-roct.sh" >> ~/.bashrc && \
+    echo "\nsource /opt/hsa/setenv-rocr.sh" >> ~/.bashrc && \
     echo "\nsource /opt/hcc/setenv-hcc.sh" >> ~/.bashrc && \
     mkdir -p ${WORKPATH}
