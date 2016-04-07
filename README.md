@@ -1,86 +1,72 @@
 # ROCm-docker
 ### Radeon Open Compute Platform for docker
-This repository contains dockerfiles for the various software layers defined in the Radeon Open Compute Platform.  Installation instructions for how to install docker on [Ubuntu systems](https://docs.docker.com/v1.8/installation/ubuntulinux/) and [Fedora systems](https://docs.docker.com/v1.8/installation/fedora/) is available.
+This repository contains a framework for building the various software layers defined in the Radeon Open Compute Platform into portable docker images.  There are docker dependencies to use this framework, which need to be pre-installed on the host.
 
-A bash script `./roc-setup` is provided as a convenience to build various ROC images.  The script can receive command line parameters to give it parameters how to build ROCm docker containers.  
+-  Docker on [Ubuntu systems](https://docs.docker.com/v1.8/installation/ubuntulinux/) or [Fedora systems](https://docs.docker.com/v1.8/installation/fedora/)
+-  [Docker-Compose](https://docs.docker.com/compose/install/) as a highly recommended tool
+
+At the root of this repository is the bash script `./roc-setup`
 ```bash
 Usage: ./roc-setup [--master | --develop] [--release | --debug]
+Default flags: --master --release
+
 --master) Build dockerfiles from stable master branches; exclusive with --develop
 --develop) Build dockerfiles from integration branches; exclusive with --master
 --release) Build release containers; minimizes size of docker images; exclusive with --debug
 --debug) Build debug containers; symbols generated and build tree intact for debugging; exclusive with --release
 
-Without explicit parameters, ./roc-setup default flags are --master && --release
+Without explicit parameters, `./roc-setup` default flags are --master && --release
 ```
 
-The following is an example of images after building both --master and --develop containers.  All containers are uniquely named to distinguish how they were built.
-
-```bash
-kknox@machine:~/src/github/ROCm-docker
-[develop *% u=] $ docker images
-REPOSITORY                     TAG                 IMAGE ID            CREATED             SIZE
-roc/hcc-isa-master-release     latest              d82a7c04f1e4        About an hour ago   1.191 GB
-roc/hcc-hsail-master-release   latest              aa4f0543ad43        About an hour ago   1.441 GB
-roc/rocr-dev-release           latest              7172446cd45e        About an hour ago   732.5 MB
-roc/roct-dev-release           latest              aa711a708039        2 hours ago         666.1 MB
-roc/rock-dev                   latest              7bb9dede7b01        2 hours ago         539 MB
-roc/hcc-isa-testing-release    latest              bd57b41d79fb        11 hours ago        1.191 GB
-roc/rocr-master-release        latest              954dfa5425fc        12 hours ago        732.6 MB
-roc/roct-master-release        latest              39399c5cee7d        12 hours ago        666.2 MB
-roc/rock-master                latest              c2e70cf58ea7        12 hours ago        539.1 MB
-ubuntu                         14.04.3             3876b81b5a81        7 weeks ago         187.9 MB
-
-Container name decoder:  <user-name>/<component>-<branch>-<config>
-```
+`./roc-setup` generates Dockerfiles to be consumed by the docker build engine.  Each sub-directory of this repository corresponds to a docker 'build context' responsible for a software layer in the ROCm stack.  After running the script each directory contains a generated 'Dockerfile'.  The parameters to the script control which flavor of the components to build, for instance: debug builds of the /develop branches.
 
 | ROC component | |
 |-----|-----|
-| hcc-isa | the compiler that generates GPU ISA out of the backend |
-| hcc-hsail | the compiler that generates HSAIL IL out of the backend |
+| hcc-isa | the compiler that generates GPU ISA from the backend |
+| hcc-hsail | the compiler that generates HSAIL IL from the backend |
 | rocr | the runtime |
 | roct | the kernel thunk library |
-| rock | the linux kernel with gpu kernel modules |
 
-Even given the existence of these ROC containers, **the ROC kernel has to be installed on the host machine.**  This is a design constraint of docker; the linux kernel is not resident in the container.  All containers use the host linux kernel, so the host linux kernel must be prepared to support ROC infrastructure.
+The ROCm component that can not be used in a docker image is the ROCK-Kernel-Driver<sup>[1](#ROCK)</sup>.  In order for the docker framework to function, **the ROCm kernel must be installed on the host machine.**  This is a design constraint of docker; the linux kernel is not resident in the container.  All containers share the host linux kernel, so the ROCK-Kernel-Driver component must be installed on the host linux kernel.
 
 ### Installing ROCK on the host machine.
-A [sequence of instructions](https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver#installing-and-configuring-the-kernel) in bash:
+A [sequence of instructions](https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver#installing-and-configuring-the-kernel) is provided in the ROCK-Kernel-Driver README.
 
-1.  `cd /usr/local/src`
-2.  `git clone --no-checkout --depth=1 https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git`
-3.  `cd ROCK-Kernel-Driver`
-4.  `git checkout master -- packages/ubuntu`
-5.  `dpkg -i packages/ubuntu/*.deb`
-6.  `echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules`
-7.  `sudo reboot`
+### Docker compose
+`./roc-setup` prepares an environment that can be controlled with [Docker Compose](https://docs.docker.com/compose/).  An output of the script is a **docker-compose.yml** file in the root of the repository, which coordinates the relationships between the various ROCm software layers.  Additionally, the  docker-compose.yml file can be extended to easily launch interactive application or development containers built on top of the ROCm software stack.  
 
-### Creating an application container
-After the ROC software stack has been built, an application can be built in a new container to leverage the ROC stack.  The /hcc-project sub-directory contains a template of a new container specifically built of software development.  Common and useful development tools are pre-installed into the container to help with software development.  To begin the development, simply:
-- copy the /hcc-project sub-directory into a new directory name, like /my-roc-project
-- open and modify the dockerfile there-in to customize the software
-  - the template derives from roc/hcc-isa-master-release, but could as easily be changed to roc/hcc-hsail-master-release
-- the assumption of the application container is that the developer will map a host directory into the container
-  - the host directory typically will contain source to compile, such as a git repository
-    - this makes sure that the source persists after the container closes
-  - the generated files from the build should be into the users /home directory or /opt
-    - when the container closes, all generated files are cleaned up and forgotten
+### Creating an application/development container
+The /rocm-project sub-directory contains a template for a container specifically built for software development.  Common and useful development tools are pre-installed into the container.  To begin, simply:
+- copy the /rocm-project sub-directory into a new directory name, such as /my-rocm-project
+- open and customize the Dockerfile;  pre-install dependencies and services
+- modify the docker-compose.yml.template file to add a new service which launches your new image
+  - use the existing rocm-project section as an example
+  - add useful host directories to map into the container
+- rerun `./roc-setup` script to generate a new **docker-compose.yml**
 
-### Running an application in the docker stack
-
-You run the container, and optionally map host directories (for shared source code, for instance) like so:
+### Running an application using docker-compose
+You run the new container (and its dependencies) with docker-compose.  When the container is fully loaded and running, you will be presented with a root prompt within the container.
 
 ```bash
-docker run -it --rm -v ~/host/project-src:/root/project-src <user-name>/<app-name>
+docker-compose run --rm <my-rocm-project>
 ```
 
 | Docker command reference | |
 |-----|-----|
-| docker | docker executable|
-| run | docker sub-command |
-| -it | attach console to container |
-| --rm | when exiting container, delete it |
-| -v ~/host/project-src:/root/project-src | map host directory into container |
-| user-name/app-name | unique name for container |
+| docker-compose | docker compose executable|
+| run | sub-command to bring up interactive container |
+| --rm | when shutting the container down, delete it |
+| my-rocm-project | application service defined in **docker-compose.yml** |
 
-### Todo:
-1.  Create a proper method to load each software component as a [data-only container](https://docs.docker.com/engine/userguide/containers/dockervolumes/#mount-a-host-directory-as-a-data-volume)
+To shut down ROCm dependencies and clean up
+```bash
+docker-compose down -v
+```
+| Docker command reference | |
+|-----|-----|
+| docker-compose | docker compose executable |
+| down | sub-command to shut containers down and remove them |
+| -v | clean-up shared volumes |
+
+### Footnotes:
+<a name="ROCK">[1]</a> We actually do provide a container for ROCK-Kernel-Driver, but it not used by the rest of the docker images.  It does provide isolation and a reproducible environment for kernel development.

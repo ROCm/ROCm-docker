@@ -35,8 +35,8 @@ ENV ROCK_BUILD_PATH=/usr/local/src/ROCK-Kernel-Driver
 # Keep the cloned repository as record of what was compiled into the container, but it does make the container size bigger
 RUN mkdir -p ${ROCK_BUILD_PATH} && \
   cd ${ROCK_BUILD_PATH} && \
-  git clone --no-checkout --depth=1 --branch=~~branch~~ https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git ./ && \
-  git checkout ~~branch~~ -- packages/ubuntu && \
+  git clone --no-checkout --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCK-Kernel-Driver.git ./ && \
+  git checkout ${repo_branch} -- packages/ubuntu && \
   DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/compute-*.deb && \
   DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/linux-*.deb && \
   cd ~ && rm -rf ${ROCK_BUILD_PATH} && \

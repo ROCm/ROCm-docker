@@ -6,7 +6,7 @@
 # This builds the radeon open compute runtime
 
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM ~~roct_container~~
+FROM ${roct_name}
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Global environment variables
@@ -30,22 +30,27 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables
-ENV ROCR_INSTALL_PATH=/opt/hsa ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
+ENV ROCR_INSTALL_PATH=${rocr_volume} ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
 
-# Configure, build and install
+# Configure, build and install the runtime
+# HSAIL based tools need the finalizer libraries, provided in the included deb file
+# Extract only the finalizer libraries and build open source libhsa-runtime64 component on top
 RUN mkdir -p ${ROCR_BUILD_PATH} && \
   cd ${ROCR_BUILD_PATH} && \
-  git clone --depth=1 --branch=~~branch~~ https://github.com/RadeonOpenCompute/ROCR-Runtime.git ./ && \
+  git clone --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCR-Runtime.git ./ && \
+  dpkg --fsys-tarfile packages/ubuntu/*.deb | tar -xf - -C / --wildcards *.so* --exclude=libhsa-runtime64* && \
   mkdir -p build && \
   cd build && \
     HSATHK_BUILD_INC_PATH=${HSATHK_INSTALL_PATH}/include \
     HSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu \
     cmake \
       -DCMAKE_INSTALL_PREFIX=${ROCR_INSTALL_PATH} \
-      -DCMAKE_BUILD_TYPE=~~config~~ \
+      -DCMAKE_BUILD_TYPE=${build_config} \
     ../src && \
   make -j $(nproc) install && \
   cp -r ../src/inc ${ROCR_INSTALL_PATH}/include && \
-  cd ~ && rm -rf ${ROCR_BUILD_PATH} && \
-  echo "${ROCR_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/rocr.conf && \
+  ${rocr_cleanup} \
+  echo "${ROCR_INSTALL_PATH}lib" >> /etc/ld.so.conf.d/rocr.conf && \
   ldconfig
+
+COPY setenv-rocr.sh ${ROCR_INSTALL_PATH}

@@ -12,12 +12,12 @@
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 # Example: 'docker run -it --rm -v ~/src/my-hcc-project:/root/my-hcc-project:ro kknox/my-hcc-project'.
 
-# ubuntu:14.04.3, the native kernel is '3.19'
-FROM roc/hcc-isa-master-release
+# The application container can inherit from any other OS container
+FROM ubuntu:14.04
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Global environment variables
-ENV WORKPATH /opt/my-hcc-project
+# Change WORKPATH to a location where
+ENV WORKPATH /opt/my-rocm-project
 
 # The working directory is meant to be where build files are generated
 WORKDIR ${WORKPATH}
@@ -30,6 +30,7 @@ CMD ["-l"]
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential \
   clang-3.5 \
+  libelf1 \
   curl \
   git \
   gdb \
@@ -44,4 +45,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # 2.  Aliases GDB to use its native TUI mode by default
 RUN curl https://j.mp/spf13-vim3 -L | bash && \
     echo "\nalias gdb='gdb --tui'" >> ~/.bashrc && \
-    mkdir -p /opt/my-hcc-project
+    echo "\nsource /opt/roct/setenv-roct.sh" >> ~/.bashrc && \
+    echo "\nsource /opt/hsa/setenv-rocr.sh" >> ~/.bashrc && \
+    echo "\nsource /opt/hcc/setenv-hcc.sh" >> ~/.bashrc && \
+    mkdir -p ${WORKPATH}
