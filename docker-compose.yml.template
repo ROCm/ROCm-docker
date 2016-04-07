@@ -57,7 +57,7 @@ services:
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm-project
+    image: rocm/rocm-project-isa
   # volumes is used to map host directories into the container
     volumes:
       - ~:/usr/local/src/host-home
@@ -72,7 +72,7 @@ services:
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm-project
+    image: rocm/rocm-project-hsail
   # volumes is used to map host directories into the container
     volumes:
       - ~:/usr/local/src/host-home
