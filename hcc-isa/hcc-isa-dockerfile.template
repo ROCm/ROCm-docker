@@ -73,7 +73,7 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
     -DCMAKE_BUILD_TYPE=${build_config} \
     -DHSA_LLVM_BIN_DIR=${HCC_INSTALL_PATH}/bin \
     -DHSA_AMDGPU_GPU_TARGET=fiji \
-    -DAMDPHDRS_DIR=${HCC_BUILD_PATH}/llvm-amdgpu-assembler-extra/build/amdphdrs/ \
+    -DAMDPHDRS_DIR=${HCC_INSTALL_PATH}/bin \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \
   make -j $(nproc) world && \
   make install && \
