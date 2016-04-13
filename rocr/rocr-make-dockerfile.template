@@ -41,9 +41,9 @@ RUN mkdir -p ${ROCR_BUILD_PATH} && \
   dpkg --fsys-tarfile packages/ubuntu/*.deb | tar -xf - -C / --wildcards *.so* --exclude=libhsa-runtime64* && \
   mkdir -p build && \
   cd build && \
-    HSATHK_BUILD_INC_PATH=${HSATHK_INSTALL_PATH}/include \
-    HSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu \
     cmake \
+      -DHSATHK_BUILD_INC_PATH=${HSATHK_INSTALL_PATH}/include \
+      -DHSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu \
       -DCMAKE_INSTALL_PREFIX=${ROCR_INSTALL_PATH} \
       -DCMAKE_BUILD_TYPE=${build_config} \
     ../src && \
