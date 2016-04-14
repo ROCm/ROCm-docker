@@ -1,4 +1,4 @@
-HSATHK_INSTALL_PATH=/opt/roct/lib/x86_64-linux-gnu
+HSATHK_INSTALL_PATH=/opt/rocm/libhsakmt/lib/x86_64-linux-gnu
 HSATHK_SYSTEM_PATH=/usr/lib/x86_64-linux-gnu
 
 echo "Copying hsa thunk into system directory"
