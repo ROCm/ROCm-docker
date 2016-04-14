@@ -121,9 +121,9 @@ else
   hcc_isa_name="${rocm_prefix}hcc-isa-${repo_branch_hcc_isa}-${build_config,}"
 fi
 
-export roct_volume='/opt/roct/'
-export rocr_volume='/opt/hsa/'
-export hcc_volume='/opt/hcc/'
+export roct_volume='/opt/rocm/libhsakmt/'
+export rocr_volume='/opt/rocm/hsa/'
+export hcc_volume='/opt/rocm/hcc/'
 
 # Uncomment below to print dockerfiles with template substitutions; debugging
 cat rock/rock-deb-dockerfile.template | envsubst '${repo_branch}' > rock/Dockerfile
