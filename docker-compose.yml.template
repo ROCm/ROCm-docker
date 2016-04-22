@@ -24,17 +24,17 @@ services:
     volumes:
       - ${rocr_volume}
 
-  hcc-isa:
+  hcc-lc:
     depends_on:
       - rocr
     build:
-      context: ./hcc-isa
+      context: ./hcc-lc
       dockerfile: Dockerfile
-    image: ${hcc_isa_name}
-    container_name: hcc-isa
+    image: ${hcc_lc_name}
+    container_name: hcc-lc
     entrypoint: /bin/true
     volumes:
-      - ${hcc_volume}
+      - ${hcc_lc_volume}
 
   hcc-hsail:
     depends_on:
@@ -46,7 +46,7 @@ services:
     container_name: hcc-hsail
     entrypoint: /bin/true
     volumes:
-      - ${hcc_volume}
+      - ${hcc_hsail_volume}
 
   # The following defines application containers, which depend on the data-only
   # containers defiend above to provide their software layers
@@ -64,7 +64,7 @@ services:
     volumes_from:
       - roct:ro
       - rocr:ro
-      - hcc-isa:ro
+      - hcc-lc:ro
 
   rocm-project-hsail:
     build:

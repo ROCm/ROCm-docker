@@ -30,7 +30,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables
-ENV ROCR_INSTALL_PATH=${rocr_volume} ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
+ENV ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime/
 
 # Configure, build and install the runtime
 # HSAIL based tools need the finalizer libraries, provided in the included deb file
@@ -38,19 +38,17 @@ ENV ROCR_INSTALL_PATH=${rocr_volume} ROCR_BUILD_PATH=/usr/local/src/ROCR-Runtime
 RUN mkdir -p ${ROCR_BUILD_PATH} && \
   cd ${ROCR_BUILD_PATH} && \
   git clone --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCR-Runtime.git ./ && \
-  dpkg --fsys-tarfile packages/ubuntu/*.deb | tar -xf - -C / --wildcards *.so* --exclude=libhsa-runtime64* && \
   mkdir -p build && \
   cd build && \
     cmake \
-      -DHSATHK_BUILD_INC_PATH=${HSATHK_INSTALL_PATH}/include \
-      -DHSATHK_BUILD_LIB_PATH=${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu \
-      -DCMAKE_INSTALL_PREFIX=${ROCR_INSTALL_PATH} \
+      -DHSATHK_BUILD_INC_PATH=${roct_volume}/include \
+      -DHSATHK_BUILD_LIB_PATH=${roct_volume}/lib/x86_64-linux-gnu \
+      -DCMAKE_INSTALL_PREFIX=${rocr_volume} \
       -DCMAKE_BUILD_TYPE=${build_config} \
     ../src && \
   make -j $(nproc) install && \
-  cp -r ../src/inc ${ROCR_INSTALL_PATH}/include && \
+  cp -r ../src/inc ${rocr_volume}/include && \
+  git log -n 3 > ${rocr_volume}/git-stamp.log && \
   ${rocr_cleanup} \
-  echo "${ROCR_INSTALL_PATH}lib" >> /etc/ld.so.conf.d/rocr.conf && \
+  echo "${rocr_volume}lib" >> /etc/ld.so.conf.d/hsa-rocr-dev.conf && \
   ldconfig
-
-COPY setenv-rocr.sh ${ROCR_INSTALL_PATH}

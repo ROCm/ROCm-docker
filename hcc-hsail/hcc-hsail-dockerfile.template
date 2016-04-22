@@ -43,8 +43,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables
-ENV HCC_INSTALL_PATH=${hcc_volume} HCC_BUILD_PATH=/usr/local/src/hcc-hsail
-ENV PATH ${PATH}:${HCC_INSTALL_PATH}/bin
+ENV HCC_BUILD_PATH=/usr/local/src/hcc-hsail
+ENV PATH ${PATH}:${hcc_hsail_volume}/bin
 
 # Build hcc, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
@@ -52,17 +52,16 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   git clone --depth=1 --branch=${repo_branch_hcc_hsail} https://github.com/RadeonOpenCompute/hcc.git ./ && \
   mkdir -p build && \
   cd build && \
+  ln -sr ${rocr_volume}/include ${rocr_volume}/include/hsa && \
   cmake \
-    -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
+    -DCMAKE_INSTALL_PREFIX=${hcc_hsail_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
-    -DHSA_HEADER_DIR=${ROCR_INSTALL_PATH}/include \
-    -DHSA_LIBRARY_DIR=${ROCR_INSTALL_PATH}/lib \
-    -DHSA_KMT_LIBRARY_DIR=${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu \
+    -DROCM_ROOT=${rocr_volume} \
+    -DHSA_KMT_LIBRARY_DIR=${roct_volume}/lib/x86_64-linux-gnu \
     .. && \
   make -j $(nproc) world && \
   make install && \
+  git log -n 3 > ${hcc_hsail_volume}/git-stamp.log && \
   ${hcc_hsail_cleanup} \
-  echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc.conf && \
+  echo "${hcc_hsail_volume}/lib" >> /etc/ld.so.conf.d/hcc.conf && \
   ldconfig
-
-COPY setenv-hcc.sh ${HCC_INSTALL_PATH}
