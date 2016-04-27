@@ -1,3 +1,6 @@
+# #################################################
+# Copyright (c) 2016 Advanced Micro Devices, Inc.
+# #################################################
 #!/usr/bin/env bash
 
 # Set reasonable defaults for dockerfile builds
@@ -65,18 +68,18 @@ while :; do
   shift
 done
 
-# hcc-hsail does not have a develop branch
-export repo_branch_hcc_hsail="master"
-
 # hcc-lc conforms to a non git-flow naming scheme, 'master' changes the most
 export repo_branch_hcc_lc=
+export repo_branch_hcc_hsail=
 
 export repo_branch=
 if [ -n "${build_master}" ]; then
   repo_branch="master"
+  repo_branch_hcc_hsail="master"
   repo_branch_hcc_lc="testing"
 else
   repo_branch="dev"
+  repo_branch_hcc_hsail="develop"
   repo_branch_hcc_lc="master"
 fi
 

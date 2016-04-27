@@ -20,12 +20,23 @@ Without explicit parameters, `./roc-setup` default flags are --master && --relea
 
 `./roc-setup` generates Dockerfiles to be consumed by the docker build engine.  Each sub-directory of this repository corresponds to a docker 'build context' responsible for a software layer in the ROCm stack.  After running the script each directory contains a generated 'Dockerfile'.  The parameters to the script control which flavor of the components to build, for instance: debug builds of the /develop branches.
 
+**What are the individual ROCm software components**
+
 | ROC component | |
 |-----|-----|
-| hcc-isa | the compiler that generates GPU ISA from the backend |
-| hcc-hsail | the compiler that generates HSAIL IL from the backend |
-| rocr | the runtime |
 | roct | the kernel thunk library |
+| rocr | the runtime |
+| hcc-hsail | the compiler that generates HSAIL IL from the backend |
+| hcc-lc | the compiler that generates GPU ISA from the backend |
+
+**What repo branches are built with roc-setup flags**
+
+|| --master | --develop |
+|------|-----|-----|
+|roct| master | dev |
+|rocr| master | dev |
+|hcc-hsail| master | develop |
+|hcc-lc| testing | master |
 
 The ROCm component that can not be used in a docker image is the ROCK-Kernel-Driver<sup>[1](#ROCK)</sup>.  In order for the docker framework to function, **the ROCm kernel must be installed on the host machine.**  This is a design constraint of docker; the linux kernel is not resident in the container.  All containers share the host linux kernel, so the ROCK-Kernel-Driver component must be installed on the host linux kernel.
 

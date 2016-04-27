@@ -1,3 +1,7 @@
+# #################################################
+# Copyright (c) 2016 Advanced Micro Devices, Inc.
+# #################################################
+
 version: '2'
 services:
 # The following defines data-only containers
@@ -51,13 +55,24 @@ services:
   # The following defines application containers, which depend on the data-only
   # containers defiend above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
-  rocm-project-isa:
+  rocm:
     build:
       context: ./rocm-project
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm-project-isa
+    image: rocm/rocm
+  # volumes is used to map host directories into the container
+    volumes:
+      - ~:/usr/local/src/host-home
+
+  rocm-source:
+    build:
+      context: ./rocm-project
+      dockerfile: Dockerfile
+    devices:
+      - "/dev/kfd"
+    image: rocm/rocm-source
   # volumes is used to map host directories into the container
     volumes:
       - ~:/usr/local/src/host-home
@@ -65,18 +80,4 @@ services:
       - roct:ro
       - rocr:ro
       - hcc-lc:ro
-
-  rocm-project-hsail:
-    build:
-      context: ./rocm-project
-      dockerfile: Dockerfile
-    devices:
-      - "/dev/kfd"
-    image: rocm/rocm-project-hsail
-  # volumes is used to map host directories into the container
-    volumes:
-      - ~:/usr/local/src/host-home
-    volumes_from:
-      - roct:ro
-      - rocr:ro
       - hcc-hsail:ro
