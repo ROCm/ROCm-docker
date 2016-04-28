@@ -4,7 +4,7 @@
 
 version: '2'
 services:
-# The following defines data-only containers
+# The following containers are data-only, exporting volumes
 # They are not meant to be used as interactive containers
   roct:
     build:
@@ -55,25 +55,23 @@ services:
   # The following defines application containers, which depend on the data-only
   # containers defiend above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
-  rocm:
+  rocm-terminal:
     build:
       context: ./rocm-project
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm
-  # volumes is used to map host directories into the container
+    image: rocm/rocm-terminal
     volumes:
       - ~:/usr/local/src/host-home
 
-  rocm-source:
+  rocm-terminal-volumes:
     build:
       context: ./rocm-project
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm-source
-  # volumes is used to map host directories into the container
+    image: rocm/rocm-terminal-volumes
     volumes:
       - ~:/usr/local/src/host-home
     volumes_from:

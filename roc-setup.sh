@@ -79,7 +79,7 @@ if [ -n "${build_master}" ]; then
   repo_branch_hcc_lc="testing"
 else
   repo_branch="dev"
-  repo_branch_hcc_hsail="develop"
+  repo_branch_hcc_hsail="master"  # temp
   repo_branch_hcc_lc="master"
 fi
 

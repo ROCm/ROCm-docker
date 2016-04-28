@@ -10,12 +10,6 @@
 FROM ubuntu:14.04
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Constant environment variables
-ENV WORKPATH /root
-
-# Set working directory to be root's home directory
-WORKDIR ${WORKPATH}
-
 # Default to a login shell
 ENTRYPOINT ["/bin/bash"]
 CMD ["-l"]

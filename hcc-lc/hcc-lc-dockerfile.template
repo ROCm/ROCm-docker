@@ -9,12 +9,6 @@
 FROM ${rocr_name}
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Global environment variables
-ENV WORKPATH /root
-
-# Set working directory to be root's home directory
-WORKDIR ${WORKPATH}
-
 # Default to a login shell
 ENTRYPOINT ["/bin/bash"]
 CMD ["-l"]

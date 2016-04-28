@@ -17,11 +17,9 @@ MAINTAINER Kent Knox <kent.knox@amd>
 ENTRYPOINT ["/bin/bash"]
 CMD ["-l"]
 
-# Initialize the image to install recommended dev tools and ROCm packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y curl
-
 # The following imports a key to the external AMD packages repository to make it trusted
-RUN curl -sL http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | apt-key add - && \
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y curl && \
+    curl -sL http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | apt-key add - && \
     sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ trusty main > /etc/apt/sources.list.d/rocm.list'
 
 # Initialize the image to install recommended dev tools and ROCm packages
