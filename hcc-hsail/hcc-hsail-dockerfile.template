@@ -51,7 +51,7 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
     -DCMAKE_INSTALL_PREFIX=${hcc_hsail_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
     -DROCM_ROOT=${rocr_volume} \
-    -DHSA_KMT_LIBRARY_DIR=${roct_volume}/lib/x86_64-linux-gnu \
+    -DHSA_KMT_LIBRARY_DIR=${roct_volume}${lib64_install_dir} \
     .. && \
   make -j $(nproc) world && \
   make install && \

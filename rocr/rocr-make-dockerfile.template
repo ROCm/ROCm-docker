@@ -4,8 +4,6 @@
 # most changing at bottom
 
 # This builds the radeon open compute runtime
-
-# ubuntu:14.04.3, the native kernel is '3.19'
 FROM ${roct_name}
 MAINTAINER Kent Knox <kent.knox@amd>
 
@@ -41,12 +39,13 @@ RUN mkdir -p ${ROCR_BUILD_PATH} && \
   cd build && \
     cmake \
       -DHSATHK_BUILD_INC_PATH=${roct_volume}/include \
-      -DHSATHK_BUILD_LIB_PATH=${roct_volume}/lib/x86_64-linux-gnu \
+      -DHSATHK_BUILD_LIB_PATH=${roct_volume}${lib64_install_dir} \
       -DCMAKE_INSTALL_PREFIX=${rocr_volume} \
       -DCMAKE_BUILD_TYPE=${build_config} \
     ../src && \
   make -j $(nproc) install && \
   cp -r ../src/inc ${rocr_volume}/include && \
+  cp -r ../sample ${rocr_volume}/sample && \
   git log -n 3 > ${rocr_volume}/git-stamp.log && \
   ${rocr_cleanup} \
   echo "${rocr_volume}lib" >> /etc/ld.so.conf.d/hsa-rocr-dev.conf && \

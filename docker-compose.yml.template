@@ -1,7 +1,3 @@
-# #################################################
-# Copyright (c) 2016 Advanced Micro Devices, Inc.
-# #################################################
-
 version: '2'
 services:
 # The following containers are data-only, exporting volumes
@@ -55,23 +51,23 @@ services:
   # The following defines application containers, which depend on the data-only
   # containers defiend above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
-  rocm-terminal:
+  rocm:
     build:
       context: ./rocm-project
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm-terminal
+    image: rocm/terminal
     volumes:
       - ~:/usr/local/src/host-home
 
-  rocm-terminal-volumes:
+  rocm-from-src:
     build:
       context: ./rocm-project
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm-terminal-volumes
+    image: rocm/terminal
     volumes:
       - ~:/usr/local/src/host-home
     volumes_from:

@@ -23,16 +23,14 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # App specific environment variables
 ENV HSATHK_BUILD_PATH=/usr/local/src/ROCT-Thunk-Interface
 
-COPY setenv-roct.sh ${roct_volume}
-
 RUN mkdir -p ${HSATHK_BUILD_PATH} && \
   cd ${HSATHK_BUILD_PATH} && \
   git clone --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git ./ && \
   make -j $(nproc) ${build_config_roct} all deb && \
-  mkdir -p ${roct_volume}/lib/x86_64-linux-gnu && \
+  mkdir -p ${roct_volume}${lib64_install_dir} && \
   cp -a include/ ${roct_volume} && \
-  cp -a build/lnx64a/lib*.so* ${roct_volume}/lib/x86_64-linux-gnu && \
+  cp -a build/lnx64a/lib*.so* ${roct_volume}${lib64_install_dir} && \
   git log -n 3 > ${roct_volume}/git-stamp.log && \
   ${roct_cleanup} \
-  echo "${roct_volume}lib/x86_64-linux-gnu" >> /etc/ld.so.conf.d/x86_64-libhsakmt.conf && \
+  echo "${roct_volume}${lib64_install_dir}" >> /etc/ld.so.conf.d/x86_64-libhsakmt.conf && \
   ldconfig
