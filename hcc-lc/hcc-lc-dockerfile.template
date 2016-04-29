@@ -1,4 +1,4 @@
-# Build this dockerfile with `docker build -f hcc-isa-release-dockerfile -t roc/hcc .`
+# Build this dockerfile with `docker build -f hcc-lc-release-dockerfile -t roc/hcc .`
 
 # To reduce container rebuild time, place commands least likely to change at top to
 # most changing at bottom
@@ -8,12 +8,6 @@
 # ubuntu:14.04.3, the native kernel is '3.19'
 FROM ${rocr_name}
 MAINTAINER Kent Knox <kent.knox@amd>
-
-# Global environment variables
-ENV WORKPATH /root
-
-# Set working directory to be root's home directory
-WORKDIR ${WORKPATH}
 
 # Default to a login shell
 ENTRYPOINT ["/bin/bash"]
@@ -34,24 +28,24 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables; modify path to add hcc and repo commands
-ENV HCC_INSTALL_PATH=${hcc_volume} HCC_BUILD_PATH=/usr/local/src/hcc-isa
-ENV PATH=${PATH}:${HCC_INSTALL_PATH}/bin:~/bin
+ENV HCC_BUILD_PATH=/usr/local/src/hcc-lc
+ENV PATH=${PATH}:${hcc_lc_volume}/bin:~/bin
 
 # Compiling hcc-lc requires a custom build tool
 RUN mkdir -p ~/bin && \
     curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo && \
     chmod a+x ~/bin/repo
 
-# Build hcc-isa, install to /usr/local
+# Build hcc-lc, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
-  ~/bin/repo init --depth=1 -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ${repo_branch_hcc_isa} && \
+  ~/bin/repo init --depth=1 -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ${repo_branch_hcc_lc} && \
   ~/bin/repo sync && \
   cd llvm && \
   mkdir -p build && \
   cd build && \
   cmake \
-    -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
+    -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
     -DLLVM_TARGETS_TO_BUILD="AMDGPU;X86" .. && \
   make -j $(nproc) install && \
@@ -60,27 +54,27 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   mkdir -p build && \
   cd build && \
   cmake \
-    -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
+    -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
-    -DHSA_ROOT=${ROCR_INSTALL_PATH} \
+    -DHSA_ROOT=${rocr_volume} \
     -DLLVM_DIR="${HCC_BUILD_PATH}/llvm/build" .. && \
   make -j $(nproc) install && \
 
   cd ../../hcc && \
   mkdir -p build && \
   cd build && \
+  ln -sr ${rocr_volume}/include ${rocr_volume}/include/hsa && \
   cmake \
-    -DCMAKE_INSTALL_PREFIX=${HCC_INSTALL_PATH} \
+    -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
-    -DHSA_ROOT=${ROCR_INSTALL_PATH} \
-    -DHSA_LLVM_BIN_DIR=${HCC_INSTALL_PATH}/bin \
+    -DROCM_ROOT=${rocr_volume} \
+    -DHSA_LLVM_BIN_DIR=${hcc_lc_volume}/bin \
     -DHSA_AMDGPU_GPU_TARGET=fiji \
-    -DAMDPHDRS_DIR=${HCC_INSTALL_PATH}/bin \
+    -DAMDPHDRS_DIR=${hcc_lc_volume}/bin \
     -DHSA_USE_AMDGPU_BACKEND=ON .. && \
   make -j $(nproc) world && \
   make install && \
-  ${hcc_isa_cleanup} \
-  echo "${HCC_INSTALL_PATH}/lib" >> /etc/ld.so.conf.d/hcc-isa.conf && \
+  git log -n 3 > ${hcc_lc_volume}/git-stamp.log && \
+  ${hcc_lc_cleanup} \
+  echo "${hcc_lc_volume}/lib" >> /etc/ld.so.conf.d/hcc-lc.conf && \
   ldconfig
-
-  COPY setenv-hcc.sh ${HCC_INSTALL_PATH}

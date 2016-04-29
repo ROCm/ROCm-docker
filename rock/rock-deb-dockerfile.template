@@ -7,14 +7,8 @@
 
 # This kfd has only been tested so far on linux-headers-generic-lts-vivid
 # ubuntu:14.04.3, the native kernel is '3.19'
-FROM ubuntu:14.04.3
+FROM ubuntu:14.04
 MAINTAINER Kent Knox <kent.knox@amd>
-
-# Constant environment variables
-ENV WORKPATH /root
-
-# Set working directory to be root's home directory
-WORKDIR ${WORKPATH}
 
 # Default to a login shell
 ENTRYPOINT ["/bin/bash"]
@@ -39,5 +33,6 @@ RUN mkdir -p ${ROCK_BUILD_PATH} && \
   git checkout ${repo_branch} -- packages/ubuntu && \
   DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/compute-*.deb && \
   DEBIAN_FRONTEND=noninteractive dpkg -i packages/ubuntu/linux-*.deb && \
+  git log -n 3 > ${rock_volume}/git-stamp.log && \
   cd ~ && rm -rf ${ROCK_BUILD_PATH} && \
   echo "KERNEL==\"kfd\", MODE=\"0666\"" | sudo tee /etc/udev/rules.d/kfd.rules

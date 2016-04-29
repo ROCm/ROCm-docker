@@ -9,12 +9,6 @@
 FROM ubuntu:14.04
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Global environment variables
-ENV WORKPATH /root
-
-# Set working directory to be root's home directory
-WORKDIR ${WORKPATH}
-
 # Default to a login shell
 ENTRYPOINT ["/bin/bash"]
 CMD ["-l"]
@@ -27,16 +21,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rm -rf /var/lib/apt/lists/*
 
 # App specific environment variables
-ENV HSATHK_INSTALL_PATH=${roct_volume} HSATHK_BUILD_PATH=/usr/local/src/ROCT-Thunk-Interface
-
-COPY setenv-roct.sh ${HSATHK_INSTALL_PATH}
+ENV HSATHK_BUILD_PATH=/usr/local/src/ROCT-Thunk-Interface
 
 RUN mkdir -p ${HSATHK_BUILD_PATH} && \
   cd ${HSATHK_BUILD_PATH} && \
   git clone --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git ./ && \
   make -j $(nproc) ${build_config_roct} all deb && \
-  mkdir -p ${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu && \
-  cp -a include/ ${HSATHK_INSTALL_PATH} && \
-  cp -a build/lnx64a/lib*.so* ${HSATHK_INSTALL_PATH}/lib/x86_64-linux-gnu && \
+  mkdir -p ${roct_volume}${lib64_install_dir} && \
+  cp -a include/ ${roct_volume} && \
+  cp -a build/lnx64a/lib*.so* ${roct_volume}${lib64_install_dir} && \
+  git log -n 3 > ${roct_volume}/git-stamp.log && \
   ${roct_cleanup} \
-  ${HSATHK_INSTALL_PATH}/setenv-roct.sh
+  echo "${roct_volume}${lib64_install_dir}" >> /etc/ld.so.conf.d/x86_64-libhsakmt.conf && \
+  ldconfig

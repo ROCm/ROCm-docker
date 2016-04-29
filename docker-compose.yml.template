@@ -1,6 +1,6 @@
 version: '2'
 services:
-# The following defines data-only containers
+# The following containers are data-only, exporting volumes
 # They are not meant to be used as interactive containers
   roct:
     build:
@@ -24,17 +24,17 @@ services:
     volumes:
       - ${rocr_volume}
 
-  hcc-isa:
+  hcc-lc:
     depends_on:
       - rocr
     build:
-      context: ./hcc-isa
+      context: ./hcc-lc
       dockerfile: Dockerfile
-    image: ${hcc_isa_name}
-    container_name: hcc-isa
+    image: ${hcc_lc_name}
+    container_name: hcc-lc
     entrypoint: /bin/true
     volumes:
-      - ${hcc_volume}
+      - ${hcc_lc_volume}
 
   hcc-hsail:
     depends_on:
@@ -46,37 +46,32 @@ services:
     container_name: hcc-hsail
     entrypoint: /bin/true
     volumes:
-      - ${hcc_volume}
+      - ${hcc_hsail_volume}
 
   # The following defines application containers, which depend on the data-only
   # containers defiend above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
-  rocm-project-isa:
+  rocm:
     build:
       context: ./rocm-project
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm-project-isa
-  # volumes is used to map host directories into the container
+    image: rocm/terminal
     volumes:
       - ~:/usr/local/src/host-home
-    volumes_from:
-      - roct:ro
-      - rocr:ro
-      - hcc-isa:ro
 
-  rocm-project-hsail:
+  rocm-from-src:
     build:
       context: ./rocm-project
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/rocm-project-hsail
-  # volumes is used to map host directories into the container
+    image: rocm/terminal
     volumes:
       - ~:/usr/local/src/host-home
     volumes_from:
       - roct:ro
       - rocr:ro
+      - hcc-lc:ro
       - hcc-hsail:ro
