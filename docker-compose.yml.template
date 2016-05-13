@@ -53,7 +53,7 @@ services:
   # These should be run with `docker-compose run --rm <application-service>`
   rocm:
     build:
-      context: ./rocm-project
+      context: ./rocm-terminal
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
@@ -63,7 +63,7 @@ services:
 
   rocm-from-src:
     build:
-      context: ./rocm-project
+      context: ./rocm-terminal
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
