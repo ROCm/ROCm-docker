@@ -102,21 +102,26 @@ new-rocm-app:                         # docker-compose target name; was 'rocm-fr
     - hcc-hsail:ro
 ```
 
+### Running a ROCm container as root
+The dockerfile that serves as the 'terminal' creates a non-root user called **rocm-user**.  For most applications, this user should have sufficient permissions to compile and run ROCm applications.  If it is necessary to run the ROCm container with root privileges, the easiest way is to override the USER setting by passing the **-u 0** parameter to `docker run`.  If that is not sufficient, then it is possible to set the password (of root or the user) to a known quantity by directly modifying the **rocm-terminal/Dockerfile** and adding `RUN echo 'account:password' | chpasswd` or OS equivalent directly into your personal dockerfile.
+
 ### Running an application using docker-compose
 You run the new container (and its dependencies) with docker-compose.  When the container is fully loaded and running, you will be presented with a root prompt within the container.
 
 ```bash
-docker-compose run --rm <my-rocm-terminal>
+docker-compose run --rm <my-rocm-terminal>  # run as normal user
 ```
-
-### Running a ROCm container as root
-The dockerfile that serves as the 'terminal' creates a non-root user called `rocm-user`.  For most applications, this user should have sufficient permissions to compile and run ROCm applications.  If it is necessary to run the ROCm container with root privileges, the easiest way is to override the USER setting by passing the `-u 0` parameter to `docker run`.  If that is not sufficient, then it is possible to set the `root` password to a known quantity by directly modifying the `rocm-terminal/Dockerfile` and adding `RUN echo 'account:password' | chpasswd` or OS equivalent directly into your personal dockerfile.
+or
+```bash
+docker-compose run --rm -u 0 <my-rocm-terminal>  # run as root
+```
 
 | Docker command reference | |
 |-----|-----|
 | docker-compose | docker compose executable|
 | run | sub-command to bring up interactive container |
 | --rm | when shutting the container down, delete it |
+| -u 0 | override default user with root (uid 0) |
 | my-rocm-terminal | application service defined in **docker-compose.yml** |
 
 To shut down ROCm dependencies and clean up

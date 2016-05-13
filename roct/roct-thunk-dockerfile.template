@@ -28,7 +28,8 @@ RUN mkdir -p ${HSATHK_BUILD_PATH} && \
   git clone --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git ./ && \
   make -j $(nproc) ${build_config_roct} all deb && \
   mkdir -p ${roct_volume}${lib64_install_dir} && \
-  cp -a include/ ${roct_volume} && \
+  mkdir -p ${roct_volume}/include/libhsakmt && \
+  cp -a include/* ${roct_volume}/include/libhsakmt && \
   cp -a build/lnx64a/lib*.so* ${roct_volume}${lib64_install_dir} && \
   git log -n 3 > ${roct_volume}/git-stamp.log && \
   ${roct_cleanup} \
