@@ -56,6 +56,7 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
+    -DBUILD_EXAMPLES=OFF \
     -DHSA_ROOT=${rocr_volume} \
     -DLLVM_DIR="${HCC_BUILD_PATH}/llvm/build" .. && \
   make -j $(nproc) install && \

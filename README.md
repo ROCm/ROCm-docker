@@ -16,7 +16,7 @@ This repository contains a framework for building the software layers defined in
   * `cd ROCm-docker`
 3.  Build the container
   * Not using docker-compose
-      * `docker build -t rocm/rocm-terminal rocm-project`
+      * `docker build -t rocm/rocm-terminal rocm-terminal`
       * `docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal`
   * If using docker-compose
       * `docker-compose run --rm rocm`
@@ -75,8 +75,8 @@ Using docker-compose, a target is provided that will import the data-only contai
   * `docker-compose run --rm rocm-from-src`
 
 ## Creating a custom application/development container
-The /rocm-project sub-directory contains a Dockerfile to build an image specifically built for ROCm software development.  Useful development tools are pre-installed into the container, and it's meant to serve as a starting point for interested developers to customize a dockerfile for their own projects.  To begin, simply:
-1. copy the /rocm-project sub-directory into a new directory name, such as /my-rocm-project
+The /rocm-terminal sub-directory contains a Dockerfile to build an image specifically built for ROCm software development.  Useful development tools are pre-installed into the container, and it's meant to serve as a starting point for interested developers to customize a dockerfile for their own projects.  To begin, simply:
+1. copy the /rocm-terminal sub-directory into a new directory name, such as /my-rocm-terminal
 2. open and customize the Dockerfile;  pre-install dependencies and services
 3. modify the **docker-compose.yml.template** file and add a new service which prepares a new image
   - copy the 'rocm' target to build a container using the latest ROCm binary release
@@ -102,11 +102,18 @@ new-rocm-app:                         # docker-compose target name; was 'rocm-fr
     - hcc-hsail:ro
 ```
 
+### Running a ROCm container as root
+The dockerfile that serves as the 'terminal' creates a non-root user called **rocm-user**.  For most applications, this user should have sufficient permissions to compile and run ROCm applications.  If it is necessary to run the ROCm container with root privileges, the easiest way is to override the USER setting by passing the **-u 0** parameter to `docker run`.  If that is not sufficient, then it is possible to set the password (of root or the user) to a known quantity by directly modifying the **rocm-terminal/Dockerfile** and adding `RUN echo 'account:password' | chpasswd` or OS equivalent directly into your personal dockerfile.
+
 ### Running an application using docker-compose
 You run the new container (and its dependencies) with docker-compose.  When the container is fully loaded and running, you will be presented with a root prompt within the container.
 
 ```bash
-docker-compose run --rm <my-rocm-project>
+docker-compose run --rm <my-rocm-terminal>  # run as normal user
+```
+or
+```bash
+docker-compose run --rm -u 0 <my-rocm-terminal>  # run as root
 ```
 
 | Docker command reference | |
@@ -114,7 +121,8 @@ docker-compose run --rm <my-rocm-project>
 | docker-compose | docker compose executable|
 | run | sub-command to bring up interactive container |
 | --rm | when shutting the container down, delete it |
-| my-rocm-project | application service defined in **docker-compose.yml** |
+| -u 0 | override default user with root (uid 0) |
+| my-rocm-terminal | application service defined in **docker-compose.yml** |
 
 To shut down ROCm dependencies and clean up
 ```bash
