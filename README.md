@@ -5,29 +5,50 @@ This repository contains a framework for building the software layers defined in
 -  Docker on [Ubuntu systems](https://docs.docker.com/v1.8/installation/ubuntulinux/) or [Fedora systems](https://docs.docker.com/v1.8/installation/fedora/)
 -  Highly recommended: [Docker-Compose](https://docs.docker.com/compose/install/) to simplify container management
 
-## ROCm docker quick start guide
-1.  Install the ROCK kernel
-  *  [Installing](https://github.com/RadeonOpenCompute/ROCm#debian-repository---apt-get) on Ubuntu 14.04
-      * `wget -qO - http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -`
-      * `sudo sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ trusty main > /etc/apt/sources.list.d/rocm.list'`
-      * `sudo apt-get update && sudo apt-get install rocm-kernel`
-2.  Clone this repository
-  * `git clone https://github.com/RadeonOpenCompute/ROCm-docker`
-  * `cd ROCm-docker`
-3.  Build the container
-  * Not using docker-compose
-      * `docker build -t rocm/rocm-terminal rocm-terminal`
-      * `docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal`
-  * If using docker-compose
-      * `docker-compose run --rm rocm`
-5.  Verify a working container-based ROCm software stack
+## ROCm-docker quick start videos
+### Install rocm-kernel
+[![Install rocm-kernel](https://asciinema.org/a/cv0r34re9hp9g5hoja8vyh803.png)](https://asciinema.org/a/cv0r34re9hp9g5hoja8vyh803)
+
+* [Installing ROCK kernel](https://github.com/RadeonOpenCompute/ROCm#debian-repository---apt-get) on Ubuntu 14.04  
+
+```bash
+wget -qO - http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
+sudo sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ trusty main  \
+    > /etc/apt/sources.list.d/rocm.list'
+sudo apt-get update && sudo apt-get install rocm-kernel
+```
+
+### Build ROCm container using docker CLI
+[![asciicast](https://asciinema.org/a/b256qje4t4axspjkvp2ssu90o.png)](https://asciinema.org/a/b256qje4t4axspjkvp2ssu90o)
+
+* Clone and build the container
+
+```bash
+git clone https://github.com/RadeonOpenCompute/ROCm-docker
+cd ROCm-docker
+docker build -t rocm/rocm-terminal rocm-terminal
+docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal
+```
+
+### Build ROCm container using docker-compose
+[![asciicast](https://asciinema.org/a/bk71bsovcr0z42r64ed6vv6no.png)](https://asciinema.org/a/bk71bsovcr0z42r64ed6vv6no)
+
+* Clone and build the container using [docker-compose](https://docs.docker.com/compose/install/)
+
+```bash
+git clone https://github.com/RadeonOpenCompute/ROCm-docker
+cd ROCm-docker
+docker-compose run --rm rocm
+```
+### Verify successful build of ROCm-docker container
+*  Verify a working container-based ROCm software stack
   * After step #2 or #3, a bash login prompt to a running docker container should be available
       * `hcc --version` should display version information of the AMD heterogeneous compiler
   * Execute sample application
       * `cd /opt/rocm/hsa/sample`
       * `make`
       * `./vector-copy`
-      * Text displaying successful creation of a GPU device, successful kernel compilation and successful shutdown should be printed to stdout
+  * Text displaying successful creation of a GPU device, successful kernel compilation and successful shutdown should be printed to stdout
 
 # Details
 Docker does not virtualize or package the linux kernel inside of an image or container.  This is a design decision of docker to provide the lightweight and fast containerization.  The implication for this on the ROCm compute stack is that in order for the docker framework to function, **the ROCm kernel and corresponding modules must be installed on the host machine.**  All containers share the host kernel, The ROCm component that can not be used in a docker image is the ROCK-Kernel-Driver<sup>[1](#ROCK)</sup>.
