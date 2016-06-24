@@ -13,10 +13,6 @@
 FROM ubuntu:14.04
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Default to a login shell
-ENTRYPOINT ["/bin/bash"]
-CMD ["-l"]
-
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl && \
@@ -35,16 +31,17 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl && 
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-# This is meant to be used as an interactive container; create a non-root user without a password by default
-# If root access is required, it is safest to pass the '-u 0' parameter to 'docker run'
-# If that is insufficient, set a password in the commented RUN statement below
-RUN useradd --create-home --shell /bin/bash rocm-user
-# RUN echo 'account:password' | chpasswd
+# Grant members of 'sudo' group passwordless privileges
+# Comment out to require sudo
+COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
+
+# This is meant to be used as an interactive developer container
+# Create user rocm-user as member of sudo group
+RUN useradd --create-home -G sudo --shell /bin/bash rocm-user && \
+    echo "\nPATH=${PATH}:/opt/rocm/bin\n" >> /home/rocm-user/.bashrc
+
 USER rocm-user
 WORKDIR /home/rocm-user
-
-# Extend PATH to include binaries installed with ROCm
-RUN echo "\nPATH=${PATH}:/opt/rocm/bin\n" >> ~/.bashrc
 
 # The following are optional enhancements for the command-line experience
 # Uncomment the following to install a pre-configured vim environment based on http://vim.spf13.com/
@@ -52,3 +49,6 @@ RUN echo "\nPATH=${PATH}:/opt/rocm/bin\n" >> ~/.bashrc
 # 2.  Aliases GDB to enable TUI mode by default
 #RUN curl -sL https://j.mp/spf13-vim3 | bash && \
 #    echo "alias gdb='gdb --tui'\n" >> ~/.bashrc
+
+# Default to a login shell
+CMD ["env", "TERM=xterm-color", "bash", "-l"]
