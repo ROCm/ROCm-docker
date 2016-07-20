@@ -1,7 +1,7 @@
+#!/usr/bin/env bash
 # #################################################
 # Copyright (c) 2016 Advanced Micro Devices, Inc.
 # #################################################
-#!/usr/bin/env bash
 
 # Set reasonable defaults for dockerfile builds
 # Default: --master, --release
