@@ -19,26 +19,26 @@ sudo apt-get update && sudo apt-get install rocm-kernel
 ```
 
 ### Build ROCm container using docker CLI
-[![asciicast](https://asciinema.org/a/b256qje4t4axspjkvp2ssu90o.png)](https://asciinema.org/a/b256qje4t4axspjkvp2ssu90o)
+[![asciicast](https://asciinema.org/a/5u0d81txy9tskiitcispluw9v.png)](https://asciinema.org/a/5u0d81txy9tskiitcispluw9v)
 
 * Clone and build the container
 
 ```bash
 git clone https://github.com/RadeonOpenCompute/ROCm-docker
 cd ROCm-docker
-docker build -t rocm/rocm-terminal rocm-terminal
-docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal
+sudo docker build -t rocm/rocm-terminal rocm-terminal
+sudo docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal
 ```
 
 ### Build ROCm container using docker-compose
-[![asciicast](https://asciinema.org/a/bk71bsovcr0z42r64ed6vv6no.png)](https://asciinema.org/a/bk71bsovcr0z42r64ed6vv6no)
+[![asciicast](https://asciinema.org/a/77cfxjz9ilt2x9ck27r9vanu7.png)](https://asciinema.org/a/77cfxjz9ilt2x9ck27r9vanu7)
 
 * Clone and build the container using [docker-compose](https://docs.docker.com/compose/install/)
 
 ```bash
 git clone https://github.com/RadeonOpenCompute/ROCm-docker
 cd ROCm-docker
-docker-compose run --rm rocm
+sudo docker-compose run --rm rocm
 ```
 ### Verify successful build of ROCm-docker container
 *  Verify a working container-based ROCm software stack
@@ -46,9 +46,20 @@ docker-compose run --rm rocm
       * `hcc --version` should display version information of the AMD heterogeneous compiler
   * Execute sample application
       * `cd /opt/rocm/hsa/sample`
-      * `make`
+      * `sudo make`
       * `./vector-copy`
   * Text displaying successful creation of a GPU device, successful kernel compilation and successful shutdown should be printed to stdout
+
+### Commit container state to docker image
+[![asciicast](https://asciinema.org/a/bka9uj16zuio4qlnsqcr7nv8z.png)](https://asciinema.org/a/bka9uj16zuio4qlnsqcr7nv8z)
+
+* Demonstrates saving a container with arbitrary work into a new docker image.  The new image serves as a checkpoint, that can be distributed to other users or used as a good known state
+
+```bash
+sudo docker ps -a
+sudo docker commit <container-name> <new-image-name>
+sudo docker images
+```
 
 # Details
 Docker does not virtualize or package the linux kernel inside of an image or container.  This is a design decision of docker to provide the lightweight and fast containerization.  The implication for this on the ROCm compute stack is that in order for the docker framework to function, **the ROCm kernel and corresponding modules must be installed on the host machine.**  All containers share the host kernel, The ROCm component that can not be used in a docker image is the ROCK-Kernel-Driver<sup>[1](#ROCK)</sup>.
@@ -123,18 +134,28 @@ new-rocm-app:                         # docker-compose target name; was 'rocm-fr
     - hcc-hsail:ro
 ```
 
-### Running a ROCm container as root
-The dockerfile that serves as the 'terminal' creates a non-root user called **rocm-user**.  For most applications, this user should have sufficient permissions to compile and run ROCm applications.  If it is necessary to run the ROCm container with root privileges, the easiest way is to override the USER setting by passing the **-u 0** parameter to `docker run`.  If that is not sufficient, then it is possible to set the password (of root or the user) to a known quantity by directly modifying the **rocm-terminal/Dockerfile** and adding `RUN echo 'account:password' | chpasswd` or OS equivalent directly into your personal dockerfile.
+### Saving work in a container
+Docker containers are typically ephemeral, and are discarded after closing the container with the '**--rm**' flag to `docker run`.  However, there are times when it is desirable to close a container that has arbitrary work in it, and serialize it back into a docker image.  This may be to to create a checkpoint in a long and complicated series of instructions, or it may be desired to share the image with others through a docker registry, such as docker hub.  
+
+```bash
+sudo docker ps -a  # Find container of interest
+sudo docker commit <container-name> <new-image-name>
+sudo docker images # Confirm existence of a new image
+```
+
+### rocm-user has root privileges by default
+The dockerfile that serves as the 'terminal' creates a non-root user called **rocm-user**.  Since this container is meant to serve as a development environment (and therefore `apt-get` likely needed), the user has been added to the linux sudo group.  In addition, since it is somewhat difficult to set and change passwords in a container (often requiring a rebuild), the password prompt has been disabled for the sudo group.  While this is convenient for development to be able `sudo apt-get install` packages, it does imply *lower security* in the container.  
+
+An option to increase container security:
+
+1.  Eliminate the sudo-nopasswd COPY statement in the dockerfile and replace with
+2.  Your own password with `RUN echo 'account:password' | chpasswd`
 
 ### Running an application using docker-compose
-You run the new container (and its dependencies) with docker-compose.  When the container is fully loaded and running, you will be presented with a root prompt within the container.
+You can run the new container (and its dependencies) with docker-compose.
 
 ```bash
-docker-compose run --rm <my-rocm-terminal>  # run as normal user
-```
-or
-```bash
-docker-compose run --rm -u 0 <my-rocm-terminal>  # run as root
+docker-compose run --rm <my-rocm-terminal>  # run as rocm-user
 ```
 
 | Docker command reference | |
