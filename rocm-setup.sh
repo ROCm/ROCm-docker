@@ -69,10 +69,11 @@ while :; do
 done
 
 # hcc-lc conforms to a non git-flow naming scheme, 'master' changes the most
+export repo_branch=
 export repo_branch_hcc_lc=
 export repo_branch_hcc_hsail=
+export repo_branch_rocr="master"
 
-export repo_branch=
 if [ -n "${build_master}" ]; then
   repo_branch="master"
   repo_branch_hcc_hsail="master"
@@ -101,7 +102,7 @@ if [ -n "${build_release}" ]; then
 
   rock_name="${rocm_prefix}rock-${repo_branch}"
   roct_name="${rocm_prefix}roct-${repo_branch}"
-  rocr_name="${rocm_prefix}rocr-${repo_branch}"
+  rocr_name="${rocm_prefix}rocr-${repo_branch_rocr}"
   hcc_hsail_name="${rocm_prefix}hcc-hsail-${repo_branch_hcc_hsail}"
   hcc_lc_name="${rocm_prefix}hcc-lc-${repo_branch_hcc_lc}"
 
@@ -119,7 +120,7 @@ else
   # The comma operator in ${build_config} makes the first letter lower case
   rock_name="${rocm_prefix}rock-${repo_branch}"
   roct_name="${rocm_prefix}roct-${repo_branch}-${build_config,}"
-  rocr_name="${rocm_prefix}rocr-${repo_branch}-${build_config,}"
+  rocr_name="${rocm_prefix}rocr-${repo_branch_rocr}-${build_config,}"
   hcc_hsail_name="${rocm_prefix}hcc-hsail-${repo_branch_hcc_hsail}-${build_config,}"
   hcc_lc_name="${rocm_prefix}hcc-lc-${repo_branch_hcc_lc}-${build_config,}"
 fi
@@ -136,7 +137,7 @@ export lib64_install_dir='/lib'
 # Uncomment below to print dockerfiles with template substitutions; debugging
 cat rock/rock-deb-dockerfile.template | envsubst '${repo_branch}:${rock_volume}' > rock/Dockerfile
 cat roct/roct-thunk-dockerfile.template | envsubst '${rock_name}:${repo_branch}:${build_config_roct}:${roct_cleanup}:${roct_volume}:${lib64_install_dir}' > roct/Dockerfile
-cat rocr/rocr-make-dockerfile.template | envsubst '${roct_name}:${repo_branch}:${build_config}:${rocr_cleanup}:${roct_volume}:${rocr_volume}:${lib64_install_dir}' > rocr/Dockerfile
+cat rocr/rocr-make-dockerfile.template | envsubst '${roct_name}:${repo_branch_rocr}:${build_config}:${rocr_cleanup}:${roct_volume}:${rocr_volume}:${lib64_install_dir}' > rocr/Dockerfile
 cat hcc-hsail/hcc-hsail-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_hsail}:${build_config}:${hcc_hsail_cleanup}:${roct_volume}:${rocr_volume}:${hcc_hsail_volume}:${lib64_install_dir}' > hcc-hsail/Dockerfile
 cat hcc-lc/hcc-lc-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_lc}:${build_config}:${hcc_lc_cleanup}:${roct_volume}:${rocr_volume}:${hcc_lc_volume}' > hcc-lc/Dockerfile
 
