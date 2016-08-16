@@ -19,6 +19,7 @@ sudo docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal
 [![Install rocm-kernel](https://asciinema.org/a/cv0r34re9hp9g5hoja8vyh803.png)](https://asciinema.org/a/cv0r34re9hp9g5hoja8vyh803)
 
 * [Installing ROCK kernel](https://github.com/RadeonOpenCompute/ROCm#debian-repository---apt-get) on Ubuntu 14.04  
+  * This step will eventually go away as newer linux kernel images trickle down into upcoming distros.  Our kernel module developers (AMDGPU and AMDKFD) are contributing source back into the mainline linux kernel.  This step of installing a ROCm specific kernel image is temporary.  
 
 ```bash
 wget -qO - http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
@@ -59,14 +60,22 @@ sudo docker-compose run --rm rocm
       * `./vector-copy`
   * Text displaying successful creation of a GPU device, successful kernel compilation and successful shutdown should be printed to stdout
 
-### Commit container state to docker image
-[![asciicast](https://asciinema.org/a/bka9uj16zuio4qlnsqcr7nv8z.png)](https://asciinema.org/a/bka9uj16zuio4qlnsqcr7nv8z)
+### Quick notes for useful docker commands
+When working with the ROCm containers, the following are common and useful docker commands:
+*  Open another terminal into a running container
+  * `sudo docker exec -it <CONTAINER-NAME> env TERM=xterm-color bash -l`
+* Copy files from host machine into running docker container
+  * `sudo docker cp HOST_PATH <CONTAINER-NAME>:/PATH`
+* Copy files from running docker container onto host machine
+  * `sudo docker cp <CONTAINER-NAME>:/PATH/TO/FILE HOST_PATH`
+*  Commit container state to a persistent docker image
+  * The following asciicast demonstrates saving a container with arbitrary work into a new docker image.  The new image serves as a checkpoint, that can be distributed to other users or used as a good known state
 
-* Demonstrates saving a container with arbitrary work into a new docker image.  The new image serves as a checkpoint, that can be distributed to other users or used as a good known state
+[![asciicast](https://asciinema.org/a/bka9uj16zuio4qlnsqcr7nv8z.png)](https://asciinema.org/a/bka9uj16zuio4qlnsqcr7nv8z)
 
 ```bash
 sudo docker ps -a
-sudo docker commit <container-name> <new-image-name>
+sudo docker commit <CONTAINER-NAME> <NEW-IMAGE-NAME>
 sudo docker images
 ```
 
