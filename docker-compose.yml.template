@@ -49,7 +49,7 @@ services:
       - ${hcc_hsail_volume}
 
   # The following defines application containers, which depend on the data-only
-  # containers defiend above to provide their software layers
+  # containers defined above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
   rocm:
     build:
