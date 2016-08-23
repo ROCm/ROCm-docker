@@ -77,7 +77,7 @@ export repo_branch_rocr="master"
 if [ -n "${build_master}" ]; then
   repo_branch="master"
   repo_branch_hcc_hsail="master"
-  repo_branch_hcc_lc="testing"
+  repo_branch_hcc_lc="master"
 else
   repo_branch="dev"
   repo_branch_hcc_hsail="master"  # temp
