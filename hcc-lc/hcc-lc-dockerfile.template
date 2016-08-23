@@ -16,7 +16,6 @@ CMD ["-l"]
 # Install dependencies required to build hcc
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential \
-  cmake \
   git \
   curl \
   wget \
@@ -30,6 +29,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # App specific environment variables; modify path to add hcc and repo commands
 ENV HCC_BUILD_PATH=/usr/local/src/hcc-lc
 ENV PATH=${PATH}:${hcc_lc_volume}/bin:~/bin
+
+# Build cmake from scratch to support newer versions of LLVM
+RUN wget http://www.cmake.org/files/v3.6/cmake-3.6.0.tar.gz && \
+    tar xf cmake-3.6.0.tar.gz && \
+    cd cmake-3.6.0 && \
+    ./configure && \
+    make && \
+    make install &&\
+    cd .. &&\
+    rm -rf cmake-3.6.0.tar.gz cmake-3.6.0
 
 # Compiling hcc-lc requires a custom build tool
 RUN mkdir -p ~/bin && \
