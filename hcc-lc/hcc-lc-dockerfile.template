@@ -4,14 +4,8 @@
 # most changing at bottom
 
 # This builds the hcc compiler, and depends on an already existing rocr-runtime to be found
-
-# ubuntu:14.04.3, the native kernel is '3.19'
 FROM ${rocr_name}
 MAINTAINER Kent Knox <kent.knox@amd>
-
-# Default to a login shell
-ENTRYPOINT ["/bin/bash"]
-CMD ["-l"]
 
 # Install dependencies required to build hcc
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -26,19 +20,25 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# Download and install an up to date version of cmake, because compiling
+# LLVM has implemented a requirement of cmake v4.3.4 or greater
+# This installs the new cmake side-by-side with the old cmake using update-alternatives
+ENV CMAKE_VER_MAJOR 3.6
+ENV CMAKE_VER_MINOR ${CMAKE_VER_MAJOR}.2
+ENV CMAKE_PREFIX /opt/cmake
+
+RUN cd ~ && mkdir -p src && cd src && \
+    curl -L https://cmake.org/files/v${CMAKE_VER_MAJOR}/cmake-${CMAKE_VER_MINOR}.tar.gz -o cmake-${CMAKE_VER_MINOR}.tar.gz && \
+    tar -xf cmake-${CMAKE_VER_MINOR}.tar.gz && \
+    cd ~/src/cmake-${CMAKE_VER_MINOR} && \
+    ./bootstrap --prefix=${CMAKE_PREFIX} && \
+    make -j $(nproc) && \
+    make install && \
+    update-alternatives --install /usr/local/bin/cmake cmake ${CMAKE_PREFIX}/bin/cmake 80 --slave /usr/local/bin/ccmake ccmake ${CMAKE_PREFIX}/bin/ccmake --slave /usr/local/bin/cpack cpack ${CMAKE_PREFIX}/bin/cpack --slave /usr/local/bin/ctest ctest ${CMAKE_PREFIX}/bin/ctest --slave /usr/local/share/cmake-${CMAKE_VER_MAJOR} share-cmake-${CMAKE_VER_MAJOR} ${CMAKE_PREFIX}/share/cmake-${CMAKE_VER_MAJOR} # --slave /usr/local/bin/cmake-gui cmake-gui ${CMAKE_PREFIX}/bin/cmake-gui
+
 # App specific environment variables; modify path to add hcc and repo commands
 ENV HCC_BUILD_PATH=/usr/local/src/hcc-lc
-ENV PATH=${PATH}:${hcc_lc_volume}/bin:~/bin
-
-# Build cmake from scratch to support newer versions of LLVM
-RUN wget http://www.cmake.org/files/v3.6/cmake-3.6.1.tar.gz && \
-    tar xf cmake-3.6.1.tar.gz && \
-    cd cmake-3.6.1 && \
-    ./configure && \
-    make && \
-    make install &&\
-    cd .. &&\
-    rm -rf cmake-3.6.1.tar.gz cmake-3.6.1
+ENV PATH=${PATH}:${hcc_lc_volume}bin:~/bin
 
 # Compiling hcc-lc requires a custom build tool
 RUN mkdir -p ~/bin && \
@@ -50,6 +50,8 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
   ~/bin/repo init --depth=1 -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ${repo_branch_hcc_lc} && \
   ~/bin/repo sync && \
+
+  # build amd-common LLVM/LLD/Clang
   cd llvm && \
   mkdir -p build && \
   cd build && \
@@ -59,17 +61,18 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
     -DLLVM_TARGETS_TO_BUILD="AMDGPU;X86" .. && \
   make -j $(nproc) install && \
 
-  cd ../../llvm-amdgpu-assembler-extra/ && \
+  # build ROCm-Device-Libs with amd-common Clang
+  cd ../../ocml/ && \
   mkdir -p build && \
   cd build && \
-  cmake \
+  CC=${HCC_BUILD_PATH}/bin/clang cmake \
     -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
-    -DBUILD_EXAMPLES=OFF \
-    -DHSA_ROOT=${rocr_volume} \
+    -DAMDHSACOD=/opt/rocm/bin/amdhsacod \
     -DLLVM_DIR="${HCC_BUILD_PATH}/llvm/build" .. && \
   make -j $(nproc) install && \
 
+  # build HCC with ROCm-Device-Libs
   cd ../../hcc && \
   mkdir -p build && \
   cd build && \
@@ -77,11 +80,8 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
-    -DROCM_ROOT=${rocr_volume} \
-    -DHSA_LLVM_BIN_DIR=${hcc_lc_volume}/bin \
-    -DHSA_AMDGPU_GPU_TARGET=fiji \
-    -DAMDPHDRS_DIR=${hcc_lc_volume}/bin \
-    -DHSA_USE_AMDGPU_BACKEND=ON .. && \
+    -DHSA_AMDGPU_GPU_TARGET=AMD:AMDGPU:8:0:3 \
+    -DROCM_DEVICE_LIB_DIR=${HCC_BUILD_PATH}/ocml/build/dist/lib .. && \
   make -j $(nproc) world && \
   make install && \
   git log -n 3 > ${hcc_lc_volume}/git-stamp.log && \

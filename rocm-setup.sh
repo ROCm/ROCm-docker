@@ -81,7 +81,7 @@ if [ -n "${build_master}" ]; then
 else
   repo_branch="dev"
   repo_branch_hcc_hsail="master"  # temp
-  repo_branch_hcc_lc="master"
+  repo_branch_hcc_lc="clang_tot_upgrade"
 fi
 
 export build_config=
@@ -134,7 +134,6 @@ export hcc_lc_volume='/opt/rocm/hcc-lc/'
 # export lib64_install_dir='/lib/x86_64-linux-gnu'
 export lib64_install_dir='/lib'
 
-# Uncomment below to print dockerfiles with template substitutions; debugging
 cat rock/rock-deb-dockerfile.template | envsubst '${repo_branch}:${rock_volume}' > rock/Dockerfile
 cat roct/roct-thunk-dockerfile.template | envsubst '${rock_name}:${repo_branch}:${build_config_roct}:${roct_cleanup}:${roct_volume}:${lib64_install_dir}' > roct/Dockerfile
 cat rocr/rocr-make-dockerfile.template | envsubst '${roct_name}:${repo_branch_rocr}:${build_config}:${rocr_cleanup}:${roct_volume}:${rocr_volume}:${lib64_install_dir}' > rocr/Dockerfile
