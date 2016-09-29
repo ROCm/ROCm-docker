@@ -57,7 +57,7 @@ services:
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/terminal
+    image: rocm/rocm-terminal
     volumes:
       - ~:/usr/local/src/host-home
 
@@ -67,7 +67,7 @@ services:
       dockerfile: Dockerfile
     devices:
       - "/dev/kfd"
-    image: rocm/terminal
+    image: rocm/rocm-terminal
     volumes:
       - ~:/usr/local/src/host-home
     volumes_from:

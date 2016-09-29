@@ -112,10 +112,12 @@ Default flags: --master --release
 
 || --master | --develop |
 |------|-----|-----|
-|roct| master | dev |
-|rocr| master | dev |
-|hcc-hsail| master | develop |
-|hcc-lc| testing | master |
+|roct| master | master |
+|rocr| master | master |
+|hcc-hsail| master | master |
+|hcc-lc| clang_tot_upgrade | clang_tot_upgrade |
+
+##### When building ROCm components from source, we are locking down branches to known good configurations.
 
 ### Docker compose
 `./rocm-setup` prepares an environment that can be controlled with [Docker Compose](https://docs.docker.com/compose/).  An output of the script is a **docker-compose.yml** file in the root of the repository, which coordinates the relationships between the various ROCm software layers.  Additionally, the  docker-compose.yml file can be extended to easily launch interactive application or development containers built on top of the ROCm software stack.  

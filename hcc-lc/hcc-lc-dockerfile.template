@@ -14,23 +14,34 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   curl \
   wget \
   python \
+  libncurses5-dev \
   libelf-dev \
   libc++abi-dev \
   libc++-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# These are all extra packages needed to build cmake with --system-libs
+#  zlib1g-dev \
+#  libcurl4-openssl-dev \
+#  lzma-dev \
+#  libbz2-dev \
+#  libarchive-dev \
+#  lib64expat1-dev \
+#  libjsoncpp-dev \
+
 # Download and install an up to date version of cmake, because compiling
 # LLVM has implemented a requirement of cmake v4.3.4 or greater
-# This installs the new cmake side-by-side with the old cmake using update-alternatives
 ENV CMAKE_VER_MAJOR 3.6
 ENV CMAKE_VER_MINOR ${CMAKE_VER_MAJOR}.2
 ENV CMAKE_PREFIX /opt/cmake
 
+# This installs the new cmake side-by-side with the old cmake using update-alternatives
 RUN cd ~ && mkdir -p src && cd src && \
     curl -L https://cmake.org/files/v${CMAKE_VER_MAJOR}/cmake-${CMAKE_VER_MINOR}.tar.gz -o cmake-${CMAKE_VER_MINOR}.tar.gz && \
     tar -xf cmake-${CMAKE_VER_MINOR}.tar.gz && \
     cd ~/src/cmake-${CMAKE_VER_MINOR} && \
+#    ./bootstrap --prefix=${CMAKE_PREFIX} --system-libs && \
     ./bootstrap --prefix=${CMAKE_PREFIX} && \
     make -j $(nproc) && \
     make install && \
@@ -45,6 +56,7 @@ RUN mkdir -p ~/bin && \
     curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo && \
     chmod a+x ~/bin/repo
 
+# This is a long series of build steps, all listed under one RUN statement to keep image size down
 # Build hcc-lc, install to /usr/local
 RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ${HCC_BUILD_PATH} && \
@@ -65,26 +77,75 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cd ../../ocml/ && \
   mkdir -p build && \
   cd build && \
-  CC=${HCC_BUILD_PATH}/bin/clang cmake \
+  CC=${HCC_BUILD_PATH}/llvm/build/bin/clang cmake \
     -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
     -DAMDHSACOD=/opt/rocm/bin/amdhsacod \
-    -DLLVM_DIR="${HCC_BUILD_PATH}/llvm/build" .. && \
+    -DLLVM_DIR="${HCC_BUILD_PATH}/llvm/build" \
+    .. && \
   make -j $(nproc) install && \
 
   # build HCC with ROCm-Device-Libs
   cd ../../hcc && \
   mkdir -p build && \
   cd build && \
-  ln -sr ${rocr_volume}/include ${rocr_volume}/include/hsa && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
     -DHSA_AMDGPU_GPU_TARGET=AMD:AMDGPU:8:0:3 \
-    -DROCM_DEVICE_LIB_DIR=${HCC_BUILD_PATH}/ocml/build/dist/lib .. && \
+    -DROCM_DEVICE_LIB_DIR=${hcc_lc_volume}/lib \
+    .. && \
   make -j $(nproc) world && \
   make install && \
   git log -n 3 > ${hcc_lc_volume}/git-stamp.log && \
   ${hcc_lc_cleanup} \
   echo "${hcc_lc_volume}/lib" >> /etc/ld.so.conf.d/hcc-lc.conf && \
   ldconfig
+
+
+## The following build steps are seperated into multiple RUN statements to debug each individual component build
+## It results in about double the image size
+## Build hcc-lc, install to /usr/local
+#RUN mkdir -p ${HCC_BUILD_PATH} && \
+#  cd ${HCC_BUILD_PATH} && \
+#  ~/bin/repo init --depth=1 -u https://github.com/RadeonOpenCompute/HCC-Native-GCN-ISA.git -b ${repo_branch_hcc_lc} && \
+#  ~/bin/repo sync
+
+#  # build amd-common LLVM/LLD/Clang
+#RUN cd ${HCC_BUILD_PATH}/llvm && \
+#  mkdir -p build && \
+#  cd build && \
+#  cmake \
+#    -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
+#    -DCMAKE_BUILD_TYPE=${build_config} \
+#    -DLLVM_TARGETS_TO_BUILD="AMDGPU;X86" .. && \
+#  make -j $(nproc) install
+
+#  # build ROCm-Device-Libs with amd-common Clang
+#RUN cd ${HCC_BUILD_PATH}/ocml/ && \
+#  mkdir -p build && \
+#  cd build && \
+#  CC=${HCC_BUILD_PATH}/llvm/build/bin/clang cmake \
+#    -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
+#    -DCMAKE_BUILD_TYPE=${build_config} \
+#    -DAMDHSACOD=/opt/rocm/bin/amdhsacod \
+#    -DLLVM_DIR="${HCC_BUILD_PATH}/llvm/build" \
+#    .. && \
+#  make -j $(nproc) install
+
+#  # build HCC with ROCm-Device-Libs
+#RUN cd ${HCC_BUILD_PATH}/hcc && \
+#  mkdir -p build && \
+#  cd build && \
+#  cmake \
+#    -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
+#    -DCMAKE_BUILD_TYPE=${build_config} \
+#    -DHSA_AMDGPU_GPU_TARGET=AMD:AMDGPU:8:0:3 \
+#    -DROCM_DEVICE_LIB_DIR=${hcc_lc_volume}/lib \
+#    .. && \
+#  make -j $(nproc) world && \
+#  make install && \
+#  git log -n 3 > ${hcc_lc_volume}/git-stamp.log && \
+#  ${hcc_lc_cleanup} \
+#  echo "${hcc_lc_volume}/lib" >> /etc/ld.so.conf.d/hcc-lc.conf && \
+#  ldconfig
