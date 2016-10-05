@@ -60,8 +60,11 @@ sudo docker-compose run --rm rocm
       * `./vector-copy`
   * Text displaying successful creation of a GPU device, successful kernel compilation and successful shutdown should be printed to stdout
 
-### Quick notes for useful docker commands
+### Quick notes for using docker
 When working with the ROCm containers, the following are common and useful docker commands:
+*  A new docker container typically **does not** house apt repository meta-data.  Before trying to install new software using apt, make sure to run `sudo apt update` first
+*  A message like the following typically means your user does not have permissions to execute docker; use sudo or [add your user](https://docs.docker.com/engine/installation/linux/ubuntulinux/#/create-a-docker-group) to the docker group.
+  * `Cannot connect to the Docker daemon. Is the docker daemon running on this host?`
 *  Open another terminal into a running container
   * `sudo docker exec -it <CONTAINER-NAME> env TERM=xterm-color bash -l`
 * Copy files from host machine into running docker container
