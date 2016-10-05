@@ -37,14 +37,15 @@ ENV CMAKE_VER_MINOR ${CMAKE_VER_MAJOR}.2
 ENV CMAKE_PREFIX /opt/cmake
 
 # This installs the new cmake side-by-side with the old cmake using update-alternatives
-RUN cd ~ && mkdir -p src && cd src && \
+RUN cd /usr/local/src && \
     curl -L https://cmake.org/files/v${CMAKE_VER_MAJOR}/cmake-${CMAKE_VER_MINOR}.tar.gz -o cmake-${CMAKE_VER_MINOR}.tar.gz && \
     tar -xf cmake-${CMAKE_VER_MINOR}.tar.gz && \
-    cd ~/src/cmake-${CMAKE_VER_MINOR} && \
+    cd cmake-${CMAKE_VER_MINOR} && \
 #    ./bootstrap --prefix=${CMAKE_PREFIX} --system-libs && \
     ./bootstrap --prefix=${CMAKE_PREFIX} && \
     make -j $(nproc) && \
     make install && \
+    cd .. && rm -rf cmake-${CMAKE_VER_MINOR} && \
     update-alternatives --install /usr/local/bin/cmake cmake ${CMAKE_PREFIX}/bin/cmake 80 --slave /usr/local/bin/ccmake ccmake ${CMAKE_PREFIX}/bin/ccmake --slave /usr/local/bin/cpack cpack ${CMAKE_PREFIX}/bin/cpack --slave /usr/local/bin/ctest ctest ${CMAKE_PREFIX}/bin/ctest --slave /usr/local/share/cmake-${CMAKE_VER_MAJOR} share-cmake-${CMAKE_VER_MAJOR} ${CMAKE_PREFIX}/share/cmake-${CMAKE_VER_MAJOR} # --slave /usr/local/bin/cmake-gui cmake-gui ${CMAKE_PREFIX}/bin/cmake-gui
 
 # App specific environment variables; modify path to add hcc and repo commands
