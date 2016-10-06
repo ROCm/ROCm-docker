@@ -138,6 +138,6 @@ cat rock/rock-deb-dockerfile.template | envsubst '${repo_branch}:${rock_volume}'
 cat roct/roct-thunk-dockerfile.template | envsubst '${rock_name}:${repo_branch}:${build_config_roct}:${roct_cleanup}:${roct_volume}:${lib64_install_dir}' > roct/Dockerfile
 cat rocr/rocr-make-dockerfile.template | envsubst '${roct_name}:${repo_branch_rocr}:${build_config}:${rocr_cleanup}:${rocm_volume}:${roct_volume}:${rocr_volume}:${lib64_install_dir}' > rocr/Dockerfile
 cat hcc-hsail/hcc-hsail-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_hsail}:${build_config}:${hcc_hsail_cleanup}:${roct_volume}:${rocr_volume}:${hcc_hsail_volume}:${lib64_install_dir}' > hcc-hsail/Dockerfile
-cat hcc-lc/hcc-lc-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_lc}:${build_config}:${hcc_lc_cleanup}:${roct_volume}:${rocr_volume}:${hcc_lc_volume}' > hcc-lc/Dockerfile
+cat hcc-lc/hcc-lc-dockerfile.template | envsubst '${rocr_name}:${repo_branch_hcc_lc}:${build_config}:${hcc_lc_cleanup}:${rocm_volume}:${roct_volume}:${rocr_volume}:${hcc_lc_volume}' > hcc-lc/Dockerfile
 
 cat docker-compose.yml.template | envsubst '${hcc_lc_name}:${hcc_hsail_name}:${rocr_name}:${roct_name}:${hcc_hsail_volume}:${hcc_lc_volume}:${rocr_volume}:${roct_volume}' > docker-compose.yml

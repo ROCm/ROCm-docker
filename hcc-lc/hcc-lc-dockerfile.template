@@ -10,7 +10,7 @@ MAINTAINER Kent Knox <kent.knox@amd>
 # Install dependencies required to build hcc
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential \
-  git \
+  software-properties-common \
   curl \
   wget \
   python \
@@ -20,6 +20,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libc++-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
+
+# Explicitely install a newer version of git, a minimum of 2.10.0, so we benefit from --shallow-submodules flag
+#RUN add-apt-repository ppa:git-core/ppa && \
+#  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+#  git && \
+#  apt-get clean && \
+#  rm -rf /var/lib/apt/lists/*
 
 # These are all extra packages needed to build cmake with --system-libs
 #  zlib1g-dev \
@@ -31,7 +38,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 #  libjsoncpp-dev \
 
 # Download and install an up to date version of cmake, because compiling
-# LLVM has implemented a requirement of cmake v4.3.4 or greater
+# LLVM has implemented a requirement of cmake v3.4.4 or greater
 ENV CMAKE_VER_MAJOR 3.6
 ENV CMAKE_VER_MINOR ${CMAKE_VER_MAJOR}.2
 ENV CMAKE_PREFIX /opt/cmake
@@ -87,7 +94,12 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   make -j $(nproc) install && \
 
   # build HCC with ROCm-Device-Libs
-  cd ../../hcc && \
+  # this deletes the code synced from repo, and uses git clone --recursive to get all dependent modules
+  cd  ${HCC_BUILD_PATH} && \
+  rm -rf hcc && \
+#  git clone --recursive --depth 1 --shallow-submodules -b ${repo_branch_hcc_lc} https://github.com/RadeonOpenCompute/hcc.git && \
+  git clone --recursive --depth 1 -b ${repo_branch_hcc_lc} https://github.com/RadeonOpenCompute/hcc.git && \
+  cd hcc && \
   mkdir -p build && \
   cd build && \
   cmake \
@@ -99,13 +111,22 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   make -j $(nproc) world && \
   make install && \
   git log -n 3 > ${hcc_lc_volume}/git-stamp.log && \
+  ln -sr ${hcc_lc_volume} ${rocm_volume}/hcc && \
+  ln -sr ${hcc_lc_volume}/include/ ${rocm_volume}/include/hcc && \
   ${hcc_lc_cleanup} \
-  echo "${hcc_lc_volume}/lib" >> /etc/ld.so.conf.d/hcc-lc.conf && \
+  echo "${hcc_lc_volume}lib" >> /etc/ld.so.conf.d/hcc-lc.conf && \
   ldconfig
 
+# The following downloads and builds the latest HiP using this new compiler
+RUN mkdir -p /usr/local/src && cd /usr/local/src && \
+  git clone -b developer-preview https://github.com/GPUOpen-ProfessionalCompute-Tools/HIP.git && \
+  mkdir -p hip-build && cd hip-build && \
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-DDISABLE_COPY_EXT=1 ../HIP && \
+  make install && \
+  cd .. && rm -rf hip-build && rm -rf HIP
 
-## The following build steps are seperated into multiple RUN statements to debug each individual component build
-## It results in about double the image size
+## The following HCC build steps are seperated into multiple RUN statements which snapshots each individual component build
+## Useful in debugging build, which saves compile time and but results in about double the image size
 ## Build hcc-lc, install to /usr/local
 #RUN mkdir -p ${HCC_BUILD_PATH} && \
 #  cd ${HCC_BUILD_PATH} && \

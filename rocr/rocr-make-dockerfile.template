@@ -43,6 +43,7 @@ RUN mkdir -p ${ROCR_BUILD_PATH} && \
   cp -r ../src/inc ${rocr_volume}/include && \
   cp -r ../sample ${rocr_volume}/sample && \
   ln -sr ${rocr_volume}/include/ ${rocm_volume}/include/hsa && \
+  ln -sr ${rocr_volume}/include/ ${rocr_volume}/include/hsa && \
   ln -sr ${rocr_volume}/lib/libhsa-runtime64.so.1 ${rocm_volume}/lib/libhsa-runtime64.so && \
   git log -n 3 > ${rocr_volume}/git-stamp.log && \
   ${rocr_cleanup} \
