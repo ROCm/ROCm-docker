@@ -119,6 +119,8 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   git log -n 3 > ${hcc_lc_volume}/git-stamp.log && \
   ln -sr ${hcc_lc_volume} ${rocm_volume}/hcc && \
   ln -sr ${hcc_lc_volume}/include/ ${rocm_volume}/include/hcc && \
+  ln -sr ${hcc_lc_volume}bin/hcc ${rocm_volume}bin/hcc && \
+  ln -sr ${hcc_lc_volume}bin/hcc-config ${rocm_volume}bin/hcc-config && \
   ${hcc_lc_cleanup} \
   echo "${hcc_lc_volume}lib" >> /etc/ld.so.conf.d/hcc-lc.conf && \
   ldconfig
@@ -130,4 +132,7 @@ RUN mkdir -p /usr/local/src && cd /usr/local/src && \
   mkdir -p hip-build && cd hip-build && \
   cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-DDISABLE_COPY_EXT=1 ../HIP && \
   make install && \
+  ln -sr ${rocm_volume}hip/bin/hipcc ${rocm_volume}bin/hipcc && \
+  ln -sr ${rocm_volume}hip/bin/hipconfig ${rocm_volume}bin/hipconfig && \
+  ln -sr ${rocm_volume}hip/bin/hipify ${rocm_volume}bin/hipify && \
   cd .. && rm -rf hip-build && rm -rf HIP
