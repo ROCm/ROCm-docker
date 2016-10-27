@@ -10,13 +10,13 @@
 # Initialization of command line parameters
 # #################################################
 # Build dockerfiles from more stable master branches; exclusive with --develop
-build_master=1
+build_master=true
 
 # Build dockerfiles from newer develop branches; exclusive with --master
 build_develop=
 
 # Build release binaries; this cleans up and deletes the build to minimize docker image; exclusive with --debug
-build_release=1
+build_release=true
 
 # Build debug binaries; this leaves build tree intact for greater debugging; exclusive with --release
 build_debug=
@@ -42,20 +42,20 @@ function display_help()
 while :; do
   case $1 in
     --master)
-      build_master=1
+      build_master=true
       build_develop=
       ;;
     --develop)
       build_master=
-      build_develop=1
+      build_develop=true
       ;;
     --release)
-      build_release=1
+      build_release=true
       build_debug=
       ;;
     --debug)
       build_release=
-      build_debug=1
+      build_debug=true
       ;;
     -h|--help)
       display_help
@@ -76,7 +76,7 @@ export repo_branch_rocr="master"
 
 if [ -n "${build_master}" ]; then
   repo_branch_hcc_hsail="master"
-  repo_branch_hcc_lc="clang_tot_upgrade"
+  repo_branch_hcc_lc="develop"
 else
   repo_branch_hcc_hsail="master"
   repo_branch_hcc_lc="clang_tot_upgrade"
