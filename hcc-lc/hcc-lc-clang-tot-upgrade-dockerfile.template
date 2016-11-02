@@ -14,6 +14,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   curl \
   wget \
   python \
+  g++-multilib \
   libncurses5-dev \
   libelf-dev \
   libc++abi-dev \
@@ -57,7 +58,6 @@ RUN cd /usr/local/src && \
 
 # App specific environment variables; modify path to add hcc and repo commands
 ENV HCC_BUILD_PATH=/usr/local/src/hcc-lc
-ENV PATH=${PATH}:${hcc_lc_volume}bin:~/bin
 
 # While working out build issues, it usually pays off to seperate the following build steps into multiple build statements
 # to save time having to build each build component, if rebuilding the image multiple times
@@ -111,14 +111,15 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
     -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
     -DROCM_DEVICE_LIB_DIR=${hcc_lc_volume}/lib \
-#    -DHSA_AMDGPU_GPU_TARGET="AMD:AMDGPU:7:0:1;AMD:AMDGPU:8:0:1;AMD:AMDGPU:8:0:3" \
     -DHSA_AMDGPU_GPU_TARGET="AMD:AMDGPU:7:0:1;AMD:AMDGPU:8:0:3" \
     .. && \
-  make -j $(nproc) world && \
+  make -j $(nproc) && \
   make install && \
   git log -n 3 > ${hcc_lc_volume}/git-stamp.log && \
   ln -sr ${hcc_lc_volume} ${rocm_volume}/hcc && \
   ln -sr ${hcc_lc_volume}/include/ ${rocm_volume}/include/hcc && \
+  ln -sr ${hcc_lc_volume}bin/hcc ${rocm_volume}bin/hcc && \
+  ln -sr ${hcc_lc_volume}bin/hcc-config ${rocm_volume}bin/hcc-config && \
   ${hcc_lc_cleanup} \
   echo "${hcc_lc_volume}lib" >> /etc/ld.so.conf.d/hcc-lc.conf && \
   ldconfig
@@ -130,4 +131,9 @@ RUN mkdir -p /usr/local/src && cd /usr/local/src && \
   mkdir -p hip-build && cd hip-build && \
   cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-DDISABLE_COPY_EXT=1 ../HIP && \
   make install && \
+  ln -sr ${rocm_volume}hip/bin/hipcc ${rocm_volume}bin/hipcc && \
+  ln -sr ${rocm_volume}hip/bin/hipconfig ${rocm_volume}bin/hipconfig && \
+  ln -sr ${rocm_volume}hip/bin/hipify ${rocm_volume}bin/hipify && \
   cd .. && rm -rf hip-build && rm -rf HIP
+
+ENV PATH=${PATH}:${rocm_volume}bin
