@@ -10,14 +10,14 @@
 # If it is desired to run the container manually through the docker command-line, the following is an example
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl && \
   curl -sL http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | apt-key add - && \
-  sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ trusty main > /etc/apt/sources.list.d/rocm.list' && \
+  sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ xenial main > /etc/apt/sources.list.d/rocm.list' && \
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential \
   rocm-dev \
@@ -51,4 +51,4 @@ WORKDIR /home/rocm-user
 #    echo "alias gdb='gdb --tui'\n" >> ~/.bashrc
 
 # Default to a login shell
-CMD ["env", "TERM=xterm-color", "bash", "-l"]
+CMD ["bash", "-l"]
