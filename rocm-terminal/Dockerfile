@@ -15,16 +15,15 @@ MAINTAINER Kent Knox <kent.knox@amd>
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl && \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl && \
   curl -sL http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | apt-key add - && \
   sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ xenial main > /etc/apt/sources.list.d/rocm.list' && \
-  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  build-essential \
+  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  sudo \
   rocm-dev \
   libelf1 \
+#  build-essential \
 #  git \
-#  clang-3.5 \
-#  gdb \
 #  valgrind \
 #  vim-nox \
   cmake-curses-gui && \
