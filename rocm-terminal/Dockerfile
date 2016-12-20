@@ -20,13 +20,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ xenial main > /etc/apt/sources.list.d/rocm.list' && \
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   sudo \
-  rocm-dev \
   libelf1 \
 #  build-essential \
 #  git \
-#  valgrind \
 #  vim-nox \
-  cmake-curses-gui && \
+#  cmake-curses-gui \
+  rocm-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
@@ -36,11 +35,13 @@ COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 
 # This is meant to be used as an interactive developer container
 # Create user rocm-user as member of sudo group
-RUN useradd --create-home -G sudo --shell /bin/bash rocm-user && \
-    echo "\nPATH=${PATH}:/opt/rocm/bin\n" >> /home/rocm-user/.bashrc
+# Append /opt/rocm/bin to the system PATH variable
+RUN useradd --create-home -G sudo --shell /bin/bash rocm-user
+#    sed --in-place=.rocm-backup 's|^\(PATH=.*\)"$|\1:/opt/rocm/bin"|' /etc/environment
 
 USER rocm-user
 WORKDIR /home/rocm-user
+ENV PATH "${PATH}:/opt/rocm/bin"
 
 # The following are optional enhancements for the command-line experience
 # Uncomment the following to install a pre-configured vim environment based on http://vim.spf13.com/
