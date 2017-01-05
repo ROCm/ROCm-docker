@@ -1,0 +1,14 @@
+# Build this dockerfile with `docker build -f rocr-deb-dockerfile -t roc/rocr .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the radeon open compute runtime
+FROM ${roct_name}
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Following assumes that the apt-get update is already set up to pull from packages.amd.com in base image
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+  hsa-rocr-dev && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*

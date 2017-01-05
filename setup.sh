@@ -2,24 +2,37 @@
 # #################################################
 # Copyright (c) 2016 Advanced Micro Devices, Inc.
 # #################################################
-
-# Set reasonable defaults for dockerfile builds
-# Default: --master, --release
+# Author: Kent Knox
 
 # #################################################
-# Initialization of command line parameters
+# Pre-requisites check
 # #################################################
-# Build dockerfiles from more stable master branches; exclusive with --develop
-build_master=true
 
-# Build dockerfiles from newer develop branches; exclusive with --master
-build_develop=
+# check if curl is installed
+type curl > /dev/null
+if [[ $? -ne 0 ]]; then
+  echo "This script uses curl to download components; try installing with package manager";
+  exit 2
+fi
 
-# Build release binaries; this cleans up and deletes the build to minimize docker image; exclusive with --debug
-build_release=true
+# check if getopt command is installed
+type getopt > /dev/null
+if [[ $? -ne 0 ]]; then
+  echo "This script uses getopt to parse arguments; try installing the util-linux package";
+  exit 1
+fi
 
-# Build debug binaries; this leaves build tree intact for greater debugging; exclusive with --release
-build_debug=
+# lsb-release file describes the system
+if [[ ! -e "/etc/lsb-release" ]]; then
+  echo "This script depends on the /etc/lsb-release file"
+  exit 2
+fi
+source /etc/lsb-release
+
+if [[ ${DISTRIB_CODENAME} != trusty ]] && [[ ${DISTRIB_CODENAME} != xenial ]]; then
+  echo "This script only validated with Ubuntu trusty [14.04] or xenial [16.04]"
+  exit 2
+fi
 
 # #################################################
 # helper functions
@@ -27,46 +40,95 @@ build_debug=
 function display_help()
 {
   echo "Building ROC docker images from templates"
-  echo "Usage: ./rocm-setup [--master | --develop] [--release | --debug]"
-  echo "Default flags: --master --release"
+  echo "Usage: ./setup [--debian] ([--build] [--master | --develop] [--release | --debug] )"
+  echo "Default flags: --debian"
   echo ""
-  echo "--master) Build dockerfiles from stable master branches; exclusive with --develop"
-  echo "--develop) Build dockerfiles from integration branches; exclusive with --master"
-  echo "--release) Build release containers; minimizes size of docker images; exclusive with --debug"
-  echo "--debug) Build debug containers; symbols generated and build tree intact for debugging; exclusive with --release"
+  echo "    [-h|--help] prints this help message"
+  echo "    [--debian] install binary packages from packages.amd.com; exclusive with --build"
+  echo "    [--build] build rocm packages from source; defaults to master branch and release build"
+  echo "    [--master] Build dockerfiles from stable master branches; exclusive with --develop"
+  echo "    [--develop] Build dockerfiles from integration branches; exclusive with --master"
+  echo "    [--release] Build release containers; minimizes size of docker images; exclusive with --debug"
+  echo "    [--debug] Build debug containers; symbols generated and build tree intact for debugging; exclusive with --release"
 }
+
+# #################################################
+# global variables
+# #################################################
+install_deb=true
+build_src=false
+
+build_master=true
+build_develop=false
+
+build_release=true
+build_debug=false
+
+# #################################################
+# Parameter parsing
+# #################################################
+
+# check if we have a modern version of getopt that can handle whitespace and long parameters
+getopt -T
+if [[ $? -eq 4 ]]; then
+  GETOPT_PARSE=$(getopt --name "${0}" --longoptions help,debian,build,master,develop,release,debug --options h -- "$@")
+else
+  echo "Legacy getopt not handled"
+  exit 1
+fi
+
+if [[ $? -ne 0 ]]; then
+  echo "getopt invocation failed; could not parse the command line";
+  exit 1
+fi
+
+eval set -- "${GETOPT_PARSE}"
+
+while true; do
+  case "${1}" in
+    -h|--help)
+      display_help
+      exit 0
+      ;;
+    --debian)
+      install_deb=true
+      build_src=false
+      shift ;;
+    --build)
+      install_deb=false
+      build_src=true
+      shift ;;
+    --master)
+      build_master=true
+      build_develop=false
+      shift ;;
+    --develop)
+      build_master=false
+      build_develop=true
+      shift ;;
+    --release)
+      build_release=true
+      build_debug=false
+      shift ;;
+    --debug)
+      build_release=false
+      build_debug=true
+      shift ;;
+    --) shift ; break ;;
+    *)  echo "getopt parsing error";
+        exit 2
+        ;;
+  esac
+done
+
+if [[ "${install_deb}" == true ]] && [[ "${build_src}" == true ]]; then
+    echo "--debian is mutually exlusive with --build"
+    exit 2
+fi
 
 # #################################################
 # Start of main
 # #################################################
-while :; do
-  case $1 in
-    --master)
-      build_master=true
-      build_develop=
-      ;;
-    --develop)
-      build_master=
-      build_develop=true
-      ;;
-    --release)
-      build_release=true
-      build_debug=
-      ;;
-    --debug)
-      build_release=
-      build_debug=true
-      ;;
-    -h|--help)
-      display_help
-      exit
-      ;;
-    *)
-      break
-  esac
-
-  shift
-done
 
 # hcc-lc conforms to a non git-flow naming scheme, 'master' changes the most
 export repo_branch="master"

@@ -1,0 +1,40 @@
+# Build this dockerfile with `docker build -f roct-thunk-release-dockerfile -t roc/roct .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the radeon open compute kernel thunk
+
+FROM ubuntu:16.04
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Initialize the image we are working with
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+  build-essential \
+  git \
+  cmake-curses-gui && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+# App specific environment variables
+ENV HSATHK_BUILD_PATH=/usr/local/src/ROCT-Thunk-Interface
+
+# RUN ln -sr ${roct_volume}lib/libhsakmt.so.1 ${roct_volume}lib/libhsakmt.so
+
+# Uncomment the following code when ROCT-Thunk-Interface cmake code successfully builds
+# Build libhsakmt
+RUN mkdir -p ${HSATHK_BUILD_PATH} && \
+  cd ${HSATHK_BUILD_PATH} && \
+  git clone --depth=1 --branch=${repo_branch} https://github.com/RadeonOpenCompute/ROCT-Thunk-Interface.git ./ && \
+  mkdir -p build && \
+  cd build && \
+    cmake \
+      -DCMAKE_INSTALL_PREFIX=${roct_volume} \
+      -DCMAKE_BUILD_TYPE=${build_config} \
+    .. && \
+  make -j $(nproc) package && \
+  git log -n 3 > ${roct_volume}/git-stamp.log && \
+  ${roct_cleanup} \
+#  echo "${roct_volume}${lib64_install_dir}" >> /etc/ld.so.conf.d/x86_64-libhsakmt.conf && \
+#  ldconfig && \
+  dpkg -i hsakmt-roct-dev.deb

@@ -8,7 +8,7 @@ FROM ${rocr_name}
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Install dependencies required to build hcc
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
   build-essential \
   software-properties-common \
   curl \
@@ -40,8 +40,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 # Download and install an up to date version of cmake, because compiling
 # LLVM has implemented a requirement of cmake v3.4.4 or greater
-ENV CMAKE_VER_MAJOR 3.6
-ENV CMAKE_VER_MINOR ${CMAKE_VER_MAJOR}.2
+ENV CMAKE_VER_MAJOR 3.7
+ENV CMAKE_VER_MINOR ${CMAKE_VER_MAJOR}.1
 ENV CMAKE_PREFIX /opt/cmake
 
 # This installs the new cmake side-by-side with the old cmake using update-alternatives
