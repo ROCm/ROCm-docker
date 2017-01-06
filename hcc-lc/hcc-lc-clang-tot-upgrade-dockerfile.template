@@ -4,7 +4,7 @@
 # most changing at bottom
 
 # This builds the hcc compiler, and depends on an already existing rocr-runtime to be found
-FROM ${rocr_name}
+FROM ${rocr_image_name_src}
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Install dependencies required to build hcc

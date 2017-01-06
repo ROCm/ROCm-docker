@@ -5,7 +5,7 @@
 
 # This builds the radeon open compute kernel thunk
 
-FROM ubuntu:16.04
+FROM ubuntu:${ubuntu_version}
 MAINTAINER Kent Knox <kent.knox@amd>
 
 # Initialize the image we are working with
