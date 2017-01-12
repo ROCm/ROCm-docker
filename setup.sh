@@ -48,11 +48,11 @@ function display_help()
   printf "    [--ubuntu xx.yy] Ubuntu version for to inherit base image (16.04 / 14.04)\n"
   printf "    [--tag] String specifying branch or tag in git repository (requires --build)\n"
   printf "    [--branch] Same as tag; alias (requires --build)\n"
-  printf "    [--all] Build as many components as you can\n"
-  printf "    [--roct] Build roct component\n"
-  printf "    [--rocr] Build rocr component\n"
-  printf "    [--hcc-lc] Build hcc-lc component\n"
-  printf "    [--hcc-hsail] Build hcc-hsail component\n"
+#  printf "    [--all] Build as many components as you can\n"
+#  printf "    [--roct] Build roct component\n"
+#  printf "    [--rocr] Build rocr component\n"
+#  printf "    [--hcc-lc] Build hcc-lc component\n"
+#  printf "    [--hcc-hsail] Build hcc-hsail component\n"
   printf "    [--release] Build release containers; minimizes size of docker images; (requires --build, exclusive with --debug)\n"
   printf "    [--debug] Build debug containers; symbols generated and build tree intact for debugging; (requires --build, exclusive with --release)\n"
   printf "    [--install-docker-compose] install the docker-compose tool\n"
@@ -67,6 +67,7 @@ rocm_components=()
 # If building components from source, script defaults to master branch if no tag name is explicitely specified
 export tag='master'
 export ubuntu_version='16.04'
+export target_distrib_codename=xenial
 
 export build_config='Release'
 build_release=true
@@ -167,6 +168,10 @@ fi
 # Start of main
 # #################################################
 
+if [[ "${ubuntu_version}" == 14.04  ]]; then
+  target_distrib_codename=trusty
+fi
+
 printf "== Branch/tag to build: %s\n" ${tag}
 if [[ "${build_release}" == true ]]; then
   printf "==== Release builds \n"
@@ -219,8 +224,8 @@ if [[ "${build_release}" == true ]]; then
   # This is to keep release images as small as possible
   roct_cleanup='cd ~ && rm -rf ${HSATHK_BUILD_PATH}'
   rocr_cleanup='cd ~ && rm -rf ${ROCR_BUILD_PATH}'
-  hcc_hsail_cleanup='cd ~ && rm -rf ${HCC_BUILD_PATH} &&'
-  hcc_lc_cleanup='cd ~ && rm -rf ${HCC_BUILD_PATH} &&'
+  hcc_hsail_cleanup='cd ~ && rm -rf ${HCC_BUILD_PATH}'
+  hcc_lc_cleanup='cd ~ && rm -rf ${HCC_BUILD_PATH}'
 fi
 
 export rocm_volume='/opt/rocm/'
@@ -250,7 +255,8 @@ hcc_lc_volume=$(echo "${hcc_lc_volume}" | tr -s '/' )
 hcc_hsail_volume=$(echo "${hcc_hsail_volume}" | tr -s '/' )
 
 # Generate the .env file used by the docker-compose tool
-printf "roct_image_name_deb=${roct_image_name_deb}\n" > .env
+printf "HCC_VERSION=4.0\n\n" > .env
+printf "roct_image_name_deb=${roct_image_name_deb}\n" >> .env
 printf "rocr_image_name_deb=${rocr_image_name_deb}\n" >> .env
 printf "hcc_lc_image_name_deb=${hcc_lc_image_name_deb}\n" >> .env
 printf "hcc_hsail_image_name_deb=${hcc_hsail_image_name_deb}\n" >> .env
@@ -273,9 +279,9 @@ printf "hcc_lc_deb_dockerfile=${hcc_lc_dockerfiles[deb]}\n" >> .env
 printf "hcc_lc_src_dockerfile=${hcc_lc_dockerfiles[src]}\n" >> .env
 
 # cat rock/rock-deb-dockerfile.template | envsubst '${repo_branch}:${rock_volume}' > rock/Dockerfile
-cat roct/${thunk_dockerfiles[deb-template]} | envsubst '${ubuntu_version}' > roct/${thunk_dockerfiles[deb]}
+cat roct/${thunk_dockerfiles[deb-template]} | envsubst '${ubuntu_version}:${target_distrib_codename}' > roct/${thunk_dockerfiles[deb]}
 cat roct/${thunk_dockerfiles[src-template]} | envsubst '${ubuntu_version}:${tag}:${build_config}:${roct_cleanup}:${roct_volume}:${lib64_install_dir}' > roct/${thunk_dockerfiles[src]}
 cat rocr/${runtime_dockerfiles[deb-template]} | envsubst '${roct_image_name_deb}' > rocr/${runtime_dockerfiles[deb]}
 cat rocr/${runtime_dockerfiles[src-template]} | envsubst '${roct_image_name_src}:${tag}:${build_config}:${rocr_cleanup}:${rocm_volume}:${roct_volume}:${rocr_volume}:${lib64_install_dir}' > rocr/${runtime_dockerfiles[src]}
 cat hcc-lc/${hcc_lc_dockerfiles[deb-template]} | envsubst '${rocr_image_name_deb}' > hcc-lc/${hcc_lc_dockerfiles[deb]}
-cat hcc-lc/${hcc_lc_dockerfiles[src-template]} | envsubst '${rocr_image_name_src}:${tag}:${build_config}:${rocr_cleanup}:${rocm_volume}:${roct_volume}:${rocr_volume}:${lib64_install_dir}' > hcc-lc/${hcc_lc_dockerfiles[src]}
+cat hcc-lc/${hcc_lc_dockerfiles[src-template]} | envsubst '${rocr_image_name_src}:${tag}:${build_config}:${hcc_lc_cleanup}:${rocm_volume}:${hcc_lc_volume}' > hcc-lc/${hcc_lc_dockerfiles[src]}

@@ -1,4 +1,20 @@
-version: '2'
+version: '2.1'
+
+# Manually create these data volumes on the command line like so:
+# docker volume create --name cmake-x.x.x
+#
+# In order to use the home volume, there appears to be an initialization bug
+# with named volumes.  I was able to get around it by explicitely initializing
+# docker run -it --rm -v client-home:/home rocm/jenkins-client bash -l
+#
+# The etc shared volume is necessary to preserve passwd and supporting files 
+# when rebuilding the image.  I hope in the future a better way can be found to 
+# preserve user and password information than saving the entire /etc
+volumes:
+  hcc-lc:
+    external:
+      name: hcc-lc-${HCC_VERSION}
+
 services:
 # The following are images built from debians downloaded from a package repository
   roct-deb:
@@ -56,7 +72,7 @@ services:
     image: ${hcc_lc_image_name_src}
     container_name: hcc-lc-src
     volumes:
-      - ${hcc_lc_volume}
+      - hcc-lc:${hcc_lc_volume}
 
   # hcc-hsail:
   #   depends_on:
