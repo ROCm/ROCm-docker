@@ -47,13 +47,12 @@ function display_help()
   printf "    [-h|--help] prints this help message\n"
   printf "    [--ubuntu xx.yy] Ubuntu version for to inherit base image (16.04 / 14.04)\n"
   printf "    [--tag] String specifying branch or tag in git repository (requires --build)\n"
-  printf "    [--branch] Same as tag; alias (requires --build)\n"
+  printf "    [--branch] Same as tag; alias\n"
 #  printf "    [--all] Build as many components as you can\n"
 #  printf "    [--roct] Build roct component\n"
 #  printf "    [--rocr] Build rocr component\n"
 #  printf "    [--hcc-lc] Build hcc-lc component\n"
 #  printf "    [--hcc-hsail] Build hcc-hsail component\n"
-  printf "    [--release] Build release containers; minimizes size of docker images; (requires --build, exclusive with --debug)\n"
   printf "    [--debug] Build debug containers; symbols generated and build tree intact for debugging; (requires --build, exclusive with --release)\n"
   printf "    [--install-docker-compose] install the docker-compose tool\n"
 }
@@ -71,7 +70,6 @@ export target_distrib_codename=xenial
 
 export build_config='Release'
 build_release=true
-build_debug=false
 install_compose=false
 
 # Bash associative arrays
@@ -133,15 +131,9 @@ while true; do
     # --hcc-hsail)
     #   rocm_components+=('hcc-hsail')
     #   shift ;;
-    --release)
-      build_config='Release'
-      build_release=true
-      build_debug=false
-      shift ;;
     --debug)
       build_config='Debug'
       build_release=false
-      build_debug=true
       shift ;;
     --install-docker-compose)
       install_compose=true
@@ -155,10 +147,10 @@ done
 
 # #################################################
 # docker-compose
-# Help users install docker-compose on their machine
+# Help users install the latest docker-compose on their machine
 # #################################################
 if [[ "${install_compose}" == true ]]; then
-  sudo curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+  sudo curl -L $(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url.*-Linux | cut -d\" -f 4) -o /usr/local/bin/docker-compose
   sudo chmod +x /usr/local/bin/docker-compose
 
   sudo curl -L https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose

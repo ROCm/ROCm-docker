@@ -14,6 +14,9 @@ volumes:
   hcc-lc:
     external:
       name: hcc-lc-${HCC_VERSION}
+  hip:
+    external:
+      name: hip-${HCC_VERSION}
 
 services:
 # The following are images built from debians downloaded from a package repository
@@ -73,6 +76,7 @@ services:
     container_name: hcc-lc-src
     volumes:
       - hcc-lc:${hcc_lc_volume}
+      - hip:/opt/rocm/hip
 
   # hcc-hsail:
   #   depends_on:
