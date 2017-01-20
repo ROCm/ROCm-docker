@@ -1,0 +1,14 @@
+# Build this dockerfile with `docker build -f hcc-lc-release-dockerfile -t roc/hcc .`
+
+# To reduce container rebuild time, place commands least likely to change at top to
+# most changing at bottom
+
+# This builds the hcc compiler, and depends on an already existing rocr-runtime to be found
+FROM ${rocr_image_name_deb}
+MAINTAINER Kent Knox <kent.knox@amd>
+
+# Following assumes that the apt-get update is already set up to pull from packages.amd.com in base image
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+  hcc_lc && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*

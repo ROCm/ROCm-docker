@@ -33,4 +33,5 @@ tags
 
 # Docker files
 Dockerfile
-*.yml
+*-dockerfile
+.env

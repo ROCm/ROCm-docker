@@ -1,0 +1,119 @@
+version: '2.1'
+
+# Manually create these data volumes on the command line like so:
+# docker volume create --name cmake-x.x.x
+#
+# In order to use the home volume, there appears to be an initialization bug
+# with named volumes.  I was able to get around it by explicitely initializing
+# docker run -it --rm -v client-home:/home rocm/jenkins-client bash -l
+#
+# The etc shared volume is necessary to preserve passwd and supporting files 
+# when rebuilding the image.  I hope in the future a better way can be found to 
+# preserve user and password information than saving the entire /etc
+volumes:
+  hcc-lc:
+    external:
+      name: hcc-lc-${HCC_VERSION}
+  hip:
+    external:
+      name: hip-${HCC_VERSION}
+
+services:
+# The following are images built from debians downloaded from a package repository
+  roct-deb:
+    build:
+      context: ./roct
+      dockerfile: ${roct_deb_dockerfile}
+    image: ${roct_image_name_deb}
+    container_name: roct-deb
+
+  rocr-deb:
+    depends_on:
+      - roct-deb
+    build:
+      context: ./rocr
+      dockerfile: ${rocr_deb_dockerfile}
+    image: ${rocr_image_name_deb}
+    container_name: rocr-deb
+
+  hcc-lc-deb:
+    depends_on:
+      - rocr-deb
+    build:
+      context: ./hcc-lc
+      dockerfile: ${hcc_lc_deb_dockerfile}
+    image: ${hcc_lc_image_name_deb}
+    container_name: hcc-lc-deb
+
+# The following are images built from rocm source
+  roct-src:
+    build:
+      context: ./roct
+      dockerfile: ${roct_src_dockerfile}
+    image: ${roct_image_name_src}
+    container_name: roct-src
+    volumes:
+      - ${roct_volume}
+
+  rocr-src:
+    depends_on:
+      - roct-src
+    build:
+      context: ./rocr
+      dockerfile: ${rocr_src_dockerfile}
+    image: ${rocr_image_name_src}
+    container_name: rocr-src
+    volumes:
+      - ${rocr_volume}
+
+  hcc-lc-src:
+    depends_on:
+      - rocr-src
+    build:
+      context: ./hcc-lc
+      dockerfile: ${hcc_lc_src_dockerfile}
+    image: ${hcc_lc_image_name_src}
+    container_name: hcc-lc-src
+    volumes:
+      - hcc-lc:${hcc_lc_volume}
+      - hip:/opt/rocm/hip
+
+  # hcc-hsail:
+  #   depends_on:
+  #     - rocr
+  #   build:
+  #     context: ./hcc-hsail
+  #     dockerfile: Dockerfile
+  #   image: ${hcc_hsail_name}
+  #   container_name: hcc-hsail
+  #   entrypoint: /bin/true
+  #   volumes:
+  #     - ${hcc_hsail_volume}
+
+  # The following defines application containers, which depend on the data-only
+  # containers defined above to provide their software layers
+  # These should be run with `docker-compose run --rm <application-service>`
+  rocm:
+    build:
+      context: ./rocm-terminal
+      dockerfile: Dockerfile
+    devices:
+      - "/dev/kfd"
+    image: rocm/rocm-terminal
+    volumes:
+      - ~:/usr/local/src/host-home
+
+  rocm-from-src:
+    build:
+      context: ./rocm-terminal
+      dockerfile: Dockerfile
+    devices:
+      - "/dev/kfd"
+    image: rocm/rocm-terminal
+    volumes:
+      - ~:/usr/local/src/host-home
+    volumes_from:
+      - roct-src:ro
+      - rocr-src:ro
+      - hcc-lc-src:ro
+      # - hcc-hsail-src:ro
