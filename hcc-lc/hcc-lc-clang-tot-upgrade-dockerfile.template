@@ -70,6 +70,12 @@ RUN mkdir -p ~/bin && \
     curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > ~/bin/repo && \
     chmod a+x ~/bin/repo
 
+# Temporary libc++ fix for ubuntu 16.04 compilations
+RUN curl -L http://ftp.us.debian.org/debian/pool/main/libc/libc++/libc++-dev_3.9.1-2_amd64.deb -o /tmp/libc++-dev_3.9.1-2_amd64.deb && \
+    curl -L http://ftp.us.debian.org/debian/pool/main/libc/libc++/libc++1_3.9.1-2_amd64.deb -o /tmp/libc++1_3.9.1-2_amd64.deb && \
+    dpkg -i /tmp/libc++1_3.9.1-2_amd64.deb && rm /tmp/libc++1_3.9.1-2_amd64.deb && \
+    dpkg -i /tmp/libc++-dev_3.9.1-2_amd64.deb && rm /tmp/libc++-dev_3.9.1-2_amd64.deb
+
 # This is a long series of build steps, all listed under one RUN statement to keep image size down
 # Build hcc-lc, install to /opt/rocm
 RUN mkdir -p ${HCC_BUILD_PATH} && \
@@ -114,8 +120,7 @@ RUN mkdir -p ${HCC_BUILD_PATH} && \
   cmake \
     -DCMAKE_INSTALL_PREFIX=${hcc_lc_volume} \
     -DCMAKE_BUILD_TYPE=${build_config} \
-    -DROCM_DEVICE_LIB_DIR=${hcc_lc_volume}/lib \
-    -DHSA_AMDGPU_GPU_TARGET="AMD:AMDGPU:7:0:1;AMD:AMDGPU:8:0:3" \
+    -DHSA_AMDGPU_GPU_TARGET="gfx701;gfx803" \
     .. && \
   make -j $(nproc) && \
 #  make install && \
