@@ -14,8 +14,8 @@ sudo docker pull rocm/rocm-terminal
 sudo docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal
 ```
 
-## ROCm-docker quick start
-Instructions and a few asciicasts are available to help users quickly get running with rocm-docker.  Visit the [quick start guide](quick-start.md) to find out more.
+## ROCm-docker set up guide
+[Installation instructions](quick-start.md) and asciicasts demos are available to help users quickly get running with rocm-docker.  Visit the set up guide to read more.
 
 ### F.A.Q
 When working with the ROCm containers, the following are common and useful docker commands:
@@ -23,11 +23,13 @@ When working with the ROCm containers, the following are common and useful docke
 *  A message like the following typically means your user does not have permissions to execute docker; use sudo or [add your user](https://docs.docker.com/engine/installation/linux/ubuntulinux/#/create-a-docker-group) to the docker group.
   * `Cannot connect to the Docker daemon. Is the docker daemon running on this host?`
 *  Open another terminal into a running container
-  * `sudo docker exec -it <CONTAINER-NAME> env TERM=xterm-color bash -l`
+  * `sudo docker exec -it <CONTAINER-NAME> bash -l`
 * Copy files from host machine into running docker container
   * `sudo docker cp HOST_PATH <CONTAINER-NAME>:/PATH`
 * Copy files from running docker container onto host machine
   * `sudo docker cp <CONTAINER-NAME>:/PATH/TO/FILE HOST_PATH`
+* If receiving messages about *no space left on device* when pulling images, check the storage driver in use by the docker engine.  If its 'device mapper', that means the image size limits imposed by the 'device mapper' storage driver are a problem
+  * Follow the documentation in the [quick start guide](quick-start.md) for a solution to change to the storage driver
 
 #### Saving work in a container
 Docker containers are typically ephemeral, and are discarded after closing the container with the '**--rm**' flag to `docker run`.  However, there are times when it is desirable to close a container that has arbitrary work in it, and serialize it back into a docker image.  This may be to to create a checkpoint in a long and complicated series of instructions, or it may be desired to share the image with others through a docker registry, such as docker hub.  
@@ -55,7 +57,7 @@ The first method produces docker images with the smallest footprint and best bui
 The setup script included in this repository is provides some flexibility to how docker containers are constructed.  Unfortunately, Dockerfiles do not have a preprocessor or template language, so typically build instructions are hardcoded.  However, the setup script allows us to write a primitive 'template', and after running it instantiates baked dockerfiles with environment variables substituted in.  For instance, if you wish to build release images and debug images, first run the setup script to generate release dockerfiles and build the images.  Then, run the setup script again and specify debug dockerfiles and build new images.  The docker images should generate unique image names and not conflict with each other.
 
 ## setup.sh
-Currently, the setup.sh scripts checks to make sure that it is running on an **Ubuntu system**, as it makes a few assumptions about the availability of tools and file locations.  If running rocm on a Fedora machine, inspect the source of setup.sh and issue the appropriate commands manually.  There are a few parameters to setup.sh of a generic nature that affects all images built after running.  If no parameters are given, built images will be based off of Ubuntu 16.04 with rocm installed from debians.  Supported parameters can be queried with `./setup --help`.
+Currently, the setup.sh scripts checks to make sure that it is running on an **Ubuntu system**, as it makes a few assumptions about the availability of tools and file locations.  If running rocm on a Fedora machine, inspect the source of setup.sh and issue the appropriate commands manually.  There are a few parameters to setup.sh of a generic nature that affects all images built after running.  If no parameters are given, built images will be based off of Ubuntu 16.04 with rocm components installed from debians downloaded from packages.amd.com.  Supported parameters can be queried with `./setup --help`.
 
 | setup.sh parameters | parameter [default]| description |
 |-----|-----|-----|
