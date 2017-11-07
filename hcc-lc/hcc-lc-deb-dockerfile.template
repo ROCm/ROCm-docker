@@ -7,7 +7,7 @@
 FROM ${rocr_image_name_deb}
 MAINTAINER Kent Knox <kent.knox@amd>
 
-# Following assumes that the apt-get update is already set up to pull from packages.amd.com in base image
+# Following assumes that the apt-get update is already set up to pull from repo.radeon.com in base image
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
   hcc_lc && \
   apt-get clean && \

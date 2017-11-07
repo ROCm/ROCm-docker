@@ -2,17 +2,16 @@
 
 The following instructions assume a fresh/blank machine to be prepared for the ROCm + Docker environment; no additional software has been installed other than the typical stock package updating.
 
-It is my recommendation to install the rocm kernel first.  Depending on how distribution release cycles lines up, the rocm kernel is often newer than the stock kernel shipping in most linux distributions.  The newer kernel often supports newer AMD hardware better, and stock video resolutions and hardware acceleration performance are typically improved.  As of the time of this writing, ROCm officially supports Ubuntu and Fedora Linux distributions.  The following asciicast demonstrates updating the kernel on Ubuntu 14.04.  More detailed instructions can be found on the Radeon Open Compute website:
+It is recommended to install the rocm kernel first.  Depending on how distribution release cycles lines up, the rocm kernel is often newer than the stock kernel shipping in most linux distributions.  The ROCm kernel often supports newer AMD hardware better, and stock video resolutions and hardware acceleration performance are typically improved.  As of the time of this writing, ROCm officially supports Ubuntu and Fedora Linux distributions.  The following asciicast demonstrates updating the kernel on Ubuntu 14.04.  More detailed instructions can be found on the Radeon Open Compute website:
 * [Installing ROCK kernel](https://github.com/RadeonOpenCompute/ROCm#debian-repository---apt-get) on Ubuntu
 
 ### Step 1: Install rocm-kernel
-[![Install rocm-kernel](https://asciinema.org/a/cv0r34re9hp9g5hoja8vyh803.png)](https://asciinema.org/a/cv0r34re9hp9g5hoja8vyh803)
+The following is a sequence of commands to type (or cut-n-paste) into a terminal.  Where `<<<tab-complete>>>` is used in the sequence below, it is recommended to complete the string with shell tab completion to auto-complete the latest available rocm kernel:
 
 ```bash
-wget -qO - http://packages.amd.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
-sudo sh -c 'echo deb [arch=amd64] http://packages.amd.com/rocm/apt/debian/ trusty main  \
-    > /etc/apt/sources.list.d/rocm.list'
-sudo apt-get update && sudo apt-get install rocm-kernel
+wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
+echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main | sudo tee /etc/apt/sources.list.d/rocm.list
+sudo apt-get update && sudo apt-get install compute-firmware linux-headers-4.11.0-kfd-<<<tab-complete>>> linux-image-4.11.0-kfd-<<<tab-complete>>>
 ```
 Make sure to reboot the machine after installing the ROCm kernel package to force the new kernel to load on reboot.  You can verify the ROCm kernel is loaded by typing the following command at a prompt:
 
