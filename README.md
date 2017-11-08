@@ -32,7 +32,7 @@ When working with the ROCm containers, the following are common and useful docke
   * Follow the documentation in the [quick start guide](quick-start.md) for a solution to change to the storage driver
 
 #### Saving work in a container
-Docker containers are typically ephemeral, and are discarded after closing the container with the '**--rm**' flag to `docker run`.  However, there are times when it is desirable to close a container that has arbitrary work in it, and serialize it back into a docker image.  This may be to to create a checkpoint in a long and complicated series of instructions, or it may be desired to share the image with others through a docker registry, such as docker hub.  
+Docker containers are typically ephemeral, and are discarded after closing the container with the '**--rm**' flag to `docker run`.  However, there are times when it is desirable to close a container that has arbitrary work in it, and serialize it back into a docker image.  This may be to to create a checkpoint in a long and complicated series of instructions, or it may be desired to share the image with others through a docker registry, such as docker hub.
 
 ```bash
 sudo docker ps -a  # Find container of interest
@@ -49,7 +49,7 @@ An [apt-get repository](https://github.com/RadeonOpenCompute/ROCm/wiki#installin
 
 ## Building images
 There are two ways to install rocm components:
-1.  install from the rocm apt/rpm repository (packages.amd.com)
+1.  install from the rocm apt/rpm repository (repo.radeon.com)
 2.  build the components from source and run install scripts
 
 The first method produces docker images with the smallest footprint and best building speed.  The footprint is smaller because no developer tools need to be installed in the image, an the images build speed is fastest because typically downloading binaries is much faster than downloading source and then invoking a build process.  Of course, building components allows much greater flexibility on install location and the ability to step through the source with debug builds.  ROCm-docker supports making images either way, and depends on the flags passed to the setup script.
@@ -57,7 +57,7 @@ The first method produces docker images with the smallest footprint and best bui
 The setup script included in this repository is provides some flexibility to how docker containers are constructed.  Unfortunately, Dockerfiles do not have a preprocessor or template language, so typically build instructions are hardcoded.  However, the setup script allows us to write a primitive 'template', and after running it instantiates baked dockerfiles with environment variables substituted in.  For instance, if you wish to build release images and debug images, first run the setup script to generate release dockerfiles and build the images.  Then, run the setup script again and specify debug dockerfiles and build new images.  The docker images should generate unique image names and not conflict with each other.
 
 ## setup.sh
-Currently, the setup.sh scripts checks to make sure that it is running on an **Ubuntu system**, as it makes a few assumptions about the availability of tools and file locations.  If running rocm on a Fedora machine, inspect the source of setup.sh and issue the appropriate commands manually.  There are a few parameters to setup.sh of a generic nature that affects all images built after running.  If no parameters are given, built images will be based off of Ubuntu 16.04 with rocm components installed from debians downloaded from packages.amd.com.  Supported parameters can be queried with `./setup --help`.
+Currently, the setup.sh scripts checks to make sure that it is running on an **Ubuntu system**, as it makes a few assumptions about the availability of tools and file locations.  If running rocm on a Fedora machine, inspect the source of setup.sh and issue the appropriate commands manually.  There are a few parameters to setup.sh of a generic nature that affects all images built after running.  If no parameters are given, built images will be based off of Ubuntu 16.04 with rocm components installed from debians downloaded from repo.radeon.com.  Supported parameters can be queried with `./setup --help`.
 
 | setup.sh parameters | parameter [default]| description |
 |-----|-----|-----|
@@ -75,10 +75,10 @@ The following parameters are specific to building containers that compile rocm c
 `./setup` generates finalized Dockerfiles from textual template files ending with the *.template* suffix.  Each sub-directory of this repository corresponds to a docker 'build context' responsible for a software layer in the ROCm stack.  After running the script, each directory contains generated dockerfiles for building images from debians and from source.
 
 ### Docker compose
-`./setup` prepares an environment to be controlled with [Docker Compose](https://docs.docker.com/compose/).  While docker-compose is not necessary for proper operation, it is highly recommended.  setup.sh does provide a flag to simplify the installation of this tool. Docker-compose coordinates the relationships between the various ROCm software layers, and it remembers flags that should be passed to docker to expose devices and import volumes.  
+`./setup` prepares an environment to be controlled with [Docker Compose](https://docs.docker.com/compose/).  While docker-compose is not necessary for proper operation, it is highly recommended.  setup.sh does provide a flag to simplify the installation of this tool. Docker-compose coordinates the relationships between the various ROCm software layers, and it remembers flags that should be passed to docker to expose devices and import volumes.
 
 #### Example of using docker-compose
-docker-compose.yml provides services that build and run containers.  YAML is structured data, so it's easy to modify and extend.  The *setup.sh* script generates a *.env* file that docker-compose reads to satisfy the definitions of the variables in the .yml file.  
+docker-compose.yml provides services that build and run containers.  YAML is structured data, so it's easy to modify and extend.  The *setup.sh* script generates a *.env* file that docker-compose reads to satisfy the definitions of the variables in the .yml file.
   * `docker-compose run --rm rocm` -- Run container using rocm packages
   * `docker-compose run --rm rocm-from-src` -- Run container with rocm built from source
 
@@ -91,7 +91,7 @@ docker-compose.yml provides services that build and run containers.  YAML is str
   | rocm | application service defined in **docker-compose.yml** |
 
 ### rocm-user has root privileges by default
-The dockerfile that serves as a 'terminal' creates a non-root user called **rocm-user**.  This container is meant to serve as a development environment (therefore `apt-get` is likely needed), the user has been added to the linux sudo group.  Since it is somewhat difficult to set and change passwords in a container (often requiring a rebuild), the password prompt has been disabled for the sudo group.  While this is convenient for development to be able `sudo apt-get install` packages, it does imply *lower security* in the container.  
+The dockerfile that serves as a 'terminal' creates a non-root user called **rocm-user**.  This container is meant to serve as a development environment (therefore `apt-get` is likely needed), the user has been added to the linux sudo group.  Since it is somewhat difficult to set and change passwords in a container (often requiring a rebuild), the password prompt has been disabled for the sudo group.  While this is convenient for development to be able `sudo apt-get install` packages, it does imply *lower security* in the container.
 
 To increase container security:
 
