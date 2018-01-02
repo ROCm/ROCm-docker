@@ -37,6 +37,9 @@ then
 elif [ "$ROCM_VERSION" == "1.6" ] && [ "$KERNEL_PATCH_VERSION" == "77" ]
 then
     download_repo http://repo.radeon.com/rocm/archive/apt_1.6.0.tar.bz2
+elif [ "$ROCM_VERSION" == "1.6" ] # Latest patch version is 180
+then
+    download_repo http://repo.radeon.com/rocm/archive/apt_1.6.4.tar.bz2
 else
     add_repo http://repo.radeon.com/rocm/apt/debian/
 fi
