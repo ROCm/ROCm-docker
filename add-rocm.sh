@@ -21,8 +21,15 @@ function add_local_repo {
 }
 
 function download_repo {
-    mkdir -p /repo/radeon
-    curl $1 | tar --strip-components=1 -x --bzip2 -C /repo/radeon
+    mkdir -p /repo/tmp
+    curl $1 | tar --strip-components=1 -x --bzip2 -C /repo/tmp
+    # Some archives are in a debian directory
+    if [ -d "/repo/tmp/debian" ]; then
+        mv /repo/tmp /repo/radeon
+    else
+        mkdir -p /repo/radeon
+        mv /repo/tmp /repo/radeon/debian
+    fi
     cat /repo/radeon/debian/rocm.gpg.key | apt-key add -
     add_local_repo /repo/radeon/debian
 }
