@@ -21,10 +21,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   sudo \
   libelf1 \
-#  build-essential \
-#  git \
-#  vim-nox \
-#  cmake-curses-gui \
+  build-essential \
+  git \
+  python \
+  libnuma-dev \
+  vim-nox \
+  cmake-curses-gui \
   rocm-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
