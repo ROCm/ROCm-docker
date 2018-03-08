@@ -30,9 +30,11 @@ lsmod | grep kfd
 ```
 
 Printed on the screen should be similar as follows:
+```bash
 amdkfd                270336  4
 amd_iommu_v2           20480  1 amdkfd
 amdkcl                 24576  3 amdttm,amdgpu,amdkfd
+```
 
 ### Step 2: Install docker
 After verifying the new kernel is running, next install the docker engine.  Manual instructions to install docker on various distro's can be found on the [docker website](https://docs.docker.com/engine/installation/linux/), but perhaps the simplest method is to use a bash script available from docker itself.  If it's OK in your organization to run a bash script on your machine downloaded from the internet, open a bash prompt and execute the following line:
