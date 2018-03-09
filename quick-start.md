@@ -71,7 +71,7 @@ The downside to switching to the 'overlay2' storage driver after creating and wo
 git clone https://github.com/RadeonOpenCompute/ROCm-docker
 cd ROCm-docker
 sudo docker build -t rocm/rocm-terminal rocm-terminal
-sudo docker run -it --network=host --device=/dev/kfd --device=/dev/dri --group-add video rocm/rocm-terminal
+sudo docker run -it --device=/dev/kfd --device=/dev/dri --group-add video rocm/rocm-terminal
 ```
 
 ### (optional) Step 4b: Build ROCm container using docker-compose
