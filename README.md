@@ -98,5 +98,7 @@ To increase container security:
 1.  Eliminate the sudo-nopasswd COPY statement in the dockerfile and replace with
 2.  Your own password with `RUN echo 'account:password' | chpasswd`
 
+The docker.ce release 18.02 has known defects working with **rocm-user** account insider docker image.
+Please upgrade docker package to the [18.04 build](https://download.docker.com/linux/ubuntu/dists/xenial/pool/nightly/amd64/docker-ce_18.04.0~ce~dev~git20180313.171447.0.6e4307b-0~ubuntu_amd64.deb). 
 ### Footnotes:
 <a name="ROCK">[1]</a> It can be installed into a container, it just doesn't do anything because containers do not go through the traditional boot process.  We actually do provide a container for ROCK-Kernel-Driver, but it not used by the rest of the docker images.  It does provide isolation and a reproducible environment for kernel development.

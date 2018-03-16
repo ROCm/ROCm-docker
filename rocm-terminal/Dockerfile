@@ -11,7 +11,7 @@
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
 FROM ubuntu:16.04
-MAINTAINER Kent Knox <kent.knox@amd>
+MAINTAINER Peng Sun <Peng.Sun@amd>
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
@@ -21,10 +21,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   sudo \
   libelf1 \
-#  build-essential \
-#  git \
-#  vim-nox \
-#  cmake-curses-gui \
+  libnuma-dev \
+  build-essential \
+  git \
+  vim-nox \
+  cmake-curses-gui \
   rocm-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*

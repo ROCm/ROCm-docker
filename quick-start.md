@@ -1,25 +1,40 @@
-# Preparing a machine to run with rocm and docker
+# Preparing a machine to run with ROCm and docker
 
 The following instructions assume a fresh/blank machine to be prepared for the ROCm + Docker environment; no additional software has been installed other than the typical stock package updating.
 
-It is recommended to install the rocm kernel first.  Depending on how distribution release cycles lines up, the rocm kernel is often newer than the stock kernel shipping in most linux distributions.  The ROCm kernel often supports newer AMD hardware better, and stock video resolutions and hardware acceleration performance are typically improved.  As of the time of this writing, ROCm officially supports Ubuntu and Fedora Linux distributions.  The following asciicast demonstrates updating the kernel on Ubuntu 14.04.  More detailed instructions can be found on the Radeon Open Compute website:
+It is recommended to install the ROCm kernel first. The ROCm KFD is distributed as DKMS modules for post ROCm1.7.0 releases. However, we recommend to upgrade to newer generic kernels as possible. The newer kernel often supports AMD hardware better, and stock video resolutions and hardware acceleration performance are typically improved. As of the time of this writing, ROCm officially supports Ubuntu and Fedora Linux distributions.  The following asciicast demonstrates updating the kernel on Ubuntu 16.04.  More detailed instructions can be found on the Radeon Open Compute website:
 * [Installing ROCK kernel](https://github.com/RadeonOpenCompute/ROCm#debian-repository---apt-get) on Ubuntu
 
 ### Step 1: Install rocm-kernel
-The following is a sequence of commands to type (or cut-n-paste) into a terminal.  Where `<<<tab-complete>>>` is used in the sequence below, it is recommended to complete the string with shell tab completion to auto-complete the latest available rocm kernel:
+The following is a sequence of commands to type (or cut-n-paste) into a terminal:
 
 ```bash
+# OPTIONAL, upgrade your base kernel to 4.13.0-32-generic, reboot required
+sudo apt update && sudo apt install linux-headers-4.13.0-32-generic linux-image-4.13.0-32-generic linux-image-extra-4.13.0-32-generic linux-signed-image-4.13.0-32-generic
+sudo reboot 
+
+# Install the ROCm compute firmware and rock-dkms kernel modules, reboot required
 wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
 echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main | sudo tee /etc/apt/sources.list.d/rocm.list
-sudo apt-get update && sudo apt-get install compute-firmware linux-headers-4.11.0-kfd-<<<tab-complete>>> linux-image-4.11.0-kfd-<<<tab-complete>>>
+sudo apt-get update && sudo apt-get install compute-firmware rock-dkms
+sudo update-initramfs -u
+sudo reboot
+
+# Add user to the video group
+sudo adduser $LOGNAME video
 ```
 Make sure to reboot the machine after installing the ROCm kernel package to force the new kernel to load on reboot.  You can verify the ROCm kernel is loaded by typing the following command at a prompt:
 
 ```bash
-uname -r
+lsmod | grep kfd
 ```
 
-Printed on the screen should be a string that's obviously the new ROCm kernel, such as : `4.6.0-kfd-compute-rocm-rel-1.4-16`.  In this case, it is plain to see that the rocm compute kernel is based off of the linux 4.6.0 kernel.
+Printed on the screen should be similar as follows:
+```bash
+amdkfd                270336  4
+amd_iommu_v2           20480  1 amdkfd
+amdkcl                 24576  3 amdttm,amdgpu,amdkfd
+```
 
 ### Step 2: Install docker
 After verifying the new kernel is running, next install the docker engine.  Manual instructions to install docker on various distro's can be found on the [docker website](https://docs.docker.com/engine/installation/linux/), but perhaps the simplest method is to use a bash script available from docker itself.  If it's OK in your organization to run a bash script on your machine downloaded from the internet, open a bash prompt and execute the following line:
@@ -56,7 +71,7 @@ The downside to switching to the 'overlay2' storage driver after creating and wo
 git clone https://github.com/RadeonOpenCompute/ROCm-docker
 cd ROCm-docker
 sudo docker build -t rocm/rocm-terminal rocm-terminal
-sudo docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal
+sudo docker run -it --device=/dev/kfd --device=/dev/dri --group-add video rocm/rocm-terminal
 ```
 
 ### (optional) Step 4b: Build ROCm container using docker-compose
