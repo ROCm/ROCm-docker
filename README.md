@@ -11,7 +11,7 @@ Looking for an easy start with ROCm + Docker?  The rocm/rocm-terminal image is h
 
 ```bash
 sudo docker pull rocm/rocm-terminal
-sudo docker run -it --rm --device="/dev/kfd" rocm/rocm-terminal
+sudo docker run -it --device=/dev/kfd --device=/dev/dri --group-add video rocm/rocm-terminal
 ```
 
 ## ROCm-docker set up guide
