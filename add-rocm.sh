@@ -6,10 +6,6 @@
 
 set -e
 
-KERNEL_VERSION=$(uname -r | sed 's/.*rocm-rel-//g')
-KERNEL_PATCH_VERSION=$(echo $KERNEL_VERSION | sed 's/.*-//g')
-ROCM_VERSION=$(echo $KERNEL_VERSION | sed 's/-.*//g')
-
 apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl bzip2 apt-utils wget
 
 function add_repo {
@@ -34,21 +30,39 @@ function download_repo {
     add_local_repo /repo/radeon/debian
 }
 
+if uname -r | grep -q 'rocm'; then
+    KERNEL_VERSION=$(uname -r | sed 's/.*rocm-rel-//g')
+    KERNEL_PATCH_VERSION=$(echo $KERNEL_VERSION | sed 's/.*-//g')
+    ROCM_VERSION=$(echo $KERNEL_VERSION | sed 's/-.*//g')
 
-if [ "$ROCM_VERSION" == "1.4" ]
-then
-    download_repo http://repo.radeon.com/rocm/archive/apt_1.4.0.tar.bz2
-elif [ "$ROCM_VERSION" == "1.5" ]
-then
-    download_repo http://repo.radeon.com/rocm/archive/apt_1.5.1.tar.bz2
-elif [ "$ROCM_VERSION" == "1.6" ] && [ "$KERNEL_PATCH_VERSION" == "77" ]
-then
-    download_repo http://repo.radeon.com/rocm/archive/apt_1.6.0.tar.bz2
-elif [ "$ROCM_VERSION" == "1.6" ] # Latest patch version is 180
-then
-    download_repo http://repo.radeon.com/rocm/archive/apt_1.6.4.tar.bz2
+    if [ "$ROCM_VERSION" == "1.4" ]
+    then
+        download_repo http://repo.radeon.com/rocm/archive/apt_1.4.0.tar.bz2
+    elif [ "$ROCM_VERSION" == "1.5" ]
+    then
+        download_repo http://repo.radeon.com/rocm/archive/apt_1.5.1.tar.bz2
+    elif [ "$ROCM_VERSION" == "1.6" ] && [ "$KERNEL_PATCH_VERSION" == "77" ]
+    then
+        download_repo http://repo.radeon.com/rocm/archive/apt_1.6.0.tar.bz2
+    elif [ "$ROCM_VERSION" == "1.6" ] # Latest patch version is 180
+    then
+        download_repo http://repo.radeon.com/rocm/archive/apt_1.6.4.tar.bz2
+    else
+        add_repo http://repo.radeon.com/rocm/apt/debian/
+    fi
+
 else
-    add_repo http://repo.radeon.com/rocm/apt/debian/
+    KERNEL_VERSION=$(cat /sys/module/amdkfd/version)
+    KERNEL_SRC_VERSION=$(cat /sys/module/amdkfd/srcversion)
+    if [ "$KERNEL_VERSION" == "2.0.0" ]
+    then
+        download_repo http://repo.radeon.com/rocm/archive/apt_1.7.2.tar.bz2
+    else
+        add_repo http://repo.radeon.com/rocm/apt/debian/
+    fi
+
 fi
+
+# Install key
 wget -O - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | apt-key add -
 apt-get update
