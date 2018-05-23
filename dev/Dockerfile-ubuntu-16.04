@@ -2,7 +2,7 @@
 # installs the rocm-dev package.
 
 FROM ubuntu:16.04
-LABEL maintainer=peng.sun@amd
+LABEL maintainer=peng.sun@amd.com
 
 # Register the ROCM package repository, and install rocm-dev package
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl \
