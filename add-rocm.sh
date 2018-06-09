@@ -54,9 +54,13 @@ if uname -r | grep -q 'rocm'; then
 else
     KERNEL_VERSION=$(cat /sys/module/amdkfd/version)
     KERNEL_SRC_VERSION=$(cat /sys/module/amdkfd/srcversion)
-    if [ "$KERNEL_VERSION" == "2.0.0" ]
-    then
-        download_repo http://repo.radeon.com/rocm/archive/apt_1.7.2.tar.bz2
+    if [ "$KERNEL_VERSION" == "2.0.0" ]; then
+        if [ "$KERNEL_SRC_VERSION" == "13FF90CA7D6AC14290ADCFD" ] || [ "$KERNEL_SRC_VERSION" == "3A26446A606958428B1B870" ]; then
+            download_repo http://repo.radeon.com/rocm/archive/apt_1.7.2.tar.bz2
+        # B9B5387F6B6FEA02D977638
+        else
+            add_repo http://repo.radeon.com/rocm/apt/debian/
+        fi
     else
         add_repo http://repo.radeon.com/rocm/apt/debian/
     fi
