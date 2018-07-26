@@ -11,7 +11,7 @@
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
 FROM ubuntu:16.04
-MAINTAINER Peng Sun <Peng.Sun@amd>
+MAINTAINER Peng Sun <Peng.Sun@amd.com>
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
