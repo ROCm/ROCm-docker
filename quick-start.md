@@ -2,9 +2,6 @@
 
 The following instructions assume a fresh/blank machine to be prepared for the ROCm + Docker environment; no additional software has been installed other than the typical stock package updating.
 
-The latest public docker.ce release - 18.02 has known defects working with non-root account insider docker image. Please upgrade docker package to the 18.04 build using the following deb package:
-https://download.docker.com/linux/ubuntu/dists/xenial/pool/nightly/amd64/docker-ce_18.04.0~ce~dev~git20180315.170650.0.8fabfd2-0~ubuntu_amd64.deb
-
 It is recommended to install the ROCm kernel first. The ROCm KFD is distributed as DKMS modules for post ROCm1.7.0 releases. However, we recommend to upgrade to newer generic kernels as possible. The newer kernel often supports AMD hardware better, and stock video resolutions and hardware acceleration performance are typically improved. As of the time of this writing, ROCm officially supports Ubuntu and Fedora Linux distributions.  The following asciicast demonstrates updating the kernel on Ubuntu 16.04.  More detailed instructions can be found on the Radeon Open Compute website:
 * [Installing ROCK kernel](https://github.com/RadeonOpenCompute/ROCm#debian-repository---apt-get) on Ubuntu
 
