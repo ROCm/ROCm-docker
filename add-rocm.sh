@@ -65,6 +65,9 @@ else
         # 1.8.192
         elif [ "$KERNEL_SRC_VERSION" == "E657186569CAA8D3E3727BA" ]; then
             download_repo http://repo.radeon.com/rocm/archive/apt_1.8.2.tar.bz2
+        # 1.9.211
+        elif [ "$KERNEL_SRC_VERSION" == "1C6A1C03695B2681E4F30E4" ]; then
+            download_repo http://repo.radeon.com/rocm/archive/apt_1.9.1.tar.bz2
         else
             add_repo http://repo.radeon.com/rocm/apt/debian/
         fi
