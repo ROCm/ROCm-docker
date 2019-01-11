@@ -51,7 +51,8 @@ if uname -r | grep -q 'rocm'; then
         add_repo http://repo.radeon.com/rocm/apt/debian/
     fi
 
-else
+elif [ -e /sys/module/amdkfd/version ]; then
+
     KERNEL_VERSION=$(cat /sys/module/amdkfd/version)
     KERNEL_SRC_VERSION=$(cat /sys/module/amdkfd/srcversion)
     if [ "$KERNEL_VERSION" == "2.0.0" ]; then
@@ -75,6 +76,8 @@ else
         add_repo http://repo.radeon.com/rocm/apt/debian/
     fi
 
+else
+    add_repo http://repo.radeon.com/rocm/apt/debian/
 fi
 
 # Install key
