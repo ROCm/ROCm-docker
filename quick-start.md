@@ -88,8 +88,6 @@ sudo docker-compose run --rm rocm
 *  Verify a working container-based ROCm software stack
   * After step #2 or #3, a bash login prompt to a running docker container should be available
       * `hcc --version` should display version information of the AMD heterogeneous compiler
-  * Execute sample application
-      * `cd /opt/rocm/hsa/sample`
-      * `sudo make`
-      * `./vector-copy`
-  * Text displaying successful creation of a GPU device, successful kernel compilation and successful shutdown should be printed to stdout
+  * Execute rocminfo script
+      * `/opt/rocm/bin/rocminfo`
+  * Text displaying your system HSA System Attributes and enumerate all the visible HSA Agents. 
