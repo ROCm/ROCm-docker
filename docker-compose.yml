@@ -69,6 +69,7 @@ services:
       - "/dev/kfd"
     image: rocm/rocm-terminal
     volumes:
+      - ..:/home/rocm-user
       - ~:/usr/local/src/host-home
 
   rocm-from-src:
@@ -79,6 +80,7 @@ services:
       - "/dev/kfd"
     image: rocm/rocm-terminal
     volumes:
+      - ..:/home/rocm-user
       - ~:/usr/local/src/host-home
     volumes_from:
       - roct-src:ro
