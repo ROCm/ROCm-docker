@@ -71,6 +71,8 @@ services:
     volumes:
       - ..:/home/rocm-user
       - ~:/usr/local/src/host-home
+    environment:
+      - DISPLAY=${DISPLAY}
 
   rocm-from-src:
     build:
@@ -87,6 +89,8 @@ services:
       - rocr-src:ro
       - hcc-lc-src:ro
       # - hcc-hsail-src:ro
+    environment:
+      - DISPLAY:${DISPLAY}
 
   dev-ubuntu:
     build:
