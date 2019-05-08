@@ -1,0 +1,86 @@
+FROM centos:7
+
+# Base
+RUN yum -y install git java-1.8.0-openjdk python; yum clean all
+
+# Enable epel-release repositories
+RUN yum --enablerepo=extras install -y epel-release
+
+# Install required base build and packaging commands for ROCm
+RUN yum -y install \
+    bc \
+    bridge-utils \
+    cmake \
+    cmake3 \
+    devscripts \
+    dkms \
+    doxygen \
+    dpkg \
+    dpkg-dev \
+    dpkg-perl \
+    elfutils-libelf-devel \
+    expect \
+    file \
+    gettext \
+    gcc-c++ \
+    libgcc \
+    glibc.i686 \
+    libcxx-devel \
+    ncurses \
+    ncurses-base \
+    ncurses-libs \
+    numactl-devel \
+    numactl-libs \
+    libssh \
+    libunwind-devel \
+    libunwind \
+    llvm \
+    llvm-libs \
+    make \
+    openssl \
+    openssl-libs \
+    openssh \
+    openssh-clients \
+    pciutils \
+    pciutils-devel \
+    pciutils-libs \
+    python \
+    python-pip \
+    python-devel \
+    pkgconfig \
+    pth \
+    qemu-kvm \
+    re2c \
+    rpm \
+    rpm-build \
+    subversion \
+    wget
+
+# Enable the epel repository for fakeroot
+RUN yum --enablerepo=extras install -y fakeroot
+RUN yum clean all
+
+# On CentOS, install package centos-release-scl available in CentOS repository:
+RUN yum install -y centos-release-scl
+
+# Install the devtoolset-7 collection:
+RUN yum install -y devtoolset-7
+RUN yum install -y devtoolset-7-libatomic-devel devtoolset-7-elfutils-libelf-devel
+
+# Install the ROCm rpms
+RUN yum clean all
+RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=http://repo.radeon.com/rocm/yum/rpm\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/rocm.repo
+
+RUN yum install -y hsakmt-roct hsakmt-roct-dev hsa-rocr-dev hsa-ext-rocr-dev rocm-opencl rocm-opencl-devel rocm-smi rocm-utils rocminfo hcc atmi hip_base hip_doc hip_hc hip_samples hsa-amd-aqlprofile rocm-clang-ocl
+RUN yum install -y miopen-hip cxlactivitylogger miopengemm rocblas rocrand rocfft hipblas
+RUN bash -c 'echo -e "gfx803\ngfx900\ngfx906" >> /opt/rocm/bin/target.lst'
+
+# Set ENV to enable devtoolset7 by default 
+ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:/opt/rocm/hcc/bin:/opt/rocm/hip/bin:/opt/rocm/bin:/opt/rocm/hcc/bin:${PATH:+:${PATH}}
+ENV MANPATH=/opt/rh/devtoolset-7/root/usr/share/man:${MANPATH}
+ENV INFOPATH=/opt/rh/devtoolset-7/root/usr/share/info${INFOPATH:+:${INFOPATH}}
+ENV PCP_DIR=/opt/rh/devtoolset-7/root
+ENV PERL5LIB=/opt/rh/devtoolset-7/root//usr/lib64/perl5/vendor_perl:/opt/rh/devtoolset-7/root/usr/lib/perl5:/opt/rh/devtoolset-7/root//usr/share/perl5/
+ENV LD_LIBRARY_PATH=/opt/rocm/lib:/usr/local/lib:/opt/rh/devtoolset-7/root$rpmlibdir$rpmlibdir32${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+ENV PYTHONPATH=/opt/rh/devtoolset-7/root/usr/lib64/python$pythonvers/site-packages:/opt/rh/devtoolset-7/root/usr/lib/python$pythonvers/
+ENV LDFLAGS="-Wl,-rpath=/opt/rh/devtoolset-7/root/usr/lib64 -Wl,-rpath=/opt/rh/devtoolset-7/root/usr/lib"
