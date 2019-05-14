@@ -79,6 +79,9 @@ RUN git clone --depth 1 https://github.com/opencv/opencv.git /root/opencv && \
 	ldconfig && \
 	echo 'ln /dev/null /dev/raw1394' >> ~/.bashrc
 
+# Install ROCm Tensorflow
+RUN apt-get install -y rocm-libs miopen-hip cxlactivitylogger && pip3 install tensorflow-rocm
+
 USER rocm-user
 WORKDIR /home/rocm-user
 ENV PATH "${PATH}:/opt/rocm/bin"
