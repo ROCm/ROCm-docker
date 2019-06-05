@@ -26,14 +26,19 @@ sudo adduser $LOGNAME video
 Make sure to reboot the machine after installing the ROCm kernel package to force the new kernel to load on reboot.  You can verify the ROCm kernel is loaded by typing the following command at a prompt:
 
 ```bash
-lsmod | grep kfd
+lsmod | grep amdgpu
 ```
 
 Printed on the screen should be similar as follows:
 ```bash
-amdkfd                270336  4
-amd_iommu_v2           20480  1 amdkfd
-amdkcl                 24576  3 amdttm,amdgpu,amdkfd
+amdgpu               3530752  0
+amdttm                 94208  1 amdgpu
+amd_sched              28672  1 amdgpu
+amdkcl                 24576  3 amdttm,amdgpu,amd_sched
+i2c_algo_bit           16384  2 amdgpu,ast
+amd_iommu_v2           20480  1 amdgpu
+drm_kms_helper        167936  2 amdgpu,ast
+drm                   360448  8 amdttm,amdgpu,ast,amdkcl,amd_sched,ttm,drm_kms_helper
 ```
 
 ### Step 2: Install docker
