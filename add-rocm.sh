@@ -37,13 +37,21 @@ if [ -e /sys/module/amdgpu/version ]; then
     KERNEL_SRC_VERSION=$(cat /sys/module/amdgpu/srcversion)
     
     if [ "$KERNEL_VERSION" == "18.30.2.15" ]; then
-        download_repo http://repo.radeon.com/rocm/archive/apt_1.9.2.tar.bz2
+        add_local_repo http://repo.radeon.com/rocm/archive/apt_1.9.2.tar.bz2
     elif [ "$KERNEL_VERSION" == "19.10.0.418" ]; then
-        download_repo http://repo.radeon.com/rocm/archive/apt_2.0.0.tar.bz2
+        add_local_repo http://repo.radeon.com/rocm/archive/apt_2.0.0.tar.bz2
     elif [ "$KERNEL_VERSION" == "19.10.7.418" ]; then
-        download_repo http://repo.radeon.com/rocm/archive/apt_2.1.0.tar.bz2
+        add_repo http://repo.radeon.com/rocm/apt/2.1
     elif [ "$KERNEL_VERSION" == "19.10.8.418" ]; then
-        download_repo http://repo.radeon.com/rocm/archive/apt_2.2.0.tar.bz2
+        add_repo http://repo.radeon.com/rocm/apt/2.2
+    elif [ "$KERNEL_VERSION" == "5.0.19.20.6" ]; then
+        add_repo http://repo.radeon.com/rocm/apt/2.3
+    elif [ "$KERNEL_VERSION" == "5.0.19.20.14" ]; then
+        add_repo http://repo.radeon.com/rocm/apt/2.4
+    elif [ "$KERNEL_VERSION" == "19.10.9.418" ]; then
+        add_repo http://repo.radeon.com/rocm/apt/2.5
+    elif [ "$KERNEL_VERSION" == "5.0.71" ]; then
+        add_repo http://repo.radeon.com/rocm/apt/2.6
     else
         add_repo http://repo.radeon.com/rocm/apt/debian/
     fi
