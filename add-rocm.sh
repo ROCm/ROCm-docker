@@ -37,9 +37,9 @@ if [ -e /sys/module/amdgpu/version ]; then
     KERNEL_SRC_VERSION=$(cat /sys/module/amdgpu/srcversion)
     
     if [ "$KERNEL_VERSION" == "18.30.2.15" ]; then
-        add_local_repo http://repo.radeon.com/rocm/archive/apt_1.9.2.tar.bz2
+        download_repo http://repo.radeon.com/rocm/archive/apt_1.9.2.tar.bz2
     elif [ "$KERNEL_VERSION" == "19.10.0.418" ]; then
-        add_local_repo http://repo.radeon.com/rocm/archive/apt_2.0.0.tar.bz2
+        download_repo http://repo.radeon.com/rocm/archive/apt_2.0.0.tar.bz2
     elif [ "$KERNEL_VERSION" == "19.10.7.418" ]; then
         add_repo http://repo.radeon.com/rocm/apt/2.1
     elif [ "$KERNEL_VERSION" == "19.10.8.418" ]; then
