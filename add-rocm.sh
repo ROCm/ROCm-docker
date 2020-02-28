@@ -58,6 +58,10 @@ if [ -e /sys/module/amdgpu/version ]; then
         add_repo http://repo.radeon.com/rocm/apt/2.8.0
     elif [ "$KERNEL_VERSION" == "5.0.82" ]; then
         add_repo http://repo.radeon.com/rocm/apt/2.10.0
+    elif [ "$KERNEL_VERSION" == "5.2.4" ]; then
+        add_repo http://repo.radeon.com/rocm/apt/3.0
+    elif [ "$KERNEL_VERSION" == "5.4.4" ]; then
+        add_repo http://repo.radeon.com/rocm/apt/3.1
     else
         add_repo http://repo.radeon.com/rocm/apt/debian/
     fi
