@@ -5,7 +5,7 @@
 # #################################################
 # Author: Paul Fultz II
 
-set -e
+set -ex
 
 apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl bzip2 apt-utils wget
 
