@@ -6,13 +6,9 @@ It is recommended to install the ROCm kernel first. The ROCm KFD is distributed 
 * [Installing ROCK kernel](https://github.com/RadeonOpenCompute/ROCm#debian-repository---apt-get) on Ubuntu
 
 ### Step 1: Install rocm-kernel
-The following is a sequence of commands to type (or cut-n-paste) into a terminal:
+The following is a sequence of commands to type (or cut-n-paste) into a terminal, make sure your kernel driver is supported [here](https://github.com/RadeonOpenCompute/ROCm#supported-operating-systems):
 
 ```bash
-# OPTIONAL, upgrade your base kernel to 4.13.0-32-generic, reboot required
-sudo apt update && sudo apt install linux-headers-4.13.0-32-generic linux-image-4.13.0-32-generic linux-image-extra-4.13.0-32-generic linux-signed-image-4.13.0-32-generic
-sudo reboot 
-
 # Install the ROCm rock-dkms kernel modules, reboot required
 wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
 echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main | sudo tee /etc/apt/sources.list.d/rocm.list
