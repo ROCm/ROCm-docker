@@ -12,7 +12,7 @@ The following is a sequence of commands to type (or cut-n-paste) into a terminal
 # Install the ROCm rock-dkms kernel modules, reboot required
 wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
 echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main | sudo tee /etc/apt/sources.list.d/rocm.list
-sudo apt-get update && sudo apt-get install rock-dkms
+sudo apt-get update && sudo apt-get install rocm-dkms
 sudo update-initramfs -u
 sudo reboot
 
