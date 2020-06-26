@@ -51,6 +51,8 @@ RUN yum -y install \
     pth \
     qemu-kvm \
     re2c \
+    kmod \
+    file \
     rpm \
     rpm-build \
     subversion \

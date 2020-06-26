@@ -10,7 +10,7 @@
 # If it is desired to run the container manually through the docker command-line, the following is an example
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 MAINTAINER Peng Sun <Peng.Sun@amd.com>
 
 # Initialize the image
@@ -26,6 +26,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   git \
   vim-nox \
   cmake-curses-gui \
+  kmod \
+  gnupg \
+  file \
   rocm-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
