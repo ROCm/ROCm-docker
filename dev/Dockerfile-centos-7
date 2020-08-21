@@ -75,6 +75,7 @@ RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=http://repo.radeon.com/rocm/yum/rpm\nena
 
 RUN yum install -y hsakmt-roct hsakmt-roct-dev hsa-rocr-dev hsa-ext-rocr-dev rocm-opencl rocm-opencl-devel rocm-smi rocm-utils rocminfo hcc atmi hip_base hip_doc hip_hc hip_samples hsa-amd-aqlprofile rocm-clang-ocl comgr
 RUN yum install -y miopen-hip cxlactivitylogger miopengemm rocblas rocrand rocfft hipblas
+RUN ln -s /opt/rocm-3.7.0 /opt/rocm
 RUN bash -c 'echo -e "gfx803\ngfx900\ngfx906" >> /opt/rocm/bin/target.lst'
 
 # Set ENV to enable devtoolset7 by default 
