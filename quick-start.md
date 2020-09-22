@@ -3,14 +3,14 @@
 The following instructions assume a fresh/blank machine to be prepared for the ROCm + Docker environment; no additional software has been installed other than the typical stock package updating.
 
 It is recommended to install the ROCm kernel first. The ROCm KFD is distributed as DKMS modules for post ROCm1.7.0 releases. However, we recommend to upgrade to newer generic kernels as possible. The newer kernel often supports AMD hardware better, and stock video resolutions and hardware acceleration performance are typically improved. As of the time of this writing, ROCm officially supports Ubuntu and Fedora Linux distributions.  The following asciicast demonstrates updating the kernel on Ubuntu 16.04.  More detailed instructions can be found on the Radeon Open Compute website:
-* [Installing ROCK kernel](https://github.com/RadeonOpenCompute/ROCm#debian-repository---apt-get) on Ubuntu
+* [Installing ROCK kernel](https://rocmdocs.amd.com/en/latest/Installation_Guide/Installation-Guide.html) on Ubuntu
 
 ### Step 1: Install rocm-kernel
 The following is a sequence of commands to type (or cut-n-paste) into a terminal, make sure your kernel driver is supported [here](https://github.com/RadeonOpenCompute/ROCm#supported-operating-systems):
 
 ```bash
 # Install the ROCm rock-dkms kernel modules, reboot required
-wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
+wget -qO - http://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
 echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main | sudo tee /etc/apt/sources.list.d/rocm.list
 sudo apt-get update && sudo apt-get install rock-dkms
 sudo update-initramfs -u
