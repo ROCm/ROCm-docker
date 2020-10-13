@@ -71,6 +71,6 @@ else
 fi
 
 # Install key
-wget -O - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | apt-key add -
+wget -O - http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add -
 apt-get update
 
