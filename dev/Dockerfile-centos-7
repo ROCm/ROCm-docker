@@ -71,7 +71,7 @@ RUN yum install -y devtoolset-7-libatomic-devel devtoolset-7-elfutils-libelf-dev
 
 # Install the ROCm rpms
 RUN yum clean all
-RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=http://repo.radeon.com/rocm/yum/rpm\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/rocm.repo
+RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=http://repo.radeon.com/rocm/yum/3.9\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/rocm.repo
 
 RUN yum install -y rocm-dev
 
