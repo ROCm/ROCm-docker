@@ -16,7 +16,7 @@ RUN \
     libnuma-dev \
   && \
   curl -sL https://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
-  printf "deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main" | \
+  printf "deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ xenial main" | \
     tee /etc/apt/sources.list.d/rocm.list \
   && \
   apt-get update && \
