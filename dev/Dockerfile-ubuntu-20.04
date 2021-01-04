@@ -15,7 +15,7 @@ RUN \
     # For ROCm
     libnuma-dev \
   && \
-  curl -L https://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
+  curl -sL https://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
   printf "deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main" | \
     tee /etc/apt/sources.list.d/rocm.list \
   && \
