@@ -11,9 +11,11 @@ RUN \
     curl libnuma-dev gnupg \
   && \
   curl -sL http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
-  printf "deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main" | tee /etc/apt/sources.list.d/rocm.list && \
+  printf "deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main" | \
+    tee /etc/apt/sources.list.d/rocm.list \
+  && \
   apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
     sudo \
     libelf1 \
     kmod \
