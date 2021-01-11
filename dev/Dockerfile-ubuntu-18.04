@@ -8,10 +8,15 @@ LABEL maintainer=peng.sun@amd.com
 RUN \
   apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-    curl libnuma-dev gnupg \
+    # For cURL
+    ca-certificates \
+    curl \
+    gnupg2 \
+    # For ROCm
+    libnuma-dev \
   && \
-  curl -sL http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
-  printf "deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main" | \
+  curl -sL https://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
+  printf "deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ xenial main" | \
     tee /etc/apt/sources.list.d/rocm.list \
   && \
   apt-get update && \
