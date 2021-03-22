@@ -15,6 +15,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   kmod \
   file \
   rocm-dev \
+  rocm-libs \
   build-essential && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*

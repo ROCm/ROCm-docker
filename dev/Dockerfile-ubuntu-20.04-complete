@@ -1,7 +1,7 @@
 # This dockerfile is meant to serve as a rocm base image.  It registers the debian rocm package repository, and
 # installs the rocm-dev package.
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 LABEL maintainer=peng.sun@amd.com
 
 # Register the ROCM package repository, and install rocm-dev package
@@ -15,6 +15,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   kmod \
   file \
   rocm-dev \
+  rocm-libs \
   build-essential && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
