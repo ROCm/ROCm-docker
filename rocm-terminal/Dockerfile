@@ -39,7 +39,7 @@ COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 # This is meant to be used as an interactive developer container
 # Create user rocm-user as member of sudo group
 # Append /opt/rocm/bin to the system PATH variable
-RUN useradd --create-home -G sudo --shell /bin/bash rocm-user
+RUN useradd --create-home -G sudo,video --shell /bin/bash rocm-user
 #    sed --in-place=.rocm-backup 's|^\(PATH=.*\)"$|\1:/opt/rocm/bin"|' /etc/environment
 
 USER rocm-user
