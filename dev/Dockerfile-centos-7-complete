@@ -11,6 +11,7 @@ RUN yum --enablerepo=extras install -y epel-release
 
 # Install required base build and packaging commands for ROCm
 RUN yum -y install \
+    ca-certificates \
     bc \
     bridge-utils \
     cmake \
@@ -74,7 +75,7 @@ RUN yum install -y devtoolset-7-libatomic-devel devtoolset-7-elfutils-libelf-dev
 
 # Install the ROCm rpms
 RUN yum clean all
-RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=http://repo.radeon.com/rocm/yum/$ROCM_VERSION\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/rocm.repo
+RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=https://repo.radeon.com/rocm/yum/$ROCM_VERSION\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/rocm.repo
 
 RUN yum install -y rocm-dev rocm-libs
 
