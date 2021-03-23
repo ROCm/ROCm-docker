@@ -4,8 +4,8 @@ FROM ${base_image}
 
 MAINTAINER Peng Sun <peng.sun@amd.com>
 
-COPY ../scripts/compatibility-check.sh /opt/rocm/bin/rocm-compatibility-test.sh
-RUN chmod a+x /opt/rocm/bin/rocm-compatibility-test.sh
+COPY scripts/compatibility-check.sh /opt/rocm/bin/rocm-compatibility-test.sh
+RUN sudo chmod a+x /opt/rocm/bin/rocm-compatibility-test.sh
 ENTRYPOINT ["/opt/rocm/bin/rocm-compatibility-test.sh"]
 
 # Default to a login shell
