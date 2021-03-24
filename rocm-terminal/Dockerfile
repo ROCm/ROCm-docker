@@ -15,9 +15,10 @@ MAINTAINER Peng Sun <Peng.Sun@amd.com>
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
+ARG ROCM_VERSION=4.1
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl gnupg && \
   curl -sL http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
-  sh -c 'echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main > /etc/apt/sources.list.d/rocm.list' && \
+  sh -c 'echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/$ROCM_VERSION/ xenial main > /etc/apt/sources.list.d/rocm.list' && \
   apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   sudo \
   libelf1 \
