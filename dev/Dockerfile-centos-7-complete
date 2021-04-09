@@ -1,7 +1,7 @@
 FROM centos:7
 LABEL maintainer=peng.sun@amd.com
 
-ARG ROCM_VERSION=4.1
+ARG ROCM_VERSION=4.1.1
 
 # Base
 RUN yum -y install git java-1.8.0-openjdk python; yum clean all

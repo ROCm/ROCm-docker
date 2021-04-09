@@ -5,7 +5,7 @@ FROM ubuntu:18.04
 LABEL maintainer=peng.sun@amd.com
 
 # Register the ROCM package repository, and install rocm-dev package
-ARG ROCM_VERSION=4.1
+ARG ROCM_VERSION=4.1.1
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl libnuma-dev gnupg \
   && curl -sL https://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - \
   && printf "deb [arch=amd64] https://repo.radeon.com/rocm/apt/$ROCM_VERSION/ xenial main" | tee /etc/apt/sources.list.d/rocm.list \
