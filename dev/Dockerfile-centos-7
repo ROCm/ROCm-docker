@@ -25,6 +25,7 @@ RUN yum -y install \
     elfutils-libelf-devel \
     expect \
     file \
+    python3 \
     gettext \
     gcc-c++ \
     libgcc \
