@@ -9,4 +9,5 @@ RUN chmod a+x /opt/rocm/bin/rocm-compatibility-test.sh
 ENTRYPOINT ["/opt/rocm/bin/rocm-compatibility-test.sh"]
 
 # Default to a login shell
-CMD ["/bin/bash", "-l"] 
+CMD ["/bin/bash", "-l"]
+

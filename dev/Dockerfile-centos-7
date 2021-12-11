@@ -1,8 +1,8 @@
 FROM centos:7
 LABEL maintainer=peng.sun@amd.com
 
-ARG ROCM_VERSION=4.2
-
+ARG ROCM_VERSION=4.5.2
+ARG AMDGPU_VERSION=21.40.2
 # Base
 RUN yum -y install git java-1.8.0-openjdk python; yum clean all
 
@@ -78,6 +78,7 @@ RUN yum install -y devtoolset-7-libatomic-devel devtoolset-7-elfutils-libelf-dev
 # Install the ROCm rpms
 RUN yum clean all
 RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=https://repo.radeon.com/rocm/yum/$ROCM_VERSION\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/rocm.repo
+RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/rhel/7.9/main/x86_64\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/amdgpu.repo
 
 RUN yum install -y rocm-dev
 
