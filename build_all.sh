@@ -1,5 +1,5 @@
-ROCM_VERSION=4.5.2
-AMDGPU_VERSION=21.40.2
+ROCM_VERSION=5.0
+AMDGPU_VERSION=21.50
 cp -r scripts rocm-terminal
 cp -r scripts dev
 
@@ -33,4 +33,3 @@ sudo docker build . -f Dockerfile.post-install --build-arg=base_image=rocm/dev-u
 #ubuntu20.04 complete
 sudo docker build . -f Dockerfile-ubuntu-20.04-complete -t rocm/dev-ubuntu-20.04:$ROCM_VERSION-complete --no-cache --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
 sudo docker build . -f Dockerfile.post-install --build-arg=base_image=rocm/dev-ubuntu-20.04:$ROCM_VERSION-complete -t rocm/dev-ubuntu-20.04:$ROCM_VERSION-complete
-
