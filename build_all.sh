@@ -1,5 +1,6 @@
-ROCM_VERSION=5.0
-AMDGPU_VERSION=21.50
+ROCM_VERSION=5.0.1
+AMDGPU_VERSION=21.50.1
+
 cp -r scripts rocm-terminal
 cp -r scripts dev
 
