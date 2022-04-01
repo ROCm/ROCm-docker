@@ -1,4 +1,4 @@
-ROCM_VERSION=4.5.2
+ROCM_VERSION=5.1
 sudo docker push rocm/dev-ubuntu-18.04:$ROCM_VERSION
 sudo docker push rocm/dev-ubuntu-20.04:$ROCM_VERSION
 sudo docker push rocm/dev-centos-7:$ROCM_VERSION
