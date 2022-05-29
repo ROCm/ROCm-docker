@@ -1,8 +1,8 @@
 FROM centos:7
 LABEL maintainer=peng.sun@amd.com
 
-ARG ROCM_VERSION=4.5.2
-ARG AMDGPU_VERSION=21.40.2
+ARG ROCM_VERSION=5.1.3
+ARG AMDGPU_VERSION=22.10.3
 # Base
 RUN yum -y install git java-1.8.0-openjdk python; yum clean all
 

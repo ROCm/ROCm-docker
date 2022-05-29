@@ -16,8 +16,17 @@ sudo apt-get update && sudo apt-get install rock-dkms
 sudo update-initramfs -u
 sudo reboot
 
-# Add user to the video group
-sudo adduser $LOGNAME video
+# Add user to the video group if you're using Ubuntu18.04
+sudo usermod -a -G video $LOGNAME
+
+# Or, add user to the render group if you're using Ubuntu20.04
+sudo usermod -a -G render $LOGNAME
+
+# To add future users to the video and render groups, run the following command:
+echo 'ADD_EXTRA_GROUPS=1' | sudo tee -a /etc/adduser.conf
+echo 'EXTRA_GROUPS=video' | sudo tee -a /etc/adduser.conf
+echo 'EXTRA_GROUPS=render' | sudo tee -a /etc/adduser.conf 
+
 ```
 Make sure to reboot the machine after installing the ROCm kernel package to force the new kernel to load on reboot.  You can verify the ROCm kernel is loaded by typing the following command at a prompt:
 
