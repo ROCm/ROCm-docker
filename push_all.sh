@@ -17,4 +17,3 @@ sudo docker push rocm/dev-centos-7:latest
 sudo docker push rocm/dev-ubuntu-20.04:latest
 sudo docker push rocm/dev-ubuntu-18.04:latest
 sudo docker push rocm/rocm-terminal:latest
-
