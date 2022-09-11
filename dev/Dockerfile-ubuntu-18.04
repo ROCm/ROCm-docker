@@ -22,5 +22,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   python3-pip \
   rocm-dev \
   build-essential && \
+# Cleaning up
+  apt-get remove -y curl gnupg && \
+  apt-get autoremove -y && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
