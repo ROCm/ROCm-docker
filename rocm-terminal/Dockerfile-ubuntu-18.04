@@ -1,0 +1,53 @@
+# This dockerfile is meant to be personalized, and serves as a template and demonstration.
+# Modify it directly, but it is recommended to copy this dockerfile into a new build context (directory),
+# modify to taste and modify docker-compose.yml.template to build and run it.
+
+# It is recommended to control docker containers through 'docker-compose' https://docs.docker.com/compose/
+# Docker compose depends on a .yml file to control container sets
+# rocm-setup.sh can generate a useful docker-compose .yml file
+# `docker-compose run --rm <rocm-terminal>`
+
+# If it is desired to run the container manually through the docker command-line, the following is an example
+# 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
+
+ARG ROCM_VERSION=5.2.3
+ARG TERM_IMAGE_VARIANT
+
+FROM rocm/dev-ubuntu-18.04:${ROCM_VERSION}${TERM_IMAGE_VARIANT}
+
+# Initialize the image
+# Modify to pre-install dev tools and ROCm packages
+ARG RENDER_GID=109
+
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  git \
+  vim-nox \
+  cmake-curses-gui \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# Grant members of 'sudo' group passwordless privileges
+# Comment out to require sudo
+COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
+
+# This is meant to be used as an interactive developer container
+# Create user rocm-user as member of sudo group
+# Append /opt/rocm/bin to the system PATH variable
+RUN groupadd -g $RENDER_GID render
+RUN useradd --create-home -G sudo,video,render --shell /bin/bash rocm-user
+#    sed --in-place=.rocm-backup 's|^\(PATH=.*\)"$|\1:/opt/rocm/bin"|' /etc/environment
+
+USER rocm-user
+WORKDIR /home/rocm-user
+ENV PATH "${PATH}:/opt/rocm/bin"
+
+# The following are optional enhancements for the command-line experience
+# Uncomment the following to install a pre-configured vim environment based on http://vim.spf13.com/
+# 1.  Sets up an enhanced command line dev environment within VIM
+# 2.  Aliases GDB to enable TUI mode by default
+#RUN curl -sL https://j.mp/spf13-vim3 | bash && \
+#    echo "alias gdb='gdb --tui'\n" >> ~/.bashrc
+
+# Default to a login shell
+CMD ["bash", "-l"]
