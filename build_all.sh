@@ -2,6 +2,7 @@ ROCM_VERSION=5.1.3
 AMDGPU_VERSION=22.10.3
 cp -r scripts rocm-terminal
 cp -r scripts dev
+cp -r scripts rocm-opencl-runtime
 
 # build rocm-terminal
 cd rocm-terminal/
@@ -27,3 +28,8 @@ sudo docker build . -f Dockerfile-ubuntu-18.04-complete -t rocm/dev-ubuntu-18.04
 
 #ubuntu20.04 complete
 sudo docker build . -f Dockerfile-ubuntu-20.04-complete -t rocm/dev-ubuntu-20.04:$ROCM_VERSION-complete --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
+
+# build rocm-opencl-runtime
+cd ../rocm-opencl-runtime
+sudo docker build . -f Dockerfile -t rocm/rocm-opencl-runtime:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
+sudo docker tag rocm/rocm-opencl-runtime:$ROCM_VERSION rocm/rocm-opencl-runtime:latest
