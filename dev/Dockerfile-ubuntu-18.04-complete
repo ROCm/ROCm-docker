@@ -1,12 +1,17 @@
 # This dockerfile is meant to serve as a rocm base image.
 # Add rocm-lib package to rocm/dev-ubuntu-20.04 image
 
+ARG OS_VARIANT=ubuntu-20.04
 ARG ROCM_VERSION=5.2.3
 
-FROM rocm/dev-ubuntu-18.04:$ROCM_VERSION
+FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-ml
 
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  rocm-libs \
+  vulkan-amdgpu \
+  vulkan-utils \
+  rocm-opencl-runtime \
+  clinfo \
+  openmp-extras \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

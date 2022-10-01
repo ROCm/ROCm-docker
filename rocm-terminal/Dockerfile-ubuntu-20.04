@@ -11,9 +11,12 @@
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
 ARG ROCM_VERSION=5.2.3
-ARG TERM_IMAGE_VARIANT
+ARG TERM_FLAVOR
 
-FROM rocm/dev-ubuntu-20.04:${ROCM_VERSION}${TERM_IMAGE_VARIANT}
+FROM rocm/dev-ubuntu-20.04:${ROCM_VERSION}${TERM_FLAVOR}
+
+ARG UID
+ARG RENDER_GID
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
@@ -21,8 +24,12 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   git \
   vim-nox \
+  less \
   cmake-curses-gui \
-  && apt-get clean \
+  python3-pip \
+  python3-venv \
+  rocm-developer-tools
+RUN apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 # Grant members of 'sudo' group passwordless privileges
@@ -32,9 +39,13 @@ COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 # This is meant to be used as an interactive developer container
 # Create user rocm-user as member of sudo group
 # Append /opt/rocm/bin to the system PATH variable
-RUN useradd --create-home -G sudo,video,render --shell /bin/bash rocm-user
-#    sed --in-place=.rocm-backup 's|^\(PATH=.*\)"$|\1:/opt/rocm/bin"|' /etc/environment
-
+RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
+    if [ -z "$RENDER_GID" ]; then \
+      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash rocm-user; \
+    else \
+      groupadd -g $RENDER_GID render; \
+      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash rocm-user; \
+    fi
 USER rocm-user
 WORKDIR /home/rocm-user
 ENV PATH "${PATH}:/opt/rocm/bin"

@@ -1,17 +1,20 @@
 #!/bin/sh
 
-OS_VARIANT=${OS_VARIANT:-ubuntu-20.04}
+OS=${OS:-ubuntu}
+OS_VERSION=${OS_VERSION:-20.04}
+OS_VARIANT=${OS_VARIANT:-${OS}-${OS_VERSION}}
 ROCM_VERSION=5.2.3
 AMDGPU_VERSION=22.20.3
-TERM_IMAGE_VARIANT=""
-#TERM_IMAGE_VARIANT="-complete"
+#TERM_FLAVOR=""
+TERM_FLAVOR="-complete-sdk"
 RENDER_GID=$(getent group render | cut --delimiter ':' --fields 3)
 
 cat >.env <<EOF
 OS_VARIANT=${OS_VARIANT}
 ROCM_VERSION=${ROCM_VERSION}
 AMDGPU_VERSION=${AMDGPU_VERSION}
-TERM_IMAGE_VARIANT=${TERM_IMAGE_VARIANT}
+TERM_FLAVOR=${TERM_FLAVOR}
+UID=${UID:-$(id -u)}
 RENDER_GID=${RENDER_GID}
 EOF
 
@@ -20,16 +23,16 @@ COMPOSE="docker-compose"
 #COMPOSE="docker compose"
 
 # build rocm/dev-${OS_VARIANT}:${ROCM_VERSION}
-${COMPOSE} build dev
+${COMPOSE} build base # && docker tag rocm/dev-${OS_VARIANT}:${ROCM_VERSION} rocm/dev-${OS_VARIANT}:latest
 ret=$?
-[ $ret -eq 0 ] && docker tag rocm/dev-${OS_VARIANT}:${ROCM_VERSION} rocm/dev-${OS_VARIANT}:latest
+[ $ret -eq 0 ] || exit $ret
 
-if [ $ret -eq 0 -a "$OS_VARIANT" != "centos-7" ]; then
+# build rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-${FLAVOR}
+FLAVORS="vulkan opencl opencl-ml opencl-sdk hip hip-libs hip-ml hip-sdk openmp-sdk complete complete-sdk"
+for flavor in ${FLAVORS}; do
+  ${COMPOSE} build ${flavor} # && docker tag rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-${FLAVOR} rocm/dev-${OS_VARIANT}:latest-${FLAVOR}
+done
 
-# build rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-complete
-${COMPOSE} build dev-complete
-
-# build rocm-terminal:${ROCM_VERSION}-${OS_VARIANT}${TERM_IMAGE_VARIANT}
-${COMPOSE} build rocm
-
-fi
+# build rocm-terminal:${ROCM_VERSION}-${OS_VARIANT}${TERM_FLAVOR}
+${COMPOSE} build term # && docker tag rocm/rocm-terminal:${ROCM_VERSION}-${OS_VARIANT}${TERM_FLAVOR} rocm/rocm-terminal:latest-${OS_VARIANT}${TERM_FLAVOR}
+${COMPOSE} build xterm # && docker tag rocm/rocm-terminal:${ROCM_VERSION}-${OS_VARIANT}${TERM_FLAVOR}-x11 rocm/rocm-terminal:latest-${OS_VARIANT}${TERM_FLAVOR}-x11

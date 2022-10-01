@@ -10,13 +10,17 @@ This fork is almost completely re-written as:
     - OS / version / variant are specified by `.env` file.
 - `render` group id is set to same number as host.
 - Use `gpg --dearmor` instead of `apt-key add` for ubuntu-20.04.
+- Omit CentOS-7 stuff due to its EOL.
+- Add many image variants based on latest (5.2.3) [ROCm meta-packages][].
+
+[ROCm meta-packages]: https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.2.3/page/Meta-packages_in_ROCm_Programming_Models.html
 
 ## How to build
 ### Build all images for all OSes
 1. Check `build.sh` file and edit it if necessary.
    - `ROCM_VERSION`
    - `AMDGPU_VERSION`
-   - `TERM_IMAGE_VARIANT`
+   - `TERM_FLAVOR`
    - `COMPOSE`
 2. Execute `build_all.sh`
    ```console
@@ -27,7 +31,7 @@ This fork is almost completely re-written as:
 1. Check `build.sh` file and edit it if necessary.
    - `ROCM_VERSION`
    - `AMDGPU_VERSION`
-   - `TERM_IMAGE_VARIANT`
+   - `TERM_FLAVOR`
    - `COMPOSE`
 2. Execute `build.sh` with `OS_VARIANT` environment value.
    ```console

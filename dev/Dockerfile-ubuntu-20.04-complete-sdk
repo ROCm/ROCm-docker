@@ -4,14 +4,14 @@
 ARG OS_VARIANT=ubuntu-20.04
 ARG ROCM_VERSION=5.2.3
 
-FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-ml
+FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-sdk
 
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   vulkan-amdgpu \
   vulkan-tools \
-  rocm-opencl-runtime \
+  rocm-opencl-sdk \
   clinfo \
-  openmp-extras \
+  rocm-openmp-sdk \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
