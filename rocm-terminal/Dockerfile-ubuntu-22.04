@@ -10,10 +10,10 @@
 # If it is desired to run the container manually through the docker command-line, the following is an example
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
-ARG ROCM_VERSION=5.2.3
+ARG ROCM_VERSION=5.3
 ARG TERM_FLAVOR
 
-FROM rocm/dev-ubuntu-18.04:${ROCM_VERSION}${TERM_FLAVOR}
+FROM rocm/dev-ubuntu-22.04:${ROCM_VERSION}${TERM_FLAVOR}
 
 ARG UID
 ARG RENDER_GID
@@ -29,30 +29,6 @@ RUN apt-get update \
   python3-pip \
   python3-venv \
   rocm-developer-tools
-
-# This is meant to be used as an interactive developer container
-# Create user rocm-user as member of sudo group
-RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
-    if [ -z "$RENDER_GID" ]; then \
-      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash rocm-user; \
-    else \
-      groupadd -g $RENDER_GID render; \
-      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash rocm-user; \
-    fi
-
-# Modify to pre-install X11 related tools and user space drivers
-# These packages are installed after render group has been added
-# because a depending package would add render group with specific GID
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  libgl1-amdgpu-mesa-dri \
-  libva-amdgpu-drm2 \
-  libva-amdgpu-x11-2 \
-  vainfo \
-  xserver-xorg-amdgpu-video-amdgpu \
-  x11-apps \
-  dbus-x11 \
-  mesa-utils \
-  fuse
 RUN apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -60,11 +36,16 @@ RUN apt-get clean \
 # Comment out to require sudo
 COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 
-# Make startup script to launch dbus for user session
-COPY start-dbus.sh /usr/local/bin
-RUN chmod +x /usr/local/bin/start-dbus.sh
-
+# This is meant to be used as an interactive developer container
+# Create user rocm-user as member of sudo group
 # Append /opt/rocm/bin to the system PATH variable
+RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
+    if [ -z "$RENDER_GID" ]; then \
+      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash rocm-user; \
+    else \
+      groupadd -g $RENDER_GID render; \
+      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash rocm-user; \
+    fi
 USER rocm-user
 WORKDIR /home/rocm-user
 ENV PATH "${PATH}:/opt/rocm/bin"
@@ -77,4 +58,4 @@ ENV PATH "${PATH}:/opt/rocm/bin"
 #    echo "alias gdb='gdb --tui'\n" >> ~/.bashrc
 
 # Default to a login shell
-CMD ["/bin/sh", "/usr/local/bin/start-dbus.sh" ]
+CMD ["bash", "-l"]

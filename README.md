@@ -10,10 +10,12 @@ This fork is almost completely re-written as:
     - OS / version / variant are specified by `.env` file.
 - `render` group id is set to same number as host.
 - Use `gpg --dearmor` instead of `apt-key add` for ubuntu-20.04.
+- Add X11 enabled terminal image.
 - Omit CentOS-7 stuff due to its EOL.
-- Add many image variants based on latest (5.2.3) [ROCm meta-packages][].
+- Ubuntu 18.04 stuffs are still exist, but no longer update.
+- Add many image variants based on latest (5.3) [ROCm meta-packages][].
 
-[ROCm meta-packages]: https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.2.3/page/Meta-packages_in_ROCm_Programming_Models.html
+[ROCm meta-packages]: https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.3/page/Meta-packages_in_ROCm_Programming_Models.html
 
 ## How to build
 ### Build all images for all OSes
@@ -35,7 +37,7 @@ This fork is almost completely re-written as:
    - `COMPOSE`
 2. Execute `build.sh` with `OS_VARIANT` environment value.
    ```console
-   $ OS_VARIANT=ubuntu-18.04 ./build.sh`
+   $ OS_VARIANT=ubuntu-22.04 ./build.sh`
    ```
 
 ### Build manually
@@ -43,21 +45,21 @@ This fork is almost completely re-written as:
    ```console
    $ getent group render
    ```
-2. Check `.env` file and edit it if necessary.
-3. Build a service by `docker-compose` (or `docker compose`) command.
+2. 
+3. Check `.env` file and edit it if necessary.
+4. Build a service by `docker-compose` (or `docker compose`) command.
+   Following is exampe of "TERM_FLAVOR=-ml"
    ```console
-   $ docker-compose dev
-   $ docker-compose dev-complete
-   $ docker-compose rocm
+   $ docker-compose build base
+   $ docker-compose build hip
+   $ docker-compose build hip-libs
+   $ docker-compose build ml
+   $ docker-compose build term
    ```
-
-If you build `rocm` (`rocm/rocm-terminal`) image without building `dev` (or `dev-complete`) image, base image (`rocm/dev-ubuntu-XX.XX`) is pulled from [Docker Hub][].
-
-[Docker Hub]: https://hub.docker.com/u/rocm
 
 ## How to run
 ```console
-$ docker-compose run --rm rocm
+$ docker-compose run --rm term
 ```
 
 Original README follows:

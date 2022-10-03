@@ -2,7 +2,7 @@
 # Add rocm-lib package to rocm/dev-ubuntu-20.04 image
 
 ARG OS_VARIANT=ubuntu-20.04
-ARG ROCM_VERSION=5.2.3
+ARG ROCM_VERSION=5.3
 
 FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-opencl
 

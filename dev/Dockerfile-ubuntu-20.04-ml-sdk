@@ -4,11 +4,14 @@
 ARG OS_VARIANT=ubuntu-20.04
 ARG ROCM_VERSION=5.3
 
-FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip
+FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml
 
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  rocm-hip-libraries \
-  && apt-mark auto rocm-hip-runtime \
+  rocm-ml-sdk \
+  python3-dev \
+  libnuma-dev \
+  build-essential \
+  && apt-mark auto rocm-ml-libraries libnuma1 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

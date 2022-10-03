@@ -1,1 +1,14 @@
-Dockerfile-ubuntu-20.04-hip-libs
+# This dockerfile is meant to serve as a rocm base image.
+# Add rocm-lib package to rocm/dev-ubuntu-20.04 image
+
+ARG OS_VARIANT=ubuntu-18.04
+ARG ROCM_VERSION=5.2.3
+
+FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip
+
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  rocm-hip-libraries \
+  && apt-mark auto rocm-hip-runtime \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*

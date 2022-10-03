@@ -10,10 +10,10 @@
 # If it is desired to run the container manually through the docker command-line, the following is an example
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
-ARG ROCM_VERSION=5.2.3
+ARG ROCM_VERSION=5.3
 ARG TERM_FLAVOR
 
-FROM rocm/dev-ubuntu-18.04:${ROCM_VERSION}${TERM_FLAVOR}
+FROM rocm/dev-ubuntu-22.04:${ROCM_VERSION}${TERM_FLAVOR}
 
 ARG UID
 ARG RENDER_GID
@@ -44,9 +44,9 @@ RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
 # These packages are installed after render group has been added
 # because a depending package would add render group with specific GID
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  mesa-vulkan-drivers \
+  vulkan-tools \
   libgl1-amdgpu-mesa-dri \
-  libva-amdgpu-drm2 \
-  libva-amdgpu-x11-2 \
   vainfo \
   xserver-xorg-amdgpu-video-amdgpu \
   x11-apps \

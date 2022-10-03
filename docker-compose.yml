@@ -18,20 +18,6 @@ services:
     tmpfs:
       - /tmp
 
-  vulkan:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-vulkan
-    build:
-      context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-vulkan
-      args:
-        OS_VARIANT: ${OS_VARIANT}
-        ROCM_VERSION: ${ROCM_VERSION}
-    devices:
-      - /dev/kfd
-      - /dev/dri
-    tmpfs:
-      - /tmp
-
   hip:
     image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip
     build:
@@ -60,11 +46,11 @@ services:
     tmpfs:
       - /tmp
 
-  hip-ml:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-ml
+  hip-sdk:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-hip-ml
+      dockerfile: Dockerfile-${OS_VARIANT}-hip-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -74,11 +60,25 @@ services:
     tmpfs:
       - /tmp
 
-  hip-sdk:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-sdk
+  ml:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-hip-sdk
+      dockerfile: Dockerfile-${OS_VARIANT}-ml
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  ml-sdk:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml-sdk
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-ml-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
