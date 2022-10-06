@@ -202,7 +202,6 @@ services:
         RENDER_GID: ${RENDER_GID}
     environment:
       - DISPLAY
-      - DBUS_SESSION_BUS_ADDRESS
     cap_add:
       - SYS_ADMIN
     security_opt:
