@@ -1,14 +1,17 @@
 # This dockerfile is meant to serve as a rocm base image.
 # Add rocm-lib package to rocm/dev-ubuntu-20.04 image
 
-ARG OS_VARIANT=ubuntu-20.04
-ARG ROCM_VERSION=5.3
+ARG OS_VARIANT=ubuntu-18.04
+ARG ROCM_VERSION=5.2.3
 
 FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml
 
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  rocm-opencl-runtime \
-  clinfo \
+  rocm-ml-sdk \
+  python3-dev \
+  libnuma-dev \
+  build-essential \
+  && apt-mark auto rocm-ml-libraries libnuma1 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

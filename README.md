@@ -1,5 +1,71 @@
 # ROCm-docker
 
+This fork is almost completely re-written as:
+
+- All images are built with docker-compose.
+- Reuse pre-built image to reduce time and space.
+- Re-wrote `docker-compose.yml`
+  - Remove (probably) obsolete services for building images from souce.
+  - Only a specific OS version is teated at a time.
+    - OS / version / variant are specified by `.env` file.
+- `render` group id is set to same number as host.
+- Use `gpg --dearmor` instead of `apt-key add` for ubuntu-20.04.
+- Add X11 enabled terminal image.
+- Omit CentOS-7 stuff due to its EOL.
+- Ubuntu 18.04 stuffs are still exist, but no longer update.
+- Add many image variants based on latest (5.3) [ROCm meta-packages][].
+
+[ROCm meta-packages]: https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.3/page/Meta-packages_in_ROCm_Programming_Models.html
+
+## How to build
+### Build all images for all OSes
+1. Check `build.sh` file and edit it if necessary.
+   - `ROCM_VERSION`
+   - `AMDGPU_VERSION`
+   - `TERM_FLAVOR`
+   - `COMPOSE`
+2. Execute `build_all.sh`
+   ```console
+   $ ./build_all.sh`
+   ```
+
+### Build all images for a specific OS
+1. Check `build.sh` file and edit it if necessary.
+   - `ROCM_VERSION`
+   - `AMDGPU_VERSION`
+   - `TERM_FLAVOR`
+   - `COMPOSE`
+2. Execute `build.sh` with `OS_VARIANT` environment value.
+   ```console
+   $ OS_VARIANT=ubuntu-22.04 ./build.sh`
+   ```
+
+### Build manually
+1. Confirm `render` group id of your host OS.
+   ```console
+   $ getent group render
+   ```
+2. 
+3. Check `.env` file and edit it if necessary.
+4. Build a service by `docker-compose` (or `docker compose`) command.
+   Following is exampe of "TERM_FLAVOR=-ml"
+   ```console
+   $ docker-compose build base
+   $ docker-compose build hip
+   $ docker-compose build hip-libs
+   $ docker-compose build ml
+   $ docker-compose build term
+   ```
+
+## How to run
+```console
+$ docker-compose run --rm term
+```
+
+Original README follows:
+
+-----
+
 ## Radeon Open Compute Platform for docker
 This repository contains a framework for building the software layers defined in the Radeon Open Compute Platform into portable docker images.  The following are docker dependencies, which should be installed on the target machine.
 

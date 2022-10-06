@@ -4,11 +4,12 @@
 ARG OS_VARIANT=ubuntu-20.04
 ARG ROCM_VERSION=5.3
 
-FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml
+FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml-sdk
 
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  rocm-opencl-runtime \
+  rocm-opencl-sdk \
   clinfo \
+  rocm-openmp-sdk \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

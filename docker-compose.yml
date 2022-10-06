@@ -1,103 +1,217 @@
-version: '2.1'
-
+version: '3'
 
 services:
-# The following are images built from debians downloaded from a package repository
-  roct-deb:
-    build:
-      context: ./roct
-      dockerfile: ${roct_deb_dockerfile}
-    image: ${roct_image_name_deb}
-    container_name: roct-deb
-
-  rocr-deb:
-    depends_on:
-      - roct-deb
-    build:
-      context: ./rocr
-      dockerfile: ${rocr_deb_dockerfile}
-    image: ${rocr_image_name_deb}
-    container_name: rocr-deb
-
-  hcc-lc-deb:
-    depends_on:
-      - rocr-deb
-    build:
-      context: ./hcc-lc
-      dockerfile: ${hcc_lc_deb_dockerfile}
-    image: ${hcc_lc_image_name_deb}
-    container_name: hcc-lc-deb
-
-# The following are images built from rocm source
-  roct-src:
-    build:
-      context: ./roct
-      dockerfile: ${roct_src_dockerfile}
-    image: ${roct_image_name_src}
-    container_name: roct-src
-    volumes:
-      - ${roct_volume}
-
-  rocr-src:
-    depends_on:
-      - roct-src
-    build:
-      context: ./rocr
-      dockerfile: ${rocr_src_dockerfile}
-    image: ${rocr_image_name_src}
-    container_name: rocr-src
-    volumes:
-      - ${rocr_volume}
-
-  hcc-lc-src:
-    depends_on:
-      - rocr-src
-    build:
-      context: ./hcc-lc
-      dockerfile: ${hcc_lc_src_dockerfile}
-    image: ${hcc_lc_image_name_src}
-    container_name: hcc-lc-src
-
   # The following defines application containers, which depend on the data-only
   # containers defined above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
-  rocm:
-    build:
-      context: ./rocm-terminal
-      dockerfile: Dockerfile
-    devices:
-      - "/dev/kfd"
-    image: rocm/rocm-terminal
-    volumes:
-      - ~:/usr/local/src/host-home
-
-  rocm-from-src:
-    build:
-      context: ./rocm-terminal
-      dockerfile: Dockerfile
-    devices:
-      - "/dev/kfd"
-    image: rocm/rocm-terminal
-    volumes:
-      - ~:/usr/local/src/host-home
-    volumes_from:
-      - roct-src:ro
-      - rocr-src:ro
-      - hcc-lc-src:ro
-      # - hcc-hsail-src:ro
-
-  dev-ubuntu:
+  base:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}
     build:
       context: ./dev
-      dockerfile: Dockerfile-ubuntu-16.04
+      dockerfile: Dockerfile-${OS_VARIANT}
+      args:
+        ROCM_VERSION: ${ROCM_VERSION}
+        AMDGPU_VERSION: ${AMDGPU_VERSION}
     devices:
-      - "/dev/kfd"
-    image: rocm/dev-ubuntu-16.04
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
 
-  dev-fedora:
+  hip:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip
     build:
       context: ./dev
-      dockerfile: Dockerfile-fedora-24
+      dockerfile: Dockerfile-${OS_VARIANT}-hip
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
     devices:
-      - "/dev/kfd"
-    image: rocm/dev-fedora-24
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  hip-libs:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-libs
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-hip-libs
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  hip-sdk:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-sdk
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-hip-sdk
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  ml:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-ml
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  ml-sdk:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml-sdk
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-ml-sdk
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  opencl:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-opencl
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-opencl
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  opencl-ml:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-opencl-ml
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-opencl-ml
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  opencl-sdk:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-opencl-sdk
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-opencl-sdk
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  openmp-sdk:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-openmp-sdk
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-openmp-sdk
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  complete:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-complete
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-complete
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  complete-sdk:
+    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-complete-sdk
+    build:
+      context: ./dev
+      dockerfile: Dockerfile-${OS_VARIANT}-complete-sdk
+      args:
+        OS_VARIANT: ${OS_VARIANT}
+        ROCM_VERSION: ${ROCM_VERSION}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+
+  term:
+    image: rocm/rocm-terminal:${ROCM_VERSION}-${OS_VARIANT}${TERM_FLAVOR}
+    build:
+      context: ./rocm-terminal
+      dockerfile: Dockerfile-${OS_VARIANT}
+      args:
+        ROCM_VERSION: ${ROCM_VERSION}
+        TERM_FLAVOR: ${TERM_FLAVOR}
+        UID: ${UID}
+        RENDER_GID: ${RENDER_GID}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    tmpfs:
+      - /tmp
+    volumes:
+      - ~/venv:/home/rocm-user/venv
+
+  xterm:
+    image: rocm/rocm-terminal:${ROCM_VERSION}-${OS_VARIANT}${TERM_FLAVOR}-x11
+    build:
+      context: ./rocm-terminal
+      dockerfile: Dockerfile-${OS_VARIANT}-x11
+      args:
+        ROCM_VERSION: ${ROCM_VERSION}
+        TERM_FLAVOR: ${TERM_FLAVOR}
+        UID: ${UID}
+        RENDER_GID: ${RENDER_GID}
+    environment:
+      - DISPLAY
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/kfd
+      - /dev/dri
+      - /dev/fuse
+    tmpfs:
+      - /tmp
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/venv:/home/rocm-user/venv

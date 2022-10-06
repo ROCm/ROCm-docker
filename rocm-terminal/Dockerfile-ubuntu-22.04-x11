@@ -10,44 +10,61 @@
 # If it is desired to run the container manually through the docker command-line, the following is an example
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
-FROM ubuntu:18.04
-MAINTAINER Peng Sun <Peng.Sun@amd.com>
+ARG ROCM_VERSION=5.3
+ARG TERM_FLAVOR
+
+FROM rocm/dev-ubuntu-22.04:${ROCM_VERSION}${TERM_FLAVOR}
+
+ARG UID
+ARG RENDER_GID
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
-ARG ROCM_VERSION=4.5.2
-ARG AMDGPU_VERSION=21.40.2
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl gnupg && \
-  curl -sL http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
-  sh -c 'echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/$ROCM_VERSION/ ubuntu main > /etc/apt/sources.list.d/rocm.list' && \
-  sh -c 'echo deb [arch=amd64] https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/ubuntu bionic main > /etc/apt/sources.list.d/amdgpu.list' && \
-  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  sudo \
-  libelf1 \
-  libnuma-dev \
-  build-essential \
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   git \
   vim-nox \
+  less \
   cmake-curses-gui \
-  kmod \
-  file \
-  python3 \
   python3-pip \
-  rocm-dev && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+  python3-venv \
+  rocm-developer-tools
+
+# This is meant to be used as an interactive developer container
+# Create user rocm-user as member of sudo group
+RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
+    if [ -z "$RENDER_GID" ]; then \
+      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash rocm-user; \
+    else \
+      groupadd -g $RENDER_GID render; \
+      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash rocm-user; \
+    fi
+
+# Modify to pre-install X11 related tools and user space drivers
+# These packages are installed after render group has been added
+# because a depending package would add render group with specific GID
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  mesa-vulkan-drivers \
+  vulkan-tools \
+  libgl1-amdgpu-mesa-dri \
+  vainfo \
+  xserver-xorg-amdgpu-video-amdgpu \
+  x11-apps \
+  dbus-x11 \
+  mesa-utils \
+  fuse
+RUN apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 # Grant members of 'sudo' group passwordless privileges
 # Comment out to require sudo
 COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 
-# This is meant to be used as an interactive developer container
-# Create user rocm-user as member of sudo group
-# Append /opt/rocm/bin to the system PATH variable
-RUN useradd --create-home -G sudo,video --shell /bin/bash rocm-user
-#    sed --in-place=.rocm-backup 's|^\(PATH=.*\)"$|\1:/opt/rocm/bin"|' /etc/environment
+# Make startup script to launch dbus for user session
+COPY start-dbus.sh /usr/local/bin
+RUN chmod +x /usr/local/bin/start-dbus.sh
 
+# Append /opt/rocm/bin to the system PATH variable
 USER rocm-user
 WORKDIR /home/rocm-user
 ENV PATH "${PATH}:/opt/rocm/bin"
@@ -60,4 +77,4 @@ ENV PATH "${PATH}:/opt/rocm/bin"
 #    echo "alias gdb='gdb --tui'\n" >> ~/.bashrc
 
 # Default to a login shell
-CMD ["bash", "-l"]
+CMD ["/bin/sh", "/usr/local/bin/start-dbus.sh" ]
