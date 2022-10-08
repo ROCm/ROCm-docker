@@ -8,6 +8,8 @@ LABEL maintainer=peng.sun@amd.com
 ARG ROCM_VERSION=5.3
 ARG AMDGPU_VERSION=5.3
 
+ARG APT_PREF
+RUN echo "$APT_PREF" > /etc/apt/preferences.d/rocm-pin-600
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl libnuma-dev gnupg \
   && curl -sL https://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - \
   && printf "deb [arch=amd64] https://repo.radeon.com/rocm/apt/$ROCM_VERSION/ jammy main" | tee /etc/apt/sources.list.d/rocm.list \
@@ -23,4 +25,5 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   build-essential && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
+
 RUN  groupadd -g 109 render
