@@ -2,24 +2,20 @@
 
 The following instructions assume a fresh/blank machine to be prepared for the ROCm + Docker environment; no additional software has been installed other than the typical stock package updating.
 
-It is recommended to install the ROCm kernel first. The ROCm KFD is distributed as DKMS modules for post ROCm1.7.0 releases. However, we recommend to upgrade to newer generic kernels as possible. The newer kernel often supports AMD hardware better, and stock video resolutions and hardware acceleration performance are typically improved. As of the time of this writing, ROCm officially supports Ubuntu and Fedora Linux distributions.  The following asciicast demonstrates updating the kernel on Ubuntu 16.04.  More detailed instructions can be found on the Radeon Open Compute website:
-* [Installing ROCK kernel](https://rocmdocs.amd.com/en/latest/Installation_Guide/Installation-Guide.html) on Ubuntu
+Please refer to the following instructions for full documentation to install the ROCm base support:
+* [ROCm Installation Guide](https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.3/page/Introduction_to_ROCm_Installation_Guide_for_Linux.html)
 
-### Step 1: Install rocm-kernel
+### Step 1: Install amdgpu
 The following is a sequence of commands to type (or cut-n-paste) into a terminal, make sure your kernel driver is supported [here](https://github.com/RadeonOpenCompute/ROCm#supported-operating-systems):
 
 ```bash
 # Install the ROCm rock-dkms kernel modules, reboot required
-wget -qO - http://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
-echo deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main | sudo tee /etc/apt/sources.list.d/rocm.list
-sudo apt-get update && sudo apt-get install rock-dkms
-sudo update-initramfs -u
-sudo reboot
+sudo apt-get update
+wget https://repo.radeon.com/amdgpu-install/5.3/ubuntu/focal/amdgpu-install_5.3.50300-1_all.deb 
+sudo apt-get install ./amdgpu-install_5.3.50300-1_all.deb
+sudo amdgpu-install --usecase=rocm
 
-# Add user to the video group if you're using Ubuntu18.04
-sudo usermod -a -G video $LOGNAME
-
-# Or, add user to the render group if you're using Ubuntu20.04
+# Add user to the render group if you're using Ubuntu20.04
 sudo usermod -a -G render $LOGNAME
 
 # To add future users to the video and render groups, run the following command:
@@ -97,7 +93,6 @@ sudo docker-compose run --rm rocm
 ### Step 5: Verify successful build of ROCm-docker container
 *  Verify a working container-based ROCm software stack
   * After step #2 or #3, a bash login prompt to a running docker container should be available
-      * `hcc --version` should display version information of the AMD heterogeneous compiler
   * Execute rocminfo script
       * `/opt/rocm/bin/rocminfo`
-  * Text displaying your system HSA System Attributes and enumerate all the visible HSA Agents. 
+  * Text displaying your system AMD GPU System Attributes and enumerate all the visible GPU Agents. 
