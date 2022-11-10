@@ -1,17 +1,19 @@
 # This dockerfile is meant to serve as a rocm base image.  It registers the debian rocm package repository, and
 # installs the rocm-dev package.
 
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 LABEL maintainer=peng.sun@amd.com
 
 # Register the ROCM package repository, and install rocm-dev package
-ARG ROCM_VERSION=5.1.3
-ARG AMDGPU_VERSION=22.10.3
+ARG ROCM_VERSION=5.3
+ARG AMDGPU_VERSION=5.3
 
+ARG APT_PREF
+RUN echo "$APT_PREF" > /etc/apt/preferences.d/rocm-pin-600
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl libnuma-dev gnupg \
   && curl -sL https://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - \
-  && printf "deb [arch=amd64] https://repo.radeon.com/rocm/apt/$ROCM_VERSION/ ubuntu main" | tee /etc/apt/sources.list.d/rocm.list \
-  && printf "deb [arch=amd64] https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/ubuntu bionic main" | tee /etc/apt/sources.list.d/amdgpu.list \
+  && printf "deb [arch=amd64] https://repo.radeon.com/rocm/apt/$ROCM_VERSION/ jammy main" | tee /etc/apt/sources.list.d/rocm.list \
+  && printf "deb [arch=amd64] https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/ubuntu jammy main" | tee /etc/apt/sources.list.d/amdgpu.list \
   && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   sudo \
   libelf1 \
@@ -24,3 +26,5 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
   build-essential && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
+
+RUN  groupadd -g 109 render
