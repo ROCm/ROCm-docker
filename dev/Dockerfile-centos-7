@@ -71,9 +71,13 @@ RUN yum clean all
 # On CentOS, install package centos-release-scl available in CentOS repository:
 RUN yum install -y centos-release-scl
 
-# Install the devtoolset-7 collection:
-RUN yum install -y devtoolset-7
-RUN yum install -y devtoolset-7-libatomic-devel devtoolset-7-elfutils-libelf-devel
+#	# Install the devtoolset-9 collection:
+#RUN yum install -y devtoolset-9
+#RUN yum install -y devtoolset-9-libatomic-devel devtoolset-9-elfutils-libelf-devel
+
+# Install the devtoolset-9 collection:
+RUN yum install -y devtoolset-9
+RUN yum install -y devtoolset-9-libatomic-devel devtoolset-9-elfutils-libelf-devel
 
 # Install the ROCm rpms
 RUN yum clean all
@@ -83,11 +87,11 @@ RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDG
 RUN yum install -y rocm-dev
 
 # Set ENV to enable devtoolset7 by default 
-ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:/opt/rocm/hcc/bin:/opt/rocm/hip/bin:/opt/rocm/bin:/opt/rocm/hcc/bin:${PATH:+:${PATH}}
-ENV MANPATH=/opt/rh/devtoolset-7/root/usr/share/man:${MANPATH}
-ENV INFOPATH=/opt/rh/devtoolset-7/root/usr/share/info${INFOPATH:+:${INFOPATH}}
-ENV PCP_DIR=/opt/rh/devtoolset-7/root
-ENV PERL5LIB=/opt/rh/devtoolset-7/root//usr/lib64/perl5/vendor_perl:/opt/rh/devtoolset-7/root/usr/lib/perl5:/opt/rh/devtoolset-7/root//usr/share/perl5/
-ENV LD_LIBRARY_PATH=/opt/rocm/lib:/usr/local/lib:/opt/rh/devtoolset-7/root$rpmlibdir$rpmlibdir32${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-ENV PYTHONPATH=/opt/rh/devtoolset-7/root/usr/lib64/python$pythonvers/site-packages:/opt/rh/devtoolset-7/root/usr/lib/python$pythonvers/
-ENV LDFLAGS="-Wl,-rpath=/opt/rh/devtoolset-7/root/usr/lib64 -Wl,-rpath=/opt/rh/devtoolset-7/root/usr/lib"
+ENV PATH=/opt/rh/devtoolset-9/root/usr/bin:/opt/rocm/hcc/bin:/opt/rocm/hip/bin:/opt/rocm/bin:/opt/rocm/hcc/bin:${PATH:+:${PATH}}
+ENV MANPATH=/opt/rh/devtoolset-9/root/usr/share/man:${MANPATH}
+ENV INFOPATH=/opt/rh/devtoolset-9/root/usr/share/info${INFOPATH:+:${INFOPATH}}
+ENV PCP_DIR=/opt/rh/devtoolset-9/root
+ENV PERL5LIB=/opt/rh/devtoolset-9/root//usr/lib64/perl5/vendor_perl:/opt/rh/devtoolset-9/root/usr/lib/perl5:/opt/rh/devtoolset-9/root//usr/share/perl5/
+ENV LD_LIBRARY_PATH=/opt/rocm/lib:/usr/local/lib:/opt/rh/devtoolset-9/root$rpmlibdir$rpmlibdir32${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+ENV PYTHONPATH=/opt/rh/devtoolset-9/root/usr/lib64/python$pythonvers/site-packages:/opt/rh/devtoolset-9/root/usr/lib/python$pythonvers/
+ENV LDFLAGS="-Wl,-rpath=/opt/rh/devtoolset-9/root/usr/lib64 -Wl,-rpath=/opt/rh/devtoolset-9/root/usr/lib"
