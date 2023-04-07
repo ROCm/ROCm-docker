@@ -9,13 +9,13 @@ This fork is almost completely re-written as:
   - Only a specific OS version is teated at a time.
     - OS / version / variant are specified by `.env` file.
 - `render` group id is set to same number as host.
-- Use `gpg --dearmor` instead of `apt-key add` for ubuntu-20.04.
+- Use `gpg --dearmor` instead of `apt-key add` for ubuntu-20.04 or later.
 - Add X11 enabled terminal image.
 - Omit CentOS-7 stuff due to its EOL.
 - Ubuntu 18.04 stuffs are still exist, but no longer update.
-- Add many image variants based on latest (5.3) [ROCm meta-packages][].
+- Add many image variants based on latest (5.4) [ROCm meta-packages][].
 
-[ROCm meta-packages]: https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.3/page/Meta-packages_in_ROCm_Programming_Models.html
+[ROCm meta-packages]: https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.4/page/Meta-packages_in_ROCm_Programming_Models.html
 
 ## How to build
 ### Build all images for all OSes
