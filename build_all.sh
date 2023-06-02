@@ -1,5 +1,5 @@
-ROCM_VERSION=5.3
-AMDGPU_VERSION=5.3
+ROCM_VERSION=5.4.2
+AMDGPU_VERSION=5.4.2
 cp -r scripts rocm-terminal
 cp -r scripts dev
 
@@ -13,6 +13,10 @@ cd ../dev
 #centos-7
 sudo docker build . -f Dockerfile-centos-7 -t rocm/dev-centos-7:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION  --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
 sudo docker tag rocm/dev-centos-7:$ROCM_VERSION rocm/dev-centos-7:latest
+
+#manylinux2014_x86_64
+sudo docker build . -f Dockerfile-manylinux2014_x86_64 -t rocm/dev-manylinux2014_x86_64:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION  --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
+sudo docker tag rocm/dev-manylinux2014_x86_64:$ROCM_VERSION rocm/dev-manylinux2014_x86_64:latest
 
 #ubuntu20.04
 sudo docker build . -f Dockerfile-ubuntu-20.04 -t rocm/dev-ubuntu-20.04:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION  --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
