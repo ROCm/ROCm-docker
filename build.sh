@@ -3,8 +3,8 @@
 OS=${OS:-ubuntu}
 OS_VERSION=${OS_VERSION:-22.04}
 OS_VARIANT=${OS_VARIANT:-${OS}-${OS_VERSION}}
-ROCM_VERSION=${ROCM_VERSION:-5.4.3}
-AMDGPU_VERSION=${AMDGPU_VERSION:-5.4.3}
+ROCM_VERSION=${ROCM_VERSION:-5.6}
+AMDGPU_VERSION=${AMDGPU_VERSION:-5.6}
 #TERM_FLAVOR=""
 TERM_FLAVOR="-complete-sdk"
 RENDER_GID=$(getent group render | cut --delimiter ':' --fields 3)
@@ -27,7 +27,7 @@ ${COMPOSE} build base || exit $?
 # docker tag rocm/dev-${OS_VARIANT}:${ROCM_VERSION} rocm/dev-${OS_VARIANT}:latest
 
 # build rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-${FLAVOR}
-FLAVORS="openmp-sdk opencl opencl-ml opencl-sdk hip hip-libs hip-sdk ml ml-sdk complete complete-sdk"
+FLAVORS="openmp-sdk opencl opencl-sdk hip hip-libs hip-sdk ml ml-sdk complete complete-sdk"
 for flavor in ${FLAVORS}; do
   ${COMPOSE} build ${flavor} || exit $?
   # docker tag rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-${FLAVOR} rocm/dev-${OS_VARIANT}:latest-${FLAVOR}

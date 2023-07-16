@@ -13,9 +13,9 @@ This fork is almost completely re-written as:
 - Add X11 enabled terminal image.
 - Omit CentOS-7 stuff due to its EOL.
 - Ubuntu 18.04 stuffs are still exist, but no longer update.
-- Add many image variants based on latest (5.4) [ROCm meta-packages][].
+- Add many image variants based on latest (5.6) [ROCm Programming Models][].
 
-[ROCm meta-packages]: https://docs.amd.com/bundle/ROCm-Installation-Guide-v5.4/page/Meta-packages_in_ROCm_Programming_Models.html
+[ROCm Programming Models]: https://rocm.docs.amd.com/en/docs-5.6.0/deploy/linux/os-native/package_manager_integration.html#components-of-rocm-programming-models
 
 ## How to build
 ### Build all images for all OSes
@@ -45,7 +45,10 @@ This fork is almost completely re-written as:
    ```console
    $ getent group render
    ```
-2. 
+2. Confirm your user id of your host OS.
+   ```console
+   $ id -u
+   ```
 3. Check `.env` file and edit it if necessary.
 4. Build a service by `docker-compose` (or `docker compose`) command.
    Following is exampe of "TERM_FLAVOR=-ml"
