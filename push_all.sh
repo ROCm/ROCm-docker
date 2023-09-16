@@ -1,4 +1,4 @@
-ROCM_VERSION=5.5.1
+ROCM_VERSION=5.7
 
 # ubuntu 20.04 base
 sudo docker push rocm/dev-ubuntu-20.04:$ROCM_VERSION
