@@ -1,5 +1,5 @@
 FROM centos:7
-LABEL maintainer=peng.sun@amd.com
+LABEL maintainer=dl.mlsedevops.amd.com
 
 ARG ROCM_VERSION=5.3
 ARG AMDGPU_VERSION=5.3
@@ -78,7 +78,7 @@ RUN yum install -y devtoolset-7-libatomic-devel devtoolset-7-elfutils-libelf-dev
 # Install the ROCm rpms
 RUN yum clean all
 RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=https://repo.radeon.com/rocm/yum/$ROCM_VERSION/main\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/rocm.repo
-RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/rhel/7.9/main/x86_64\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/amdgpu.repo
+RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/rhel/7/main/x86_64\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/amdgpu.repo
 
 RUN yum install -y rocm-dev rocm-libs
 
