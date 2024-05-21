@@ -11,12 +11,12 @@
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
 FROM ubuntu:20.04
-MAINTAINER Peng Sun <Peng.Sun@amd.com>
+LABEL maintainer=dl.mlsedevops@amd.com
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
-ARG ROCM_VERSION=5.3
-ARG AMDGPU_VERSION=5.3
+ARG ROCM_VERSION=6.1.1
+ARG AMDGPU_VERSION=6.1.1
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl gnupg && \
   curl -sL http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \

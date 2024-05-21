@@ -2,7 +2,7 @@
 ARG base_image
 FROM ${base_image}
 
-MAINTAINER Peng Sun <peng.sun@amd.com>
+LABEL maintainer=dl.mlsedevops@amd.com
 
 COPY scripts/compatibility-check.sh /opt/rocm/bin/rocm-compatibility-test.sh
 RUN sudo chmod a+x /opt/rocm/bin/rocm-compatibility-test.sh
