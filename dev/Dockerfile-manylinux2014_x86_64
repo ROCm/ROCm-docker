@@ -1,5 +1,5 @@
 FROM quay.io/pypa/manylinux2014_x86_64
-LABEL maintainer=dl.mlsedevops.amd.com
+LABEL maintainer=dl.mlsedevops@amd.com
 
 #NOTE: manylinux image already has devtoolset installed
 

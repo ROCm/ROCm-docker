@@ -11,7 +11,7 @@
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
 FROM ubuntu:20.04
-LABEL maintainer=dl.mlsedevops.amd.com
+LABEL maintainer=dl.mlsedevops@amd.com
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages

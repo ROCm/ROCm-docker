@@ -1,5 +1,5 @@
 FROM centos:7
-LABEL maintainer=dl.mlsedevops.amd.com
+LABEL maintainer=dl.mlsedevops@amd.com
 
 ARG ROCM_VERSION=5.3
 ARG AMDGPU_VERSION=5.3

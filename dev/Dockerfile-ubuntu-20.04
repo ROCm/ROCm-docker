@@ -2,7 +2,7 @@
 # installs the rocm-dev package.
 
 FROM ubuntu:20.04
-LABEL maintainer=dl.mlsedevops.amd.com
+LABEL maintainer=dl.mlsedevops@amd.com
 
 # Register the ROCM package repository, and install rocm-dev package
 ARG ROCM_VERSION=5.3
