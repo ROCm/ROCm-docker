@@ -3,6 +3,7 @@ LABEL maintainer=dl.mlsedevops@amd.com
 
 ARG ROCM_VERSION=5.3
 ARG AMDGPU_VERSION=5.3
+<<<<<<< HEAD
 
 # Note: This is required patch since CentOS have reached EOL
 # otherwise any yum install setup will fail
@@ -10,6 +11,8 @@ RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 
+=======
+>>>>>>> 9e149e9 (release-6.1.2)
 # Base
 RUN yum -y install git java-1.8.0-openjdk python; yum clean all
 
@@ -78,6 +81,7 @@ RUN yum clean all
 # On CentOS, install package centos-release-scl available in CentOS repository:
 RUN yum install -y centos-release-scl
 
+<<<<<<< HEAD
 # Note: This is required patch since CentOS have reached EOL
 # otherwise any yum install setup will fail
 # Needed here again because above step adds new repo entries
@@ -85,6 +89,8 @@ RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 
+=======
+>>>>>>> 9e149e9 (release-6.1.2)
 #	# Install the devtoolset-9 collection:
 #RUN yum install -y devtoolset-9
 #RUN yum install -y devtoolset-9-libatomic-devel devtoolset-9-elfutils-libelf-devel
