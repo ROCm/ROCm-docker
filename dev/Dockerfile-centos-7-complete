@@ -6,6 +6,12 @@ ARG AMDGPU_VERSION=5.3
 # Base
 RUN yum -y install git java-1.8.0-openjdk python; yum clean all
 
+# Note: This is required patch since CentOS have reached EOL
+# otherwise any yum install setp will fail
+RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+
 # Enable epel-release repositories
 RUN yum --enablerepo=extras install -y epel-release
 
