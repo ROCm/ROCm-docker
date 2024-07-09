@@ -71,10 +71,6 @@ RUN yum clean all
 # On CentOS, install package centos-release-scl available in CentOS repository:
 RUN yum install -y centos-release-scl
 
-#	# Install the devtoolset-9 collection:
-#RUN yum install -y devtoolset-9
-#RUN yum install -y devtoolset-9-libatomic-devel devtoolset-9-elfutils-libelf-devel
-
 # Install the devtoolset-9 collection:
 RUN yum install -y devtoolset-9
 RUN yum install -y devtoolset-9-libatomic-devel devtoolset-9-elfutils-libelf-devel
