@@ -5,7 +5,7 @@ ARG ROCM_VERSION=5.3
 ARG AMDGPU_VERSION=5.3
 
 # Note: This is required patch since CentOS have reached EOL
-# otherwise any yum install setp will fail
+# otherwise any yum install setup will fail
 RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
@@ -77,6 +77,13 @@ RUN yum clean all
 
 # On CentOS, install package centos-release-scl available in CentOS repository:
 RUN yum install -y centos-release-scl
+
+# Note: This is required patch since CentOS have reached EOL
+# otherwise any yum install setup will fail
+# Needed here again because above step adds new repo entries
+RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 
 #	# Install the devtoolset-9 collection:
 #RUN yum install -y devtoolset-9
