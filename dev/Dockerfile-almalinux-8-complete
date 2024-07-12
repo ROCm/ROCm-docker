@@ -70,4 +70,6 @@ RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=https://repo.radeon.com/rocm/rhel8/$ROCM
 RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/rhel/8.9/main/x86_64\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/amdgpu.repo
 
 # Install ROCm
-RUN bash scripts/install_versioned_rocm.sh ${ROCM_VERSION}
+COPY scripts/install_versioned_rocm.sh install_versioned_rocm.sh
+RUN bash install_versioned_rocm.sh ${ROCM_VERSION}
+RUN rm install_versioned_rocm.sh
