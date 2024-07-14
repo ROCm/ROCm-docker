@@ -5,7 +5,8 @@ ARG ROCM_VERSION=6.1
 ARG AMDGPU_VERSION=6.1
 
 # Base
-RUN yum -y install git java-1.8.0-openjdk python; yum clean all
+RUN yum -y install git java-1.8.0-openjdk python39; yum clean all
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Enable epel-release repositories
 RUN dnf install -y 'dnf-command(config-manager)'
