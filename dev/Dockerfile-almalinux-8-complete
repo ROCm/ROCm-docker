@@ -28,7 +28,6 @@ RUN yum -y install \
     expect \
     file \
     python3-pip \
-    python3-dev \
     gettext \
     gcc-c++ \
     libgcc \
