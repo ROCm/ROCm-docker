@@ -35,3 +35,6 @@ sudo docker tag rocm/dev-ubuntu-22.04:$ROCM_VERSION rocm/dev-ubuntu-22.04:latest
 
 # ubuntu22.04 complete
 sudo docker build . -f Dockerfile-ubuntu-22.04-complete -t rocm/dev-ubuntu-22.04:$ROCM_VERSION-complete --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION --build-arg=APT_PREF="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600"
+
+# almalinux8 complete (for manylinux2_28 builds)
+sudo docker build . -f Dockerfile-almalinux-8-complete -t rocm/dev-almalinux-8:$ROCM_VERSION-complete --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
