@@ -61,8 +61,6 @@ RUN yum -y install \
     subversion \
     wget
 
-RUN ln -s /usr/bin/python3 /usr/bin/python
-
 # Enable the epel repository for fakeroot
 RUN yum install -y fakeroot
 RUN yum clean all
