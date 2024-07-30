@@ -23,7 +23,6 @@ RUN apt-get update \
   kmod \
   file \
   python3 \
-  libnuma1 \
   rocm-language-runtime \
   rocminfo \
   && apt-get clean \

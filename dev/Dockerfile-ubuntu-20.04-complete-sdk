@@ -2,7 +2,7 @@
 # Add rocm-lib package to rocm/dev-ubuntu-20.04 image
 
 ARG OS_VARIANT=ubuntu-20.04
-ARG ROCM_VERSION=5.3
+ARG ROCM_VERSION=6.1
 
 FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml-sdk
 
@@ -11,5 +11,7 @@ RUN apt-get update \
   rocm-opencl-sdk \
   clinfo \
   rocm-openmp-sdk \
+  migraphx-dev \
+  mivisionx-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*

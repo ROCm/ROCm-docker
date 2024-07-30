@@ -4,8 +4,8 @@
 FROM ubuntu:22.04
 
 # Register the ROCM package repository, and install rocm-dev package
-ARG ROCM_VERSION=5.4
-ARG AMDGPU_VERSION=5.4
+ARG ROCM_VERSION=6.1
+ARG AMDGPU_VERSION=6.1
 
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils \
@@ -24,7 +24,6 @@ RUN apt-get update \
   kmod \
   file \
   python3 \
-  libnuma1 \
   rocm-language-runtime \
   rocminfo \
   && apt-get clean \

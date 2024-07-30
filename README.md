@@ -12,10 +12,10 @@ This fork is almost completely re-written as:
 - Use `gpg --dearmor` instead of `apt-key add` for ubuntu-20.04 or later.
 - Add X11 enabled terminal image.
 - Omit CentOS-7 stuff due to its EOL.
-- Ubuntu 18.04 stuffs are still exist, but no longer update.
-- Add many image variants based on latest (5.6) [ROCm Programming Models][].
+- Omit Ubuntu 18.04 stuffs.
+- Add many image variants based on latest (6.1) [ROCm Programming Models][].
 
-[ROCm Programming Models]: https://rocm.docs.amd.com/en/docs-5.6.0/deploy/linux/os-native/package_manager_integration.html#components-of-rocm-programming-models
+[ROCm Programming Models]: https://rocm.docs.amd.com/projects/install-on-linux/en/latest/how-to/native-install/package-manager-integration.html#components-of-rocm-programming-models
 
 ## How to build
 ### Build all images for all OSes

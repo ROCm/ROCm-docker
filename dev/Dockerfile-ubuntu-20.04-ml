@@ -2,9 +2,9 @@
 # Add rocm-lib package to rocm/dev-ubuntu-20.04 image
 
 ARG OS_VARIANT=ubuntu-20.04
-ARG ROCM_VERSION=5.3
+ARG ROCM_VERSION=6.1
 
-FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-libs
+FROM rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip
 
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \

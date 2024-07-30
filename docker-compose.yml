@@ -5,10 +5,10 @@ services:
   # containers defined above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
   base:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}
       args:
         ROCM_VERSION: ${ROCM_VERSION}
         AMDGPU_VERSION: ${AMDGPU_VERSION}
@@ -19,24 +19,10 @@ services:
       - /tmp
 
   hip:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-hip
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-hip
-      args:
-        OS_VARIANT: ${OS_VARIANT}
-        ROCM_VERSION: ${ROCM_VERSION}
-    devices:
-      - /dev/kfd
-      - /dev/dri
-    tmpfs:
-      - /tmp
-
-  hip-libs:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-libs
-    build:
-      context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-hip-libs
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-hip
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -47,10 +33,10 @@ services:
       - /tmp
 
   hip-sdk:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-hip-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-hip-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-hip-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-hip-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -61,10 +47,10 @@ services:
       - /tmp
 
   ml:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-ml
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-ml
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-ml
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -75,10 +61,10 @@ services:
       - /tmp
 
   ml-sdk:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-ml-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-ml-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-ml-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-ml-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -89,24 +75,10 @@ services:
       - /tmp
 
   opencl:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-opencl
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-opencl
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-opencl
-      args:
-        OS_VARIANT: ${OS_VARIANT}
-        ROCM_VERSION: ${ROCM_VERSION}
-    devices:
-      - /dev/kfd
-      - /dev/dri
-    tmpfs:
-      - /tmp
-
-  opencl-ml:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-opencl-ml
-    build:
-      context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-opencl-ml
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-opencl
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -117,10 +89,10 @@ services:
       - /tmp
 
   opencl-sdk:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-opencl-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-opencl-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-opencl-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-opencl-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -131,10 +103,10 @@ services:
       - /tmp
 
   openmp-sdk:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-openmp-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-openmp-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-openmp-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-openmp-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -145,10 +117,10 @@ services:
       - /tmp
 
   complete:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-complete
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-complete
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-complete
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-complete
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -159,10 +131,10 @@ services:
       - /tmp
 
   complete-sdk:
-    image: rocm/dev-${OS_VARIANT}:${ROCM_VERSION}-complete-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-complete-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT}-complete-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-complete-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -173,35 +145,39 @@ services:
       - /tmp
 
   term:
-    image: rocm/rocm-terminal:${ROCM_VERSION}-${OS_VARIANT}${TERM_FLAVOR}
+    image: rocm/rocm-terminal:${ROCM_VERSION:-latest}
     build:
       context: ./rocm-terminal
-      dockerfile: Dockerfile-${OS_VARIANT}
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}
       args:
         ROCM_VERSION: ${ROCM_VERSION}
-        TERM_FLAVOR: ${TERM_FLAVOR}
+        TERM_FLAVOR: ${TERM_FLAVOR:-complete-sdk}
         UID: ${UID}
         RENDER_GID: ${RENDER_GID}
     devices:
       - /dev/kfd
       - /dev/dri
-    tmpfs:
-      - /tmp
+#   tmpfs:
+#     - /tmp
     volumes:
       - ~/venv:/home/rocm-user/venv
+      - /home/src:/home/rocm-user/src
+      - /tmp:/tmp
 
   xterm:
-    image: rocm/rocm-terminal:${ROCM_VERSION}-${OS_VARIANT}${TERM_FLAVOR}-x11
+    image: rocm/rocm-terminal:${ROCM_VERSION:-latest}-x11
     build:
       context: ./rocm-terminal
-      dockerfile: Dockerfile-${OS_VARIANT}-x11
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-x11
       args:
         ROCM_VERSION: ${ROCM_VERSION}
-        TERM_FLAVOR: ${TERM_FLAVOR}
+        TERM_FLAVOR: ${XTERM_FLAVOR:-complete}
         UID: ${UID}
         RENDER_GID: ${RENDER_GID}
     environment:
       - DISPLAY
+      - PULSE_SERVER=unix:/tmp/pulse/native
+      - PULSE_COOKIE=/tmp/pulse/cookie
     cap_add:
       - SYS_ADMIN
     security_opt:
@@ -214,4 +190,7 @@ services:
       - /tmp
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - /run/user/${UID:-1000}/pulse/native:/tmp/pulse/native
+      - ~/.config/pulse/cookie:/tmp/pulse/cookie:ro
       - ~/venv:/home/rocm-user/venv
+      - ~/src:/home/rocm-user/src
