@@ -3,7 +3,7 @@
 ## Radeon Open Compute Platform for docker
 This repository contains a framework for building the software layers defined in the Radeon Open Compute Platform into portable docker images.  The following are docker dependencies, which should be installed on the target machine.
 
--  Docker on [Ubuntu systems](https://docs.docker.com/v1.8/installation/ubuntulinux/) or [Fedora systems](https://docs.docker.com/v1.8/installation/fedora/)
+-  Docker on [Ubuntu systems](https://docs.docker.com/engine/install/ubuntu/) or [Fedora systems](https://docs.docker.com/engine/install/fedora/)
 -  Highly recommended: [Docker-Compose](https://docs.docker.com/compose/install/) to simplify container management
 
 # Docker Hub
