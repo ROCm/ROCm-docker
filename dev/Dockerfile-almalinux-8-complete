@@ -79,7 +79,7 @@ RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDG
 # RUN bash install_versioned_rocm.sh ${ROCM_VERSION}
 # RUN rm install_versioned_rocm.sh
 
-yum install -y rocm-dev rocm-libs
+RUN yum install -y rocm-dev rocm-libs
 
 # Set ENV to enable devtoolset9 by default
 ENV PATH=/opt/rh/gcc-toolset-9/root/usr/bin:/opt/rocm/bin:${PATH:+:${PATH}}
