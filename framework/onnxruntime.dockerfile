@@ -25,7 +25,7 @@ RUN apt install -y migraphx
 RUN pip3 install https://repo.radeon.com/rocm/manylinux/rocm-rel-$ROCM_VERSION/onnxruntime_rocm-$ONNX_VERSION-$PYTHON_VERSION-linux_x86_64.whl
 
 ##Pieces for pytorch
-RUN pip3 install https://repo.radeon.com/rocm/manylinux/rocm-rel-$ROCM_VERSION/pytorch_triton_rocm-$triton_version%2Brocm$ROCM_VERSION.1d36d63aa0-$PYTHON_VERSION-linux_x86_64.whl
+RUN pip3 install https://repo.radeon.com/rocm/manylinux/rocm-rel-$ROCM_VERSION/pytorch_triton_rocm-$triton_version%2Brocm$ROCM_VERSION.*-$PYTHON_VERSION-linux_x86_64.whl
 RUN pip3 install https://repo.radeon.com/rocm/manylinux/rocm-rel-$ROCM_VERSION/torch-$torch_version+rocm$ROCM_VERSION-$PYTHON_VERSION-linux_x86_64.whl
 RUN pip3 install https://repo.radeon.com/rocm/manylinux/rocm-rel-$ROCM_VERSION/torchvision-$torchvision_version+rocm$ROCM_VERSION-PYTHON_VERSION-linux_x86_64.whl
 
