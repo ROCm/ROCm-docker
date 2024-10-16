@@ -15,8 +15,8 @@ LABEL maintainer=dl.mlsedevops@amd.com
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
-ARG ROCM_VERSION=6.2
-ARG AMDGPU_VERSION=6.2
+ARG ROCM_VERSION=6.2.2
+ARG AMDGPU_VERSION=6.2.2
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl gnupg && \
   curl -sL http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
