@@ -38,3 +38,6 @@ docker push rocm/dev-centos-7:$ROCM_VERSION-complete
 
 # almalinux8 complete
 docker push rocm/dev-almalinux-8:$ROCM_VERSION-complete
+
+# almalinux8 complete
+docker push rocm/dev-almalinux-8:$ROCM_VERSION
