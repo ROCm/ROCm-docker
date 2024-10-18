@@ -1,4 +1,4 @@
-FROM amd64/almalinux:8
+FROM --platform=linux/amd64 almalinux:8
 LABEL maintainer=dl.mlsedevops@amd.com
 
 ARG ROCM_VERSION=6.1
