@@ -1,0 +1,94 @@
+FROM rockylinux:8.9
+LABEL maintainer=dl.mlsedevops@amd.com
+
+ARG ROCM_VERSION=6.1
+ARG AMDGPU_VERSION=6.1
+
+# Base
+RUN yum -y install git java-1.8.0-openjdk python39; yum clean all
+
+# Enable epel-release repositories
+RUN dnf install -y 'dnf-command(config-manager)'
+RUN dnf config-manager --set-enabled powertools
+RUN dnf install -y epel-release
+
+# Install required base build and packaging commands for ROCm
+RUN yum -y install \
+    ca-certificates \
+    bc \
+    bridge-utils \
+    cmake \
+    cmake3 \
+    dkms \
+    doxygen \
+    dpkg \
+    dpkg-dev \
+    dpkg-perl \
+    elfutils-libelf-devel \
+    expect \
+    file \
+    python3-devel \
+    python3-pip \
+    gettext \
+    gcc-c++ \
+    libgcc \
+    lzma \
+    glibc.i686 \
+    ncurses \
+    ncurses-base \
+    ncurses-libs \
+    numactl-devel \
+    numactl-libs \
+    libssh \
+    libunwind-devel \
+    libunwind \
+    llvm \
+    llvm-libs \
+    make \
+    openssl \
+    openssl-libs \
+    openssh \
+    openssh-clients \
+    pciutils \
+    pciutils-devel \
+    pciutils-libs \
+    perl \
+    pkgconfig \
+    qemu-kvm \
+    re2c \
+    kmod \
+    rpm \
+    rpm-build \
+    subversion \
+    wget
+
+# Enable the epel repository foamd64/almalinuxr fakeroot
+RUN yum install -y fakeroot
+RUN yum clean all
+
+# Install devtoolset 9
+RUN yum install -y gcc-toolset-9
+RUN yum install -y gcc-toolset-9-libatomic-devel gcc-toolset-9-elfutils-libelf-devel
+
+# Install ROCm repo paths
+RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=https://repo.radeon.com/rocm/rhel8/$ROCM_VERSION/main\nenabled=1\ngpgcheck=0\npriority=50" >> /etc/yum.repos.d/rocm.repo
+RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/rhel/8.9/main/x86_64\nenabled=1\ngpgcheck=0\npriority=50" >> /etc/yum.repos.d/amdgpu.repo
+
+# Install versioned ROCm packages eg. rocm-dev6.1.0 to avoid issues with "yum update" pulling really old rocm-dev packages from epel
+# COPY scripts/install_versioned_rocm.sh install_versioned_rocm.sh
+# RUN bash install_versioned_rocm.sh ${ROCM_VERSION}
+# RUN rm install_versioned_rocm.sh
+
+RUN yum install -y rocm-dev
+
+# Set ENV to enable devtoolset9 by default
+ENV PATH=/opt/rh/gcc-toolset-9/root/usr/bin:/opt/rocm/bin:${PATH:+:${PATH}}
+ENV MANPATH=/opt/rh/gcc-toolset-9/root/usr/share/man:${MANPATH}
+ENV INFOPATH=/opt/rh/gcc-toolset-9/root/usr/share/info:${INFOPATH:+:${INFOPATH}}
+ENV PCP_DIR=/opt/rh/gcc-toolset-9/root
+ENV PERL5LIB=/opt/rh/gcc-toolset-9/root/usr/lib64/perl5/vendor_perl
+ENV LD_LIBRARY_PATH=/opt/rocm/lib:/usr/local/lib:/opt/rh/gcc-toolset-9/root/lib:/opt/rh/gcc-toolset-9/root/lib64:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+# ENV PYTHONPATH=/opt/rh/gcc-toolset-9/root/
+
+ENV LDFLAGS="-Wl,-rpath=/opt/rh/gcc-toolset-9/root/usr/lib64 -Wl,-rpath=/opt/rh/gcc-toolset-9/root/usr/lib"
