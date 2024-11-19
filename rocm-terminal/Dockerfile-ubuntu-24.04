@@ -13,7 +13,7 @@
 ARG ROCM_VERSION=6.2
 ARG TERM_FLAVOR
 
-FROM rocm/dev-ubuntu-22.04:${ROCM_VERSION}${TERM_FLAVOR}
+FROM rocm/dev-ubuntu-24.04:${ROCM_VERSION}${TERM_FLAVOR}
 
 ARG UID
 ARG RENDER_GID
@@ -26,33 +26,12 @@ RUN apt-get update \
   git \
   vim-nox \
   less \
-  python3-venv
-
-# This is meant to be used as an interactive developer container
-# Create user $USER_NAME as member of sudo group
-RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
-    if [ -z "$RENDER_GID" ]; then \
-      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash $USER_NAME; \
-    else \
-      groupadd -g $RENDER_GID render; \
-      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash $USER_NAME; \
-    fi
-
-# Modify to pre-install X11 related tools and user space drivers
-# These packages are installed after render group has been added
-# because a depending package would add render group with specific GID
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  mesa-vulkan-drivers \
-  vulkan-tools \
-  libgulkan-utils \
-  libgl1-amdgpu-mesa-dri \
-  vainfo \
-  xserver-xorg-amdgpu-video-amdgpu \
-  x11-apps \
-  dbus-x11 \
-  mesa-utils \
-  pulseaudio \
-  fuse
+  cmake-curses-gui \
+  python3-pip \
+  python3-venv \
+  libgulkan-dev \
+  libplacebo-dev \
+  rocm-developer-tools
 RUN apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -60,11 +39,34 @@ RUN apt-get clean \
 # Comment out to require sudo
 COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 
-# Make startup script to launch dbus for user session
-COPY start-dbus.sh /usr/local/bin
-RUN chmod +x /usr/local/bin/start-dbus.sh
-
+# This is meant to be used as an interactive developer container
+# Create user $USER_NAME or rename existing "ubuntu" user
 # Append /opt/rocm/bin to the system PATH variable
+RUN if [ -n "$RENDER_GID" ]; then \
+        groupadd -g $RENDER_GID render; \
+        if [ -n "$UID" ]; then \
+            if [ "$UID" -eq 1000 ]; then \
+                usermod -l $USER_NAME ubuntu; \
+                usermod -md /home/$USER_NAME $USER_NAME; \
+                usermod -aG render $USER_NAME; \
+            else \
+                useradd --create-home -u $UID -G sudo,video,render --shell /bin/bash $USER_NAME; \
+            fi; \
+        else \
+            useradd --create-home -G sudo,video,render --shell /bin/bash $USER_NAME; \
+        fi; \
+    else \
+        if [ -n "$UID" ]; then \
+            if [ "$UID" -eq 1000 ]; then \
+                usermod -l $USER_NAME ubuntu; \
+                usermod -md /home/$USER_NAME $USER_NAME; \
+            else \
+	            useradd --create-home -u $UID -G sudo,video --shell /bin/bash $USER_NAME; \
+            fi; \
+        else \
+            useradd --create-home -G sudo,video --shell /bin/bash $USER_NAME; \
+        fi; \
+    fi
 USER $USER_NAME
 WORKDIR /home/$USER_NAME
 ENV PATH "${PATH}:/opt/rocm/bin"
@@ -77,4 +79,4 @@ ENV PATH "${PATH}:/opt/rocm/bin"
 #    echo "alias gdb='gdb --tui'\n" >> ~/.bashrc
 
 # Default to a login shell
-CMD ["/bin/sh", "/usr/local/bin/start-dbus.sh" ]
+CMD ["bash", "-l"]

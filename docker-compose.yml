@@ -1,14 +1,12 @@
-version: '3'
-
 services:
   # The following defines application containers, which depend on the data-only
   # containers defined above to provide their software layers
   # These should be run with `docker-compose run --rm <application-service>`
   base:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}
       args:
         ROCM_VERSION: ${ROCM_VERSION}
         AMDGPU_VERSION: ${AMDGPU_VERSION}
@@ -19,10 +17,10 @@ services:
       - /tmp
 
   hip:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-hip
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-hip
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-hip
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-hip
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -33,10 +31,10 @@ services:
       - /tmp
 
   hip-sdk:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-hip-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-hip-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-hip-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-hip-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -47,10 +45,10 @@ services:
       - /tmp
 
   ml:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-ml
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-ml
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-ml
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-ml
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -61,10 +59,10 @@ services:
       - /tmp
 
   ml-sdk:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-ml-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-ml-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-ml-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-ml-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -75,10 +73,10 @@ services:
       - /tmp
 
   opencl:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-opencl
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-opencl
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-opencl
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-opencl
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -89,10 +87,10 @@ services:
       - /tmp
 
   opencl-sdk:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-opencl-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-opencl-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-opencl-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-opencl-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -103,10 +101,10 @@ services:
       - /tmp
 
   openmp-sdk:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-openmp-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-openmp-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-openmp-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-openmp-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -117,10 +115,10 @@ services:
       - /tmp
 
   complete:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-complete
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-complete
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-complete
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-complete
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -131,10 +129,10 @@ services:
       - /tmp
 
   complete-sdk:
-    image: rocm/dev-${OS_VARIANT:-ubuntu-22.04}:${ROCM_VERSION:-latest}-complete-sdk
+    image: rocm/dev-${OS_VARIANT:-ubuntu-24.04}:${ROCM_VERSION:-latest}-complete-sdk
     build:
       context: ./dev
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-complete-sdk
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-complete-sdk
       args:
         OS_VARIANT: ${OS_VARIANT}
         ROCM_VERSION: ${ROCM_VERSION}
@@ -145,10 +143,10 @@ services:
       - /tmp
 
   term:
-    image: rocm/rocm-terminal:${ROCM_VERSION:-latest}
+    image: rocm/rocm-terminal:${ROCM_VERSION:-latest}-${OS_VARIANT:-ubuntu-24.04}
     build:
       context: ./rocm-terminal
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}
       args:
         ROCM_VERSION: ${ROCM_VERSION}
         TERM_FLAVOR: ${TERM_FLAVOR:-complete-sdk}
@@ -160,15 +158,15 @@ services:
 #   tmpfs:
 #     - /tmp
     volumes:
-      - ~/venv:/home/rocm-user/venv
-      - /home/src:/home/rocm-user/src
+      - ~/venv:/home/${USER_NAME:-rocm-user}/venv
+      - ~/src:/home/${USER_NAME:-rocm-user}/src
       - /tmp:/tmp
 
   xterm:
-    image: rocm/rocm-terminal:${ROCM_VERSION:-latest}-x11
+    image: rocm/rocm-terminal:${ROCM_VERSION:-latest}-${OS_VARIANT:-ubuntu-24.04}-x11
     build:
       context: ./rocm-terminal
-      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-22.04}-x11
+      dockerfile: Dockerfile-${OS_VARIANT:-ubuntu-24.04}-x11
       args:
         ROCM_VERSION: ${ROCM_VERSION}
         TERM_FLAVOR: ${XTERM_FLAVOR:-complete}
@@ -192,5 +190,5 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /run/user/${UID:-1000}/pulse/native:/tmp/pulse/native
       - ~/.config/pulse/cookie:/tmp/pulse/cookie:ro
-      - ~/venv:/home/rocm-user/venv
-      - ~/src:/home/rocm-user/src
+      - ~/venv:/home/${USER_NAME:-rocm-user}/venv
+      - ~/src:/home/${USER_NAME:-rocm-user}/src

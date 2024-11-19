@@ -12,6 +12,7 @@
 
 ARG ROCM_VERSION=6.1
 ARG TERM_FLAVOR
+ARG USER_NAME=rocm-user
 
 FROM rocm/dev-ubuntu-20.04:${ROCM_VERSION}${TERM_FLAVOR}
 
@@ -37,17 +38,17 @@ RUN apt-get clean \
 COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 
 # This is meant to be used as an interactive developer container
-# Create user rocm-user as member of sudo group
+# Create user $USER_NAME as member of sudo group
 # Append /opt/rocm/bin to the system PATH variable
 RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
     if [ -z "$RENDER_GID" ]; then \
-      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash rocm-user; \
+      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash $USER_NAME; \
     else \
       groupadd -g $RENDER_GID render; \
-      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash rocm-user; \
+      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash $USER_NAME; \
     fi
-USER rocm-user
-WORKDIR /home/rocm-user
+USER $USER_NAME
+WORKDIR /home/$USER_NAME
 ENV PATH "${PATH}:/opt/rocm/bin"
 
 # The following are optional enhancements for the command-line experience

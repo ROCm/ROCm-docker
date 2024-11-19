@@ -10,13 +10,14 @@
 # If it is desired to run the container manually through the docker command-line, the following is an example
 # 'docker run -it --rm -v [host/directory]:[container/directory]:ro <user-name>/<project-name>'.
 
-ARG ROCM_VERSION=6.1
+ARG ROCM_VERSION=6.2
 ARG TERM_FLAVOR
 
 FROM rocm/dev-ubuntu-22.04:${ROCM_VERSION}${TERM_FLAVOR}
 
 ARG UID
 ARG RENDER_GID
+ARG USER_NAME=rocm-user
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
@@ -39,17 +40,17 @@ RUN apt-get clean \
 COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 
 # This is meant to be used as an interactive developer container
-# Create user rocm-user as member of sudo group
+# Create user $USER_NAME as member of sudo group
 # Append /opt/rocm/bin to the system PATH variable
 RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
     if [ -z "$RENDER_GID" ]; then \
-      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash rocm-user; \
+      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash $USER_NAME; \
     else \
       groupadd -g $RENDER_GID render; \
-      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash rocm-user; \
+      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash $USER_NAME; \
     fi
-USER rocm-user
-WORKDIR /home/rocm-user
+USER $USER_NAME
+WORKDIR /home/$USER_NAME
 ENV PATH "${PATH}:/opt/rocm/bin"
 
 # The following are optional enhancements for the command-line experience

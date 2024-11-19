@@ -13,7 +13,7 @@
 ARG ROCM_VERSION=6.2
 ARG TERM_FLAVOR
 
-FROM rocm/dev-ubuntu-22.04:${ROCM_VERSION}${TERM_FLAVOR}
+FROM rocm/dev-ubuntu-24.04:${ROCM_VERSION}${TERM_FLAVOR}
 
 ARG UID
 ARG RENDER_GID
@@ -27,16 +27,6 @@ RUN apt-get update \
   vim-nox \
   less \
   python3-venv
-
-# This is meant to be used as an interactive developer container
-# Create user $USER_NAME as member of sudo group
-RUN UID_ADD=; [ -z "$UID" ] || UID_ADD="-u $UID"; \
-    if [ -z "$RENDER_GID" ]; then \
-      useradd --create-home $UID_ADD -G sudo,video --shell /bin/bash $USER_NAME; \
-    else \
-      groupadd -g $RENDER_GID render; \
-      useradd --create-home $UID_ADD -G sudo,video,render --shell /bin/bash $USER_NAME; \
-    fi
 
 # Modify to pre-install X11 related tools and user space drivers
 # These packages are installed after render group has been added
@@ -59,6 +49,26 @@ RUN apt-get clean \
 # Grant members of 'sudo' group passwordless privileges
 # Comment out to require sudo
 COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
+
+# This is meant to be used as an interactive developer container
+# Create user $USER_NAME or rename existing "ubuntu" user
+RUN if [ -n "$RENDER_GID" ]; then \
+        CUR_RENDER_GID=$(getent group render | cut --delimiter ':' --fields 3); \
+        if [ $RENDER_GID -ne $CUR_RENDER_GID ]; then \
+            groupmod -g $RENDER_GID render; \
+        fi; \
+    fi; \
+    if [ -n "$UID" ]; then \
+        if [ "$UID" -eq 1000 ]; then \
+            usermod -l $USER_NAME ubuntu; \
+            usermod -md /home/$USER_NAME $USER_NAME; \
+            usermod -aG render $USER_NAME; \
+        else \
+            useradd --create-home -u $UID -G sudo,video,render --shell /bin/bash $USER_NAME; \
+        fi; \
+    else \
+        useradd --create-home -G sudo,video,render --shell /bin/bash $USER_NAME; \
+    fi
 
 # Make startup script to launch dbus for user session
 COPY start-dbus.sh /usr/local/bin

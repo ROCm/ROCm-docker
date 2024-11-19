@@ -1,7 +1,7 @@
 # This dockerfile is meant to serve as a rocm base image.
 # It registers the debian rocm package repository, and installs the rocm-language-runtime package.
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # Register the ROCM package repository, and install rocm-dev package
 ARG ROCM_VERSION=6.2
@@ -11,8 +11,8 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl gnupg \
   && curl -sL https://repo.radeon.com/rocm/rocm.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/rocm.gpg \
-  && echo "deb [arch=amd64] https://repo.radeon.com/rocm/apt/$ROCM_VERSION jammy main" | tee /etc/apt/sources.list.d/rocm.list \
-  && echo "deb [arch=amd64] https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/ubuntu jammy main" | tee /etc/apt/sources.list.d/amdgpu.list \
+  && echo "deb [arch=amd64] https://repo.radeon.com/rocm/apt/$ROCM_VERSION noble main" | tee /etc/apt/sources.list.d/rocm.list \
+  && echo "deb [arch=amd64] https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/ubuntu noble main" | tee /etc/apt/sources.list.d/amdgpu.list \
   && DEBIAN_FRONTEND=noninteractive apt-get purge -y curl gnupg \
   && DEBIAN_FRONTEND=noninteractive apt-get --purge -y autoremove
 COPY rocm-pin-600 /etc/apt/preferences.d/
@@ -20,7 +20,7 @@ COPY rocm-pin-600 /etc/apt/preferences.d/
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   sudo \
-  libelf1 \
+  libelf1t64 \
   kmod \
   file \
   python3 \
