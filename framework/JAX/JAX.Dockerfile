@@ -1,20 +1,20 @@
-FROM ubuntu:22.04  
-  
-# Install prerequisite packages  
-RUN apt update && apt install -y wget gnupg2 software-properties-common  
-  
-# Download and install the AMDGPU package that sets up the repository  
-RUN wget http://artifactory-cdn.amd.com/artifactory/list/amdgpu-deb/amdgpu-install-internal_6.3-22.04-1_all.deb \  
-    && apt install -y ./amdgpu-install-internal_6.3-22.04-1_all.deb \  
-    && rm -f amdgpu-install-internal_6.3-22.04-1_all.deb  
-  
-# Set up the AMDGPU and ROCm repositories and install ROCm  
-RUN amdgpu-repo --amdgpu-build=2074281 --rocm-build=compute-rocm-rel-6.3/20 \  
-    && apt update -y \  
-    && amdgpu-install -y --usecase=rocm  
+FROM ubuntu:24.04
 
-# Install JAX Wheel packages  
-RUN pip3 install --no-cache-dir https://compute-artifactory.amd.com/artifactory/compute-pytorch-rocm/compute-rocm-rel-6.3/20/jaxlib-0.4.31-cp310-cp310-manylinux_2_28_x86_64.whl 
-  
-# Adjust final path for ability to use ROCm components  
-ENV PATH=$PATH:/opt/rocm/bin/  
+ARG ROCM_VERSION=6.3
+ARG AMDGPU_VERSION=6.3.60300
+ARG JAX_VERSION=0.4.31
+ARG PYTHON_VERSION=cp312-cp312
+
+#Prequisite packages to begin getting files
+RUN apt update && apt install -y wget gnupg2 software-properties-common  
+
+#Aquire and install ROCm
+RUN wget https://repo.radeon.com/amdgpu-install/$ROCM_VERSION/ubuntu/jammy/amdgpu-install_$AMDGPU_VERSION-1_all.deb
+RUN apt install -y ./*.deb
+RUN amdgpu-install --usecase=rocm -y && rm *.deb
+
+##Install JAX
+RUN pip3 install https://repo.radeon.com/rocm/manylinux/rocm-rel-$ROCM_VERSION/jaxlib-$JAX_VERSION-$PYTHON_VERSION-manylinux_2_28_x86_64.whl
+
+##Adjust final path for ability to use rocm components
+ENV PATH=$PATH:/opt/rocm/bin/
