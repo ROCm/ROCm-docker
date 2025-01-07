@@ -29,6 +29,8 @@ RUN apt-get update \
   cmake-curses-gui \
   python3-pip \
   python3-venv \
+  python3-yaml \
+  python3-argcomplete \
   libgulkan-dev \
   libplacebo-dev \
   rocm-developer-tools
