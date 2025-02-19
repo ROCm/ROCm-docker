@@ -3,10 +3,6 @@ LABEL maintainer=dl.mlsedevops@amd.com
 
 ARG ROCM_VERSION=5.3
 ARG AMDGPU_VERSION=5.3
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 45a1082 (external to internal pull)
 
 # Note: This is required patch since CentOS have reached EOL
 # otherwise any yum install setp will fail
@@ -14,11 +10,6 @@ RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 
-<<<<<<< HEAD
-=======
->>>>>>> 9e149e9 (release-6.1.2)
-=======
->>>>>>> 45a1082 (external to internal pull)
 # Base
 RUN yum -y install git java-1.8.0-openjdk python; yum clean all
 
@@ -87,10 +78,6 @@ RUN yum clean all
 # On CentOS, install package centos-release-scl available in CentOS repository:
 RUN yum install -y centos-release-scl
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 45a1082 (external to internal pull)
 # Note: This is required patch since CentOS have reached EOL
 # otherwise any yum install setup will fail
 # Needed here again because above step adds new repo entries
@@ -98,11 +85,6 @@ RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
 RUN sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 
-<<<<<<< HEAD
-=======
->>>>>>> 9e149e9 (release-6.1.2)
-=======
->>>>>>> 45a1082 (external to internal pull)
 # Install the devtoolset-7 collection:
 RUN yum install -y devtoolset-7
 RUN yum install -y devtoolset-7-libatomic-devel devtoolset-7-elfutils-libelf-devel
@@ -110,7 +92,7 @@ RUN yum install -y devtoolset-7-libatomic-devel devtoolset-7-elfutils-libelf-dev
 # Install the ROCm rpms
 RUN yum clean all
 RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=https://repo.radeon.com/rocm/yum/$ROCM_VERSION/main\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/rocm.repo
-RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/rhel/7/main/x86_64\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/amdgpu.repo
+RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDGPU_VERSION/rhel/7.9/main/x86_64\nenabled=1\ngpgcheck=0" >> /etc/yum.repos.d/amdgpu.repo
 
 RUN yum install -y rocm-dev rocm-libs
 
