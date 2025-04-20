@@ -1,11 +1,11 @@
 FROM ubuntu:22.04
 
-ARG ROCM_VERSION=6.2
-ARG AMDGPU_VERSION=6.2.60200
-ARG ONNX_VERSION=1.18.0
-ARG triton_version=2.2.0
-ARG torchvision_version=0.17.1
-ARG torch_version=2.2.1
+ARG ROCM_VERSION=6.4
+ARG AMDGPU_VERSION=6.4.60400
+ARG ONNX_VERSION=1.21.0
+ARG triton_version=3.2.0
+ARG torchvision_version=0.21.0
+ARG torch_version=2.6.0
 ARG PYTHON_VERSION=cp310-cp310
 ARG PREFIX=/usr/local
 

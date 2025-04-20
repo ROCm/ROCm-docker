@@ -1,22 +1,16 @@
-ROCM_VERSION=6.3.1
-AMDGPU_VERSION=6.3.1
+ROCM_VERSION=6.4
+AMDGPU_VERSION=6.4
 
 cp -r scripts rocm-terminal
 cp -r scripts dev
 
 # build rocm-terminal
 cd rocm-terminal/
-sudo docker build . -f Dockerfile -t rocm/rocm-terminal:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
+sudo docker build . -f Dockerfile -t rocm/rocm-terminal:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION --build-arg=APT_PREF="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600"
 sudo docker tag rocm/rocm-terminal:$ROCM_VERSION rocm/rocm-terminal:latest
 
 # build dev dockers
 cd ../dev
-# centos-7
-sudo docker build . -f Dockerfile-centos-7 -t rocm/dev-centos-7:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION  --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
-sudo docker tag rocm/dev-centos-7:$ROCM_VERSION rocm/dev-centos-7:latest
-
-# centos-7 complete
-sudo docker build . -f Dockerfile-centos-7-complete -t rocm/dev-centos-7:$ROCM_VERSION-complete --build-arg=ROCM_VERSION=$ROCM_VERSION  --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
 
 # manylinux2014_x86_64
 sudo docker build . -f Dockerfile-manylinux2014_x86_64 -t rocm/dev-manylinux2014_x86_64:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION  --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION

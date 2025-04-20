@@ -1,4 +1,4 @@
-ROCM_VERSION=6.3.1
+ROCM_VERSION=6.4
 
 # ubuntu 20.04 base
 docker push rocm/dev-ubuntu-20.04:$ROCM_VERSION
@@ -11,10 +11,6 @@ docker push rocm/dev-ubuntu-22.04:latest
 ## ubuntu 24.04 base
 docker push rocm/dev-ubuntu-24.04:$ROCM_VERSION
 docker push rocm/dev-ubuntu-24.04:latest
-
-# centos base
-docker push rocm/dev-centos-7:$ROCM_VERSION
-docker push rocm/dev-centos-7:latest
 
 # rocm terminal base 
 docker push rocm/rocm-terminal:$ROCM_VERSION
@@ -31,10 +27,7 @@ docker push rocm/dev-ubuntu-20.04:$ROCM_VERSION-complete
 docker push rocm/dev-ubuntu-22.04:$ROCM_VERSION-complete
 
 ## ubuntu24.04 complete
-#docker push rocm/dev-ubuntu-24.04:$ROCM_VERSION-complete
-
-# centos complete
-docker push rocm/dev-centos-7:$ROCM_VERSION-complete
+docker push rocm/dev-ubuntu-24.04:$ROCM_VERSION-complete
 
 # almalinux8 complete
 docker push rocm/dev-almalinux-8:$ROCM_VERSION-complete

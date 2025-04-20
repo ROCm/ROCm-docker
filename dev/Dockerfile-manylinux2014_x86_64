@@ -3,8 +3,8 @@ LABEL maintainer=dl.mlsedevops@amd.com
 
 #NOTE: manylinux image already has devtoolset installed
 
-ARG ROCM_VERSION=5.4.2
-ARG AMDGPU_VERSION=5.4.2
+ARG ROCM_VERSION=6.4
+ARG AMDGPU_VERSION=6.4
 
 # Install the ROCm rpms
 RUN yum clean all

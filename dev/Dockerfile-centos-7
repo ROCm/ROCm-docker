@@ -1,8 +1,8 @@
 FROM centos:7
 LABEL maintainer=dl.mlsedevops@amd.com
 
-ARG ROCM_VERSION=5.3
-ARG AMDGPU_VERSION=5.3
+ARG ROCM_VERSION=6.2.4
+ARG AMDGPU_VERSION=6.2.4
 
 # Note: This is required patch since CentOS have reached EOL
 # otherwise any yum install setup will fail
