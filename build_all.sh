@@ -6,7 +6,7 @@ cp -r scripts dev
 
 # build rocm-terminal
 cd rocm-terminal/
-sudo docker build . -f Dockerfile -t rocm/rocm-terminal:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
+sudo docker build . -f Dockerfile -t rocm/rocm-terminal:$ROCM_VERSION --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION --build-arg=APT_PREF="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600"
 sudo docker tag rocm/rocm-terminal:$ROCM_VERSION rocm/rocm-terminal:latest
 
 # build dev dockers
