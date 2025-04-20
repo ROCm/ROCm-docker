@@ -1,9 +1,9 @@
 FROM ubuntu:24.04  
   
-ARG ROCM_VERSION=6.3.1
-ARG AMDGPU_VERSION=6.3.60301
-ARG JAX_VERSION=0.4.31  
-ARG PYTHON_VERSION=cp312-cp312  
+ARG ROCM_VERSION=6.4
+ARG AMDGPU_VERSION=6.4.60400
+ARG JAX_VERSION=0.4.35
+ARG PYTHON_VERSION=cp312-cp312
   
 #Prequisite packages
 RUN apt update && apt install -y wget gnupg2 software-properties-common python3-pip python3-venv  
