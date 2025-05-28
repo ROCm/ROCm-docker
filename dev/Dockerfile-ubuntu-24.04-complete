@@ -5,8 +5,8 @@ FROM ubuntu:24.04
 LABEL maintainer=dl.mlsedevops@amd.com
 
 # Register the ROCM package repository, and install rocm-dev package
-ARG ROCM_VERSION=6.4
-ARG AMDGPU_VERSION=6.4
+ARG ROCM_VERSION=6.4.1
+ARG AMDGPU_VERSION=6.4.1
 
 ARG APT_PREF
 RUN echo "$APT_PREF" > /etc/apt/preferences.d/rocm-pin-600

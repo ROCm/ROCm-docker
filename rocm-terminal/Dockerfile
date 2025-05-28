@@ -15,8 +15,8 @@ LABEL maintainer=dl.mlsedevops@amd.com
 
 # Initialize the image
 # Modify to pre-install dev tools and ROCm packages
-ARG ROCM_VERSION=6.4
-ARG AMDGPU_VERSION=6.4
+ARG ROCM_VERSION=6.4.1
+ARG AMDGPU_VERSION=6.4.1
 
 ARG APT_PREF
 RUN echo "$APT_PREF" > /etc/apt/preferences.d/rocm-pin-600
