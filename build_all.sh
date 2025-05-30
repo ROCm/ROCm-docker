@@ -33,6 +33,14 @@ sudo docker build . -f Dockerfile-ubuntu-22.04-complete -t rocm/dev-ubuntu-22.04
 # almalinux8 complete (for manylinux2_28 builds)
 sudo docker build . -f Dockerfile-almalinux-8-complete -t rocm/dev-almalinux-8:$ROCM_VERSION-complete --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
 
+## rockylinux8
+sudo docker build . -f Dockerfile-rockylinux-8 -t rocm/dev-rockylinux-8:$ROCM_VERSION  --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
+sudo docker tag rocm/dev-rockylinux-8:$ROCM_VERSION rocm/dev-rockylinux-8:latest
+
+## rockylinux8-complete
+sudo docker build . -f Dockerfile-rockylinux-8-complete -t rocm/dev-rockylinux-8:$ROCM_VERSION-complete  --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION
+sudo docker tag rocm/dev-rockylinux-8:$ROCM_VERSION-complete rocm/dev-rockylinux-8:latest-complete
+
 ## ubuntu24.04
 sudo docker build . -f Dockerfile-ubuntu-24.04 -t rocm/dev-ubuntu-24.04:$ROCM_VERSION  --build-arg=ROCM_VERSION=$ROCM_VERSION --build-arg=AMDGPU_VERSION=$AMDGPU_VERSION --build-arg=APT_PREF="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600"
 sudo docker tag rocm/dev-ubuntu-24.04:$ROCM_VERSION rocm/dev-ubuntu-24.04:latest
