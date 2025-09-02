@@ -75,8 +75,7 @@ RUN yum install -y epel-release && \
       gcc-toolset-12-gcc-c++ \
       gcc-toolset-12-gcc-gfortran \
       gcc-toolset-12-libatomic-devel \
-      gcc-toolset-12-libstdc++-devel \
-      gcc-toolset-12-elfutils-libelf-devel && \
+      gcc-toolset-12-libstdc++-devel && \
     yum clean all
 
 # Install ROCm repo paths
