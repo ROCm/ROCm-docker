@@ -66,9 +66,18 @@ RUN yum -y install \
 RUN yum install -y fakeroot
 RUN yum clean all
 
-# Install devtoolset 11
-RUN yum install -y gcc-toolset-11
-RUN yum install -y gcc-toolset-11-libatomic-devel gcc-toolset-11-elfutils-libelf-devel
+# Install GCC toolset 12 (following proven manylinux pattern)
+RUN yum install -y epel-release && \
+    yum remove -y gcc-toolset* && \
+    yum install -y \
+      gcc-toolset-12-binutils \
+      gcc-toolset-12-gcc \
+      gcc-toolset-12-gcc-c++ \
+      gcc-toolset-12-gcc-gfortran \
+      gcc-toolset-12-libatomic-devel \
+      gcc-toolset-12-libstdc++-devel \
+      gcc-toolset-12-elfutils-libelf-devel && \
+    yum clean all
 
 # Install ROCm repo paths
 RUN echo -e "[ROCm]\nname=ROCm\nbaseurl=https://repo.radeon.com/rocm/rhel8/$ROCM_VERSION/main\nenabled=1\ngpgcheck=0\npriority=50" >> /etc/yum.repos.d/rocm.repo
@@ -81,14 +90,20 @@ RUN echo -e "[amdgpu]\nname=amdgpu\nbaseurl=https://repo.radeon.com/amdgpu/$AMDG
 
 RUN yum install -y rocm-dev rocm-libs
 
-# Set ENV to enable devtoolset9 by default
-ENV PATH=/opt/rh/gcc-toolset-11/root/usr/bin:/opt/rocm/bin:${PATH:+:${PATH}}
-ENV MANPATH=/opt/rh/gcc-toolset-11/root/usr/share/man:${MANPATH}
-ENV INFOPATH=/opt/rh/gcc-toolset-11/root/usr/share/info:${INFOPATH:+:${INFOPATH}}
-ENV PCP_DIR=/opt/rh/gcc-toolset-11/root
-ENV PERL5LIB=/opt/rh/gcc-toolset-11/root/usr/lib64/perl5/vendor_perl
-ENV LD_LIBRARY_PATH=/opt/rocm/lib:/usr/local/lib:/opt/rh/gcc-toolset-11/root/lib:/opt/rh/gcc-toolset-11/root/lib64:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+# Set ENV to enable GCC toolset 12 (following proven manylinux pattern)
+ENV LIBRARY_PATH=""
+ENV PATH="/opt/rh/gcc-toolset-12/root/usr/bin:/opt/rocm/bin:${PATH}"
+ENV LIBRARY_PATH="/opt/rh/gcc-toolset-12/root/usr/lib64:${LIBRARY_PATH}"
+ENV LD_LIBRARY_PATH="/opt/rocm/lib:/usr/local/lib:/opt/rh/gcc-toolset-12/root/usr/lib64:${LD_LIBRARY_PATH}"
+ENV MANPATH="/opt/rh/gcc-toolset-12/root/usr/share/man:${MANPATH}"
+ENV INFOPATH="/opt/rh/gcc-toolset-12/root/usr/share/info:${INFOPATH:+:${INFOPATH}}"
+ENV PCP_DIR="/opt/rh/gcc-toolset-12/root"
+ENV PERL5LIB="/opt/rh/gcc-toolset-12/root/usr/lib64/perl5/vendor_perl"
 
-# ENV PYTHONPATH=/opt/rh/gcc-toolset-11/root/
+# ENV PYTHONPATH=/opt/rh/gcc-toolset-12/root/
 
-ENV LDFLAGS="-Wl,-rpath=/opt/rh/gcc-toolset-11/root/usr/lib64 -Wl,-rpath=/opt/rh/gcc-toolset-11/root/usr/lib"
+ENV LDFLAGS="-Wl,-rpath=/opt/rh/gcc-toolset-12/root/usr/lib64 -Wl,-rpath=/opt/rh/gcc-toolset-12/root/usr/lib"
+
+# Verify GCC installation (following manylinux pattern)
+RUN which gcc && gcc --version && \
+    which g++ && g++ --version
