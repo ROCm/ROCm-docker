@@ -50,6 +50,48 @@ COPY sudo-nopasswd /etc/sudoers.d/sudo-nopasswd
 RUN useradd --create-home -G sudo,video --shell /bin/bash rocm-user
 #    sed --in-place=.rocm-backup 's|^\(PATH=.*\)"$|\1:/opt/rocm/bin"|' /etc/environment
 
+# Install Python 3
+RUN apt-get update \
+  && apt-get install -y python3-pip python3-dev python3-numpy\
+  && pip3 install --upgrade pip
+
+# Install OpenCV dependencies
+RUN apt-get install -y \
+	build-essential \
+	cmake \
+	qt5-default \
+	libvtk6-dev \
+	zlib1g-dev \
+	libjpeg-dev \
+	libwebp-dev \
+	libpng-dev \
+	libswscale-dev \
+	libtheora-dev \
+	libvorbis-dev \
+	libxvidcore-dev \
+	libx264-dev \
+	yasm \
+	libopencore-amrnb-dev \
+	libv4l-dev \
+	libxine2-dev \
+	libtbb-dev \
+	libeigen3-dev \
+	doxygen
+
+# Install OpenCV
+RUN git clone --depth 1 https://github.com/opencv/opencv.git /root/opencv && \
+	cd /root/opencv && \
+	mkdir build && \
+	cd build && \
+	cmake -DWITH_QT=ON -DWITH_OPENGL=ON -DFORCE_VTK=ON -DWITH_TBB=ON -DWITH_GDAL=ON -DWITH_XINE=ON -DBUILD_EXAMPLES=ON .. && \
+	make -j"$(nproc)"  && \
+	make install && \
+	ldconfig && \
+	echo 'ln /dev/null /dev/raw1394' >> ~/.bashrc
+
+# Install ROCm Tensorflow
+RUN apt-get install -y rocm-libs miopen-hip cxlactivitylogger && pip3 install tensorflow-rocm
+
 USER rocm-user
 WORKDIR /home/rocm-user
 ENV PATH "${PATH}:/opt/rocm/bin"
