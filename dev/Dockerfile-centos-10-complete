@@ -1,0 +1,37 @@
+# This dockerfile is meant to serve as a rocm base image.
+# It registers the CentOS stream package repository, and
+# installs the rocm-dev package.
+#
+# How to build container image?
+# $ podman build -f dev/Dockerfile-centos-10-complete -t rocm/dev-centos-10-stream
+#
+# How to run the container?
+# $ podman run --rm -it \
+#      --name centos-10-stream-rocm \
+#      --hostname centos-10-stream-rocm \
+#      --device=/dev/kfd --device=/dev/dri --group-add video \
+#      rocm/dev-centos-10-stream:latest bash
+
+FROM centos/centos:stream10
+
+ARG ROCM_VERSION=7.1.1
+ARG AMDGPU_VERSION=7.1.1
+
+LABEL maintainer=dl.mlsedevops@amd.com
+LABEL ROCM_VERSION=$ROCM_VERSION
+LABEL AMDGPU_VERSION=$AMDGPU_VERSION
+
+WORKDIR /work
+
+# Base
+RUN dnf update -y
+RUN dnf install -y https://repo.radeon.com/amdgpu-install/7.1.1/rhel/10/amdgpu-install-7.1.1.70101-1.el10.noarch.rpm
+
+RUN dnf install -y epel-release python3-setuptools python3-pip-wheel.noarch
+RUN crb enable
+RUN usermod -a -G render,video root
+
+RUN dnf install -y rocm rocm-developer-tools
+RUN dnf clean all
+
+CMD ["/usr/bin/bash", "-l"]
